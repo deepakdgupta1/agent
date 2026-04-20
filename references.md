@@ -10,4 +10,5 @@ https://github.com/continuedev/continue
 https://github.com/openai/codex
 https://github.com/anthropics/claude-code
 
+https://www.anthropic.com/engineering/managed-agents
 https://github.com/OpenInterpreter/open-interpreter
