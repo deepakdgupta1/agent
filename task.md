@@ -19,7 +19,7 @@
 
 ### Task 0: Create Folder Structure and Foundational Meta Files
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 
 **Objective:** Create the complete `docs/` folder tree, and populate the three meta-files (`architectural_hierarchy.md` v0, `agent_registry.md`, `glossary.md`) with initial content. Create stub files for every document in the tree with a standard template header.
 
@@ -60,11 +60,11 @@
   ```
 
 **ACCEPTANCE CRITERIA:**
-- [ ] All 10 directories exist under `docs/` (including `_research/`)
-- [ ] All 33 files exist (3 meta + 30 module docs)
-- [ ] `architectural_hierarchy.md` contains v0 with 7 original levels mapped to the 8 `docs/` modules
-- [ ] `agent_registry.md` contains all 13 agents with correct tags
-- [ ] Every stub file contains the 7-section template header
+- [x] All 10 directories exist under `docs/` (including `_research/`)
+- [x] All 33 files exist (3 meta + 30 module docs)
+- [x] `architectural_hierarchy.md` contains v0 with 7 original levels mapped to the 8 `docs/` modules
+- [x] `agent_registry.md` contains all 13 agents with correct tags
+- [x] Every stub file contains the 7-section template header
 
 ---
 
@@ -72,7 +72,7 @@
 
 ### Task 1: Aider — Research Core Loop, Context Engine & Edit Formats
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Perform a deep-dive into Aider's architecture. Research its core agentic loop, repo-map system (tree-sitter + PageRank), edit format strategies (whole/diff/udiff/search-replace), git-native workflow, and architect/editor multi-model pattern. Produce a structured research report as an intermediate artifact.
@@ -108,7 +108,7 @@
 
 ### Task 2: BabyAGI — Research Full Architecture
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Perform a complete architectural analysis of BabyAGI. As the simplest agent in the set, this establishes the minimal viable agent loop that all other agents extend.
@@ -139,7 +139,7 @@
 
 ### Task 3: Phase 1 Synthesis — Populate Docs from Aider + BabyAGI Research
 
-- `[ ]` **Status: Not Started**
+- `[/]` **Status: In Progress**
 - **DEPENDS ON:** Task 1, Task 2
 
 **Objective:** Using the two research reports as input, populate the `docs/` module files with initial content. Create the first real version of every document that Aider or BabyAGI contributes to. Evolve `architectural_hierarchy.md` to v1. All content must include `[AIDER]` and `[BABYAGI]` attribution tags.
