@@ -1,5 +1,5 @@
 # Agentic Loop
-> Module: 01_core_loop | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 01_core_loop | Status: Phase 3 | Last Agent: Codex Synthesis
 
 ## 1. Overview
 An agentic loop is the repeatable control structure that accepts work, gathers context, invokes a model, applies or records the result, and decides whether another pass is needed.
@@ -7,6 +7,8 @@ An agentic loop is the repeatable control structure that accepts work, gathers c
 [AIDER] uses an interactive code-edit loop: user input is preprocessed, prompt chunks are assembled, the model response is parsed into edits or tool-like shell suggestions, file updates are applied, optional git commits are made, and failures can be reflected into another model pass.
 
 [BABYAGI] uses a minimal objective-driven task loop: pop one task from an in-memory queue, execute it with an LLM prompt, store the result in vector memory, create new tasks, reprioritize the queue, and repeat until the queue is empty.
+
+[CODEX] uses a **sandbox-constrained, queue-mediated loop** driven by a Submission/Event protocol pair (`codex-rs/protocol/src/protocol.rs`). UI front-ends submit `Op` values onto a Submission Queue (SQ); the `core` crate emits `EventMsg` values on an Event Queue (EQ). One user request arrives as `Op::UserTurn`, opens a single active turn, and runs cycles of *(Responses-API stream → tool-call dispatch → safety gate + sandbox orchestration → tool result back into history)* until the model emits a final assistant message with no further tool calls and the turn closes with `EventMsg::TurnComplete`. The defining invariants are: (1) only the OpenAI **Responses API** is used (no Chat Completions branch in `core/src/client.rs`), with a WebSocket-primary / HTTP-SSE fallback transport that pins to HTTP after `UPGRADE_REQUIRED`; (2) every shell command and `apply_patch` flows through `core/src/safety.rs` / `core/src/exec_policy.rs` and the per-OS sandbox dispatcher in `codex-rs/sandboxing/src/manager.rs` before execution (see [sandboxing.md](../07_permissions_and_governance/sandboxing.md)); (3) **approval is a wire-protocol round-trip**, not an in-process callback — the loop emits `EventMsg::ExecApprovalRequest` / `EventMsg::ApplyPatchApprovalRequest` and parks until `Op::ExecApproval { id, turn_id, decision }` / `Op::PatchApproval { id, decision }` arrives, which lets the same `core` crate drive a TUI, headless `exec`, MCP-server-as-Codex, and IDE/app-server front-ends.
 
 [CLAUDE] uses a tool-use loop driven by a single canonical entry point — `ConversationRuntime::run_turn(user_input, prompter)` (claw-code: `rust/crates/runtime/src/conversation.rs:314`). One user turn enters the loop, and the loop iterates `(LLM call → tool-use detection → permission gate → tool execution → tool-result injection)` until the assistant produces a response with **zero** `ToolUse` content blocks. That zero-tool-use response is the **termination condition** (`conversation.rs:396-398`). The loop is bounded by `max_iterations` (default `usize::MAX`) and followed by an optional auto-compaction pass (`conversation.rs:181, 502, 690-704`).
 
@@ -21,7 +23,7 @@ Core loop contract:
 | Model call | Routed through model settings and edit format [AIDER]; centralized `openai_call()` helper for prompt functions [BABYAGI]; `ApiClient::stream(request) -> Vec<AssistantEvent>` reduced into one assistant message per iteration [CLAUDE]. |
 | Result handling | Parse edits, apply updates, commit, lint/test, reflect on failures [AIDER]; save execution result, create tasks, reprioritize tasks [BABYAGI]; for every `ContentBlock::ToolUse` block, run pre-hook → permission gate → tool executor → post-hook → append `ContentBlock::ToolResult` to the session [CLAUDE]. |
 | Loop continuation | Reflected messages trigger up to three additional passes [AIDER]; remaining queued tasks trigger the next iteration [BABYAGI]; non-empty `pending_tool_uses` triggers another iteration; an empty list breaks the loop [CLAUDE]. |
-| Post-loop | None [AIDER]; queue exhausted [BABYAGI]; `maybe_auto_compact()` may rewrite the session if cumulative `input_tokens >= CLAUDE_CODE_AUTO_COMPACT_INPUT_TOKENS` (default `100_000`) [CLAUDE]. |
+| Post-loop | None [AIDER]; queue exhausted [BABYAGI]; `maybe_auto_compact()` may rewrite the session if cumulative `input_tokens >= CLAUDE_CODE_AUTO_COMPACT_INPUT_TOKENS` (default `100_000`) [CLAUDE]; `EventMsg::TurnComplete` emitted; auto-compaction via `core/src/compact.rs` may run when the next request would breach the input-token cap, replacing older history with a Memento-style summary plus the most recent user messages up to `COMPACT_USER_MESSAGE_MAX_TOKENS = 20_000`; pre-compaction history retained as `ghost_snapshots` so `Op::Undo` can rewind across the boundary [CODEX]. |
 
 ## 3. Logic Flow
 1. Accept the next unit of work.
@@ -34,6 +36,20 @@ Core loop contract:
 [AIDER] treats malformed edits, file discovery, lint failures, and test failures as possible `reflected_message` inputs, with confirmation gates for lint and test repair.
 
 [BABYAGI] treats task execution as text production, then lets task creation and prioritization prompts mutate the future queue.
+
+[CODEX] treats each iteration as a Responses-API streaming round followed by sandbox-aware dispatch. The per-iteration sequence is:
+1. **`Op::UserTurn` arrives** on the SQ; `Session` appends the user message; AGENTS.md / `AGENTS.override.md` content (root → leaf, joined under `--- project-doc ---`, capped at `project_doc_max_bytes`) is injected into instructions if not already current (`core/src/agents_md.rs`).
+2. **`build_responses_request()`** assembles `model`, `instructions`, `input` (full conversation), `tools` (via `create_tools_json_for_responses_api`), `reasoning` (effort + summary), `verbosity`, and optional `output_schema`.
+3. **`client.stream`** opens WebSocket (or HTTP-SSE fallback) and reduces frames into `AgentMessageContentDelta` text and `function_call` items. `EventMsg::AgentMessage*` events stream to UI.
+4. **If no tool calls** → emit `EventMsg::TurnComplete`, end task.
+5. **For each tool call**, the orchestrator (`core/src/tools/orchestrator.rs`) runs the safety gate:
+   - For `apply_patch`: `safety.rs::assess_patch_safety(action, AskForApproval, SandboxPolicy, fs_policy, cwd, windows_sandbox_level)` → `AutoApprove { sandbox_type } | AskUser | Reject`.
+   - For shell-family tools: `exec_policy.rs` builds `ExecApprovalRequirement`, also yielding auto-approve / ask / reject branches.
+6. **On `AskUser`**: emit `EventMsg::ExecApprovalRequest` / `ApplyPatchApprovalRequest` and **park the turn** until matching `Op::ExecApproval { id, turn_id, decision }` / `Op::PatchApproval { id, decision }` lands on the SQ. `ReviewDecision` may be `Approved | ApprovedForSession | ApprovedExecpolicyAmendment | NetworkPolicyAmendment | Denied | TimedOut | Abort`.
+7. **On `AutoApprove(sandbox_type=<platform>)`**: dispatch via `codex-rs/sandboxing/src/manager.rs` to Seatbelt (macOS), `codex-linux-sandbox` helper + `bwrap` + seccomp re-entry (Linux), or restricted-token + Job Object (Windows). On `AutoApprove(sandbox_type=None)` (i.e. `DangerFullAccess` / `ExternalSandbox`): spawn directly.
+8. **Capture** stdout/stderr/exit + sandbox-denial heuristics. On denial, depending on `AskForApproval`, optionally emit a no-sandbox-retry approval prompt.
+9. **Append** structured `tool_result` (or `EventMsg::McpToolCall{Begin,End}` for MCP) to history; loop back to step 2.
+10. **Mid-task auto-compaction** may trigger between iterations when the next request would exceed the input-token cap; uses `InitialContextInjection::BeforeLastUserMessage` so AGENTS.md content sits immediately above the live query in the rebuilt history.
 
 [CLAUDE] treats every assistant response as either "final text" or "more tool-use." The detailed per-iteration sequence is:
 1. **Pre-turn health probe**: if `session.compaction.is_some()`, run `run_session_health_probe`; abort the turn on probe failure (`conversation.rs:295-326`).
@@ -74,6 +90,38 @@ flowchart TD
     Persist -.-> AiderNote
     Persist -.-> BabyNote
     Persist -.-> ClaudeNote
+```
+
+[CODEX] pattern, expanded:
+```mermaid
+flowchart TD
+    A[Op::UserTurn arrives on SQ] --> B[Session appends user msg + AGENTS.md merge]
+    B --> C[build_responses_request: instructions, input, tools, reasoning]
+    C --> D[client.stream — WS primary, HTTP-SSE fallback]
+    D --> E[Reduce SSE/WS frames → AgentMessageContentDelta + function_call items]
+    E --> F{tool_calls?}
+    F -- no --> Z[Emit TurnComplete; end task]
+    F -- yes --> G[safety/exec_policy gate]
+    G -- AutoApprove sandbox_type=Platform --> Mgr[sandboxing::manager dispatch]
+    G -- AutoApprove sandbox_type=None --> Direct[spawn unsandboxed]
+    G -- AskUser --> Park[Emit Approval*Request EventMsg; park turn]
+    G -- Reject --> Synth[Synth tool_result error]
+    Park --> Wait{Op::ExecApproval / Op::PatchApproval on SQ}
+    Wait -- Approved --> Mgr
+    Wait -- Denied / Abort / TimedOut --> Synth
+    Mgr -- macOS --> SB[sandbox-exec + SBPL profile]
+    Mgr -- Linux --> Helper[codex-linux-sandbox: bwrap + seccomp re-entry]
+    Mgr -- Windows --> WD[Restricted token + Job Object]
+    SB --> Run
+    Helper --> Run
+    WD --> Run
+    Direct --> Run[Run command / apply_patch]
+    Run --> Cap[Capture stdout/stderr/exit + denial heuristics]
+    Cap --> RetryQ{Sandbox denial + retry-eligible policy?}
+    RetryQ -- yes --> RetryAsk[Prompt no-sandbox retry] --> Wait
+    RetryQ -- no --> Append[Append tool_result to history]
+    Synth --> Append
+    Append --> C
 ```
 
 [CLAUDE] pattern, expanded:
@@ -173,6 +221,8 @@ sequenceDiagram
 | Full-file/edit-protocol loop [AIDER] | Enables direct code modification with scoped files. | Requires parser-specific prompts and failure handling. |
 | Text-result loop [BABYAGI] | Minimal implementation and easy to inspect. | No first-class tools, verification, or edit application. |
 | Tool-use protocol loop [CLAUDE] | Structured `ToolUse`/`ToolResult` blocks make the loop boundary self-evident — the LLM decides termination by emitting text-only. | Sequential tool dispatch in the harness (no in-iteration parallelism); model can stall in long tool-use chains; needs hook + permission machinery to be safe. |
+| Sandbox-constrained, queue-mediated loop [CODEX] | Approval, compaction, MCP, realtime, undo are *observable* SQ/EQ messages, so the same `core` crate drives TUI, headless `exec`, MCP-server, and IDE/app-server unchanged. Sandbox is composed *under* approval; `Never` does not mean "unsandboxed." | Two-dimensional configuration surface (`AskForApproval × SandboxPolicy`); harder to reason about than a single mode flag. WebSocket↔HTTP fallback adds transport state. Approval round-trip latency is bounded by IPC, not in-process callback time. |
+| Responses-API-only, freeform `apply_patch` [CODEX] | Tool calls are first-class `function_call` items; `apply_patch` is a freeform-grammar tool whose payload is the patch text itself, not JSON. Multi-file, multi-action edits in one call. | Locked to OpenAI Responses API — no provider portability the way Aider gets through LiteLLM; freeform-grammar tool requires GPT-5-style model support, with a JSON-`{ "input": string }` fallback for older models. |
 | Iteration cap [CLAUDE] | `with_max_iterations` lets callers bound runaway tool chains (`conversation.rs:192`). | Default of `usize::MAX` (`conversation.rs:181`) means callers must opt-in to a cap; runaway is theoretically possible. |
 | Post-turn auto-compaction [CLAUDE] | The loop never compacts mid-turn — only after termination — so tool-result correlation is preserved. | A single turn that crosses the threshold cannot be rescued mid-flight; the next turn carries the compaction marker and must pass the health probe. |
 
@@ -182,3 +232,4 @@ sequenceDiagram
 | [AIDER] | Interactive coding loop with input preprocessing, context chunks, model call, edit parsing, file application, git checkpoints, and optional lint/test reflection. |
 | [BABYAGI] | Objective loop with task deque, execution prompt, vector result storage, task creation prompt, prioritization prompt, and queue replacement. |
 | [CLAUDE] | `ConversationRuntime::run_turn` tool-use protocol loop with health probe, single system-prompt assembly, per-iteration message-cloning, `Vec<AssistantEvent>` reduction, hook + permission gating, file-based tool-result injection, configurable iteration cap, and post-turn auto-compaction. |
+| [CODEX] | Submission/Event queue-mediated loop where approval is a wire-protocol round-trip (`Op::ExecApproval` / `Op::PatchApproval` ↔ `EventMsg::ExecApprovalRequest` / `EventMsg::ApplyPatchApprovalRequest`); single-turn-per-session active runtime; Responses-API-only client (`core/src/client.rs`) with WebSocket-primary + HTTP-SSE fallback; `function_call`-shaped tool dispatch; safety gate (`core/src/safety.rs`) returning `AutoApprove { sandbox_type } | AskUser | Reject` for `apply_patch`; per-OS sandbox dispatcher (`sandboxing/src/manager.rs`) layered *under* the approval policy; AGENTS.md root-→-leaf injection joined under `--- project-doc ---`; Memento-style auto-compaction at the next-request token cap with `InitialContextInjection::BeforeLastUserMessage` and `ghost_snapshots` for `Op::Undo`; `EventMsg::TurnComplete` as terminal signal. |

@@ -2,7 +2,7 @@
 > Module: 05_action_and_tools | Status: Phase 2 | Last Agent: Claude Code Synthesis
 
 ## 1. Overview
-Tool architecture describes the full lifecycle of a tool from declaration to invocation: how a tool is defined, advertised to the model, gated by permissions, dispatched, and how its result is fed back into the loop. This document specifies the [CLAUDE] tool architecture as the Phase 2 reference; later phases will add Codex's autonomy-gated tools, Cline's per-action approval, AutoGPT's plugin system, and Open Interpreter's REPL execution surface.
+Tool architecture describes the full lifecycle of a tool from declaration to invocation: how a tool is defined, advertised to the model, gated by permissions, dispatched, and how its result is fed back into the loop. This document specifies the [CLAUDE] tool architecture as the Phase 2 reference; later phases will add Codex's autonomy-gated tools, Cline's per-action approval, AutoGPT's plugin system, OpenCode's TUI-driven tool surface, and Pi Agent's tool-calling runtime.
 
 [CLAUDE] tool architecture is a **typed-spec registry** (`GlobalToolRegistry`) plus a **runtime executor** (`ToolExecutor` trait), connected through the agentic loop's permission gate. The model sees tool definitions as structured JSON schemas via Anthropic's native `tools` field, not as text in the system prompt; tool calls arrive as `ContentBlock::ToolUse { id, name, input }` blocks; tool results are appended as `ContentBlock::ToolResult { tool_use_id, tool_name, output, is_error }` blocks correlated by `tool_use_id` (claw-code: `rust/crates/runtime/src/conversation.rs:375-499`; `session.rs:18-25, 38-43`).
 
@@ -158,4 +158,4 @@ sequenceDiagram
 | --- | --- |
 | [CLAUDE] | `ToolSpec { name, description, input_schema, required_permission }` declaration shape; `GlobalToolRegistry` three-source composition (50 built-ins + plugins + runtime MCP); `ToolExecutor::execute` async trait; `CliToolExecutor` runtime/MCP-first dispatch order; `MessageRequest.tools` + `tool_choice: Auto` provider-native delivery; snake_case canonical names + alias resolution at `--allowedTools` boundary; `ContentBlock::ToolUse` / `ContentBlock::ToolResult` correlation via `tool_use_id`. |
 
-> [AIDER]'s edit-format-as-tools (whole/diff/udiff/search-replace) is documented in `code_modification.md`; [BABYAGI] has no first-class tool layer and is intentionally absent from this module. Phase 6's [AUTOGPT] plugin pattern and [OI]'s REPL surface will extend this document.
+> [AIDER]'s edit-format-as-tools (whole/diff/udiff/search-replace) is documented in `code_modification.md`; [BABYAGI] has no first-class tool layer and is intentionally absent from this module. Phase 5's [OPENCODE] TUI-driven tool surface, Phase 6's [AUTOGPT] plugin pattern, and [PI]'s tool-calling runtime will extend this document.

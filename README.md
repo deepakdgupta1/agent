@@ -4,7 +4,7 @@
 
 > **Architecting the Next Generation of Agentic Systems.**
 
-A comprehensive, modular, and technically deep documentation suite defining the functional and technical architecture of modern AI agents. This blueprint is being synthesized from source-backed analysis of 13 reference agents (Aider, Claude Code, Open Interpreter, etc.) to create a unified, high-fidelity specification for agentic behavior.
+A comprehensive, modular, and technically deep documentation suite defining the functional and technical architecture of modern AI agents. This blueprint is being synthesized from source-backed analysis of 14 reference agents (Aider, Claude Code, OpenCode, Pi Agent, etc.) to create a unified, high-fidelity specification for agentic behavior.
 
 ---
 
@@ -42,7 +42,8 @@ This project reverse-engineers the following agents to populate the blueprint:
 | :--- | :--- | :--- |
 | **Aider** | [Aider-AI/aider](https://github.com/Aider-AI/aider) | Repo-maps, Edit formats, Architect/Editor pattern |
 | **Claude Code** | [anthropics/claude-code](https://github.com/anthropics/claude-code) | Advanced Tool-use, Permission models, MCP |
-| **Open Interpreter** | [OI/open-interpreter](https://github.com/OpenInterpreter/open-interpreter) | OS-level execution, Stateful REPLs |
+| **OpenCode** | [anomalyco/opencode](https://github.com/anomalyco/opencode) | TUI agent, Client/Server architecture, Built-in agent personas |
+| **Pi Agent** | [badlogic/pi-mono](https://github.com/badlogic/pi-mono) | Modular agent runtime, Unified multi-LLM API, Tool-calling architecture |
 | **Cline** | [cline/cline](https://github.com/cline/cline) | IDE-embedded loops, Browser automation |
 | **Roo Code** | [RooCodeInc/Roo-Code](https://github.com/RooCodeInc/Roo-Code) | Agentic Modes (Persona switching), Boomerang orchestration |
 | **Codex** | [openai/codex](https://github.com/openai/codex) | Sandbox-first architecture, Autonomy levels |
@@ -65,8 +66,8 @@ The blueprint is developed through a series of phased synthesis passes. Monitori
 - [ ] **Phase 2: Claude Code** — Research complete; synthesis pending.
 - [ ] **Phase 3: OpenAI Codex** — Sandboxing & Autonomy.
 - [ ] **Phase 4: Cline + Roo Code** — IDEs & Multi-agent modes.
-- [ ] **Phase 5: Kilo Code** — Checkpoints & Diffs.
-- [ ] **Phase 6: AutoGPT + Open Interpreter** — Autonomous loops & REPLs.
+- [ ] **Phase 5: Kilo Code + OpenCode** — Checkpoints, Diffs & TUI agents.
+- [ ] **Phase 6: AutoGPT + Pi Agent** — Autonomous loops & modular runtimes.
 - [ ] **Phase 7: Specialist Agents** — Final integration Pass.
 - [ ] **Phase 8: Quality Assurance** — Final review and cross-referencing.
 

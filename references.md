@@ -5,7 +5,8 @@
 - Aider: https://github.com/Aider-AI/aider
 - Claude Code: https://github.com/anthropics/claude-code (context only; Phase 2 source-backed audit uses local `claw-code/` at `a389f8dff1d591d2eafc2f48747313cd556412ee`)
 - OpenAI Codex: https://github.com/openai/codex
-- Open Interpreter: https://github.com/OpenInterpreter/open-interpreter
+- OpenCode: https://github.com/anomalyco/opencode
+- Pi Agent: https://github.com/badlogic/pi-mono
 
 ## IDE and Editor Agents
 

@@ -26,7 +26,7 @@
 
 ## 1. Goal
 
-Produce a modular, technically deep documentation suite (`docs/`) that represents the **functional and technical super-set** of capabilities across 13 reference agents. The output will serve as a "Master Blueprint" for designing a next-generation AI agent, grounded in reverse-engineered implementation details rather than marketing abstractions.
+Produce a modular, technically deep documentation suite (`docs/`) that represents the **functional and technical super-set** of capabilities across 14 reference agents. The output will serve as a "Master Blueprint" for designing a next-generation AI agent, grounded in reverse-engineered implementation details rather than marketing abstractions.
 
 ---
 
@@ -47,7 +47,7 @@ Produce a modular, technically deep documentation suite (`docs/`) that represent
 
 ## 3. Reference Agents (from `references.md`)
 
-The reference set contains 13 agents organized by archetype:
+The reference set contains 14 agents organized by archetype:
 
 | # | Agent | Archetype | Key Differentiators for Analysis |
 |---|---|---|---|
@@ -59,14 +59,15 @@ The reference set contains 13 agents organized by archetype:
 | 6 | **Kilo Code** | IDE-embedded agentic platform | Task-based workflows, checkpoint/diff system, file-level permissions, OpenRouter-first multi-provider |
 | 7 | **AutoGPT** | Autonomous goal-seeking agent | Goal decomposition → task queue, plugin ecosystem, long-running autonomous loops, memory via vector stores |
 | 8 | **BabyAGI** | Minimal task-driven agent plus current function framework | Classic archive: task creation → prioritization → execution loop, vector DB context; current repo: functionz database, triggers, dashboard, self-building function packs |
-| 9 | **Open Interpreter** | Natural language OS interface | System-level code execution (Python/JS/Shell), streaming output, conversational stateful REPL |
-| 10 | **Continue** | IDE coding assistant framework | AI checks in CI, source-controlled rules, provider-agnostic, context providers, slash commands |
-| 11 | **Hermes Agent** | Self-improving agent framework | "Agent that grows with you", Nous Research model-centric, tool-use with function calling |
-| 12 | **OpenClaw** | Cross-platform personal assistant | Multi-OS agent, platform-agnostic interface, broad tool surface |
-| 13 | **Zed** | Editor with integrated AI agent | Native editor-embedded agent, inline assist, terminal integration, multi-LLM |
+| 9 | **OpenCode** | Terminal-based TUI coding agent | Client/server architecture, built-in agent personas (build/plan), multi-provider support, plugin/extension ecosystem |
+| 10 | **Pi Agent** | Modular coding agent runtime | Monorepo architecture (core/CLI/AI/TUI), tool-calling runtime, unified multi-LLM API, terminal UI |
+| 11 | **Continue** | IDE coding assistant framework | AI checks in CI, source-controlled rules, provider-agnostic, context providers, slash commands |
+| 12 | **Hermes Agent** | Self-improving agent framework | "Agent that grows with you", Nous Research model-centric, tool-use with function calling |
+| 13 | **OpenClaw** | Cross-platform personal assistant | Multi-OS agent, platform-agnostic interface, broad tool surface |
+| 14 | **Zed** | Editor with integrated AI agent | Native editor-embedded agent, inline assist, terminal integration, multi-LLM |
 
 > [!NOTE]
-> Zed is included as a 13th reference despite being primarily an editor — its agent integration pattern provides unique insights into editor-native AI architecture.
+> Zed is included as a 14th reference despite being primarily an editor — its agent integration pattern provides unique insights into editor-native AI architecture.
 
 ---
 
@@ -184,8 +185,8 @@ The analysis order is designed to build complexity progressively, starting with 
 | **Phase 2 — Claude Code** | **Claude Code** | Adds tool-use loop, memory, hooks, sub-agents, MCP, and permissions. |
 | **Phase 3 — OpenAI Codex** | **OpenAI Codex** | Adds sandbox-first architecture and autonomy levels. |
 | **Phase 4 — IDE-Embedded** | **Cline**, **Roo Code** | Reveals IDE integration, browser tools, human approval gates, mode systems, and Boomerang orchestration. |
-| **Phase 5 — Kilo Code** | **Kilo Code** | Adds checkpoint/diff workflows and task-based IDE agent patterns. |
-| **Phase 6 — Autonomous/OS** | **AutoGPT**, **Open Interpreter** | Adds long-running goal decomposition and system-level execution patterns. |
+| **Phase 5 — Kilo Code + OpenCode** | **Kilo Code**, **OpenCode** | Adds checkpoint/diff workflows, task-based IDE agent patterns, TUI agent architecture, and client/server model. |
+| **Phase 6 — Autonomous** | **AutoGPT**, **Pi Agent** | Adds long-running goal decomposition and modular agent runtimes. |
 | **Phase 7 — Specialist** | **Continue**, **Hermes Agent**, **OpenClaw**, **Zed** | Adds CI integration, model-specific tuning, cross-platform patterns, and editor-native AI coupling. |
 
 ---
@@ -226,7 +227,8 @@ Each agent will be assigned a short tag used throughout the documentation:
 | `[KILO]` | Kilo Code |
 | `[AUTOGPT]` | AutoGPT |
 | `[BABYAGI]` | BabyAGI |
-| `[OI]` | Open Interpreter |
+| `[OPENCODE]` | OpenCode |
+| `[PI]` | Pi Agent |
 | `[CONTINUE]` | Continue |
 | `[HERMES]` | Hermes Agent |
 | `[OPENCLAW]` | OpenClaw |
@@ -282,8 +284,8 @@ For each agent, I will:
 | Phase 2 | Claude Code | ~10 major updates + framework v2 | Sub-agent patterns, hooks, MCP, permissions |
 | Phase 3 | Codex | ~6 major updates + framework v3 | Sandbox architecture, autonomy levels |
 | Phase 4 | Cline, Roo Code | ~8 major updates + framework v4 | IDE integration patterns, mode systems, browser tools |
-| Phase 5 | Kilo Code | ~5 major updates + framework v5 | Checkpoint/diff workflows, task lifecycle patterns |
-| Phase 6 | AutoGPT, Open Interpreter | ~6 major updates + framework v6 | Autonomous loops, OS-level execution, goal decomposition |
+| Phase 5 | Kilo Code, OpenCode | ~8 major updates + framework v5 | Checkpoint/diff workflows, task lifecycle patterns, TUI agent architecture |
+| Phase 6 | AutoGPT, Pi Agent | ~6 major updates + framework v6 | Autonomous loops, modular runtimes, goal decomposition |
 | Phase 7 | Continue, Hermes, OpenClaw, Zed | ~5 updates + framework v_FINAL | CI integration, model routing, editor-native patterns |
 | Finalization | — | Cross-reference review | Final `architectural_hierarchy.md` v_FINAL, complete attribution |
 

@@ -10,7 +10,8 @@
 | `[ROO]` | Roo Code | https://github.com/RooCodeInc/Roo-Code | IDE-embedded multi-persona agent | Phase 4 | Not Started |
 | `[KILO]` | Kilo Code | https://github.com/Kilo-Org/kilocode | IDE-embedded agentic platform | Phase 5 | Not Started |
 | `[AUTOGPT]` | AutoGPT | https://github.com/significant-gravitas/autogpt | Autonomous goal-seeking agent | Phase 6 | Not Started |
-| `[OI]` | Open Interpreter | https://github.com/OpenInterpreter/open-interpreter | Natural language OS interface | Phase 6 | Not Started |
+| `[OPENCODE]` | OpenCode | https://github.com/anomalyco/opencode | Terminal-based TUI coding agent | Phase 5 | Not Started |
+| `[PI]` | Pi Agent | https://github.com/badlogic/pi-mono | Modular coding agent runtime | Phase 6 | Not Started |
 | `[CONTINUE]` | Continue | https://github.com/continuedev/continue | IDE coding assistant framework | Phase 7 | Not Started |
 | `[HERMES]` | Hermes Agent | https://github.com/NousResearch/hermes-agent | Self-improving agent framework | Phase 7 | Not Started |
 | `[OPENCLAW]` | OpenClaw | https://github.com/openclaw/openclaw | Cross-platform personal assistant | Phase 7 | Not Started |

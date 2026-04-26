@@ -139,7 +139,7 @@
 
 ### Task 3: Phase 1 Synthesis — Populate Docs from Aider + BabyAGI Research
 
-- `[/]` **Status: In Progress**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 1, Task 2
 
 **Objective:** Using the two research reports as input, populate the `docs/` module files with initial content. Create the first real version of every document that Aider or BabyAGI contributes to. Evolve `architectural_hierarchy.md` to v1. All content must include `[AIDER]` and `[BABYAGI]` attribution tags.
@@ -285,7 +285,7 @@
 
 ### Task 7: OpenAI Codex — Research Full Architecture
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Analyze OpenAI Codex CLI's architecture with focus on its unique sandbox-first approach, the `codex-rs` Rust CLI, and autonomy level system.
@@ -314,7 +314,7 @@
 
 ### Task 8: Phase 3 Synthesis — Integrate Codex into Docs
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 6, Task 7
 
 **Objective:** Using the Codex research report, update relevant `docs/` module files. Codex's primary contributions are the sandbox architecture and autonomy levels. Evolve `architectural_hierarchy.md` to v3.
@@ -432,7 +432,7 @@
 
 ---
 
-## Phase 5: Kilo Code
+## Phase 5: Kilo Code + OpenCode
 
 ### Task 12: Kilo Code — Research Task Workflows & Checkpoints
 
@@ -463,15 +463,45 @@
 
 ---
 
-### Task 13: Phase 5 Synthesis — Integrate Kilo Code into Docs
+### Task 15: OpenCode — Research TUI Agent Architecture & Client/Server Model
 
 - `[ ]` **Status: Not Started**
-- **DEPENDS ON:** Task 11, Task 12
+- **DEPENDS ON:** Task 0
 
-**Objective:** Using the Kilo Code research report, update relevant `docs/` module files. Kilo Code's primary contributions are the checkpoint/diff system, task lifecycle management, and file-level permissions. Evolve `architectural_hierarchy.md` to v5.
+**Objective:** Analyze OpenCode's architecture focusing on its terminal-based TUI, client/server model, built-in agent personas (build, plan), and multi-provider support.
+
+**INPUTS:**
+- `docs/00_meta/agent_registry.md`
+
+**RESEARCH SOURCES:**
+- **Local Repository:** `./opencode/` (Primary: core agent loop, TUI implementation, client/server architecture, and built-in agent definitions)
+- **Official Site:** https://opencode.ai (Secondary)
+
+**OUTPUTS:**
+- `docs/_research/opencode_research.md` — Structured report:
+  1. **Core Loop**: The TUI-driven agentic loop — user input → agent selection → LLM call → tool execution → result display.
+  2. **Client/Server Architecture**: How the client/server model works, separation of concerns, communication protocol.
+  3. **Built-in Agents**: The `build` (development) and `plan` (exploration) agent personas, their tool subsets and behavioral constraints.
+  4. **Multi-Provider Support**: How multiple AI model providers are supported and configured.
+  5. **Plugin/Extension System**: How the agent can be extended with plugins, themes, and custom tools.
+
+**ACCEPTANCE CRITERIA:**
+- [ ] Core loop shows the full TUI-driven execution pipeline
+- [ ] Client/server section covers the architectural separation and communication
+- [ ] Built-in agents section contrasts with Roo Code's mode system and Claude Code's sub-agents
+
+---
+
+### Task 13: Phase 5 Synthesis — Integrate Kilo Code + OpenCode into Docs
+
+- `[ ]` **Status: Not Started**
+- **DEPENDS ON:** Task 11, Task 12, Task 15
+
+**Objective:** Using the Kilo Code and OpenCode research reports, update relevant `docs/` module files. Kilo Code's primary contributions are the checkpoint/diff system, task lifecycle management, and file-level permissions. OpenCode contributes TUI agent architecture, client/server model, built-in agent personas, and plugin/extension patterns. Evolve `architectural_hierarchy.md` to v5.
 
 **INPUTS:**
 - `docs/_research/kilo_code_research.md` (Task 12)
+- `docs/_research/opencode_research.md` (Task 15)
 - ALL current files in `docs/01_*` through `docs/08_*` (state after Task 11)
 - `docs/00_meta/architectural_hierarchy.md` v4
 
@@ -479,17 +509,23 @@
 - `docs/06_orchestration/task_lifecycle.md` — Populate with Kilo Code's checkpoint/diff system (was a stub).
 - `docs/07_permissions_and_governance/permission_model.md` — Add Kilo Code's file-level permissions alongside existing models.
 - `docs/02_cognition/model_routing.md` — Add Kilo Code's OpenRouter multi-provider routing alongside Aider's architect/editor strategy.
-- `docs/00_meta/architectural_hierarchy.md` — Evolve to **v5** if warranted.
+- `docs/01_core_loop/agentic_loop.md` — Add OpenCode's TUI-driven loop as an additional pattern.
+- `docs/05_action_and_tools/command_execution.md` — Add OpenCode's TUI-driven command execution.
+- `docs/05_action_and_tools/extensibility.md` — Add OpenCode's plugin/extension architecture alongside MCP patterns.
+- `docs/06_orchestration/workflow_modes.md` — Add OpenCode's built-in agent personas (build/plan) alongside Roo Code's mode system.
+- `docs/08_user_interaction/output_formatting.md` — Add OpenCode's TUI rendering (was a stub).
+- `docs/00_meta/architectural_hierarchy.md` — Evolve to **v5**.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] All files updated with `[KILO]` tagged content
+- [ ] All files updated with `[KILO]` and `[OPENCODE]` tagged content
 - [ ] `task_lifecycle.md` is now populated with checkpoint/diff patterns
 - [ ] `permission_model.md` now has three distinct permission paradigms documented
-- [ ] `architectural_hierarchy.md` v5 reflects any changes
+- [ ] OpenCode's TUI loop and agent personas are documented
+- [ ] `architectural_hierarchy.md` v5 reflects changes from both agents
 
 ---
 
-## Phase 6: AutoGPT + Open Interpreter
+## Phase 6: AutoGPT + Pi Agent
 
 ### Task 14: AutoGPT — Research Goal Decomposition & Autonomous Loops
 
@@ -522,66 +558,66 @@
 
 ---
 
-### Task 15: Open Interpreter — Research OS-Level Execution & REPL
+### Task 15b: Pi Agent — Research Agent Runtime & Tool-Calling Architecture
 
 - `[ ]` **Status: Not Started**
 - **DEPENDS ON:** Task 0
 
-**Objective:** Analyze Open Interpreter's architecture focusing on its unique OS-level code execution model, stateful REPL, and streaming output.
+**Objective:** Analyze Pi Agent's architecture focusing on its modular monorepo structure, agent runtime with tool-calling, unified multi-LLM API, and terminal UI.
 
 **INPUTS:**
 - `docs/00_meta/agent_registry.md`
 
 **RESEARCH SOURCES:**
-- **Local Repository:** `./open-interpreter/` (Primary: core interpreter loop, REPL handlers, and multi-language runtimes)
-- **Technical Guide:** https://docs.openinterpreter.com (Secondary)
+- **Local Repository:** `./pi-mono/` (Primary: `pi-agent-core` runtime, `pi-coding-agent` CLI, `pi-ai` multi-LLM API, and `pi-tui` terminal UI)
+- **Documentation:** Pi Agent README and package documentation (Secondary)
 
 **OUTPUTS:**
-- `docs/_research/open_interpreter_research.md` — Structured report:
-  1. **Core Loop**: The conversational REPL — message → LLM generates code → user approval → code execution → output capture → feedback to LLM.
-  2. **Code Execution**: Multi-language execution (Python, JavaScript, Shell), how each runtime is managed.
-  3. **Safety Model**: Code review before execution, safe mode vs. unrestricted mode.
-  4. **Streaming Architecture**: How output is streamed in real-time during code execution.
-  5. **Stateful REPL**: How state persists across turns (variables, imports, environment) within a session.
+- `docs/_research/pi_agent_research.md` — Structured report:
+  1. **Core Loop**: The interactive coding agent loop — user input → LLM selection → tool-calling → result feedback.
+  2. **Monorepo Architecture**: The `pi-agent-core`, `pi-coding-agent`, `pi-ai`, and `pi-tui` package separation and responsibilities.
+  3. **Tool-Calling Runtime**: How tools are defined, registered, and invoked within `pi-agent-core`.
+  4. **Unified Multi-LLM API**: How `pi-ai` abstracts multiple LLM providers behind a single interface.
+  5. **Terminal UI**: How `pi-tui` provides the interactive coding experience.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Core loop shows the full code-generation-to-execution pipeline
-- [ ] Code execution section covers multi-language runtime management
-- [ ] Safety model section contrasts with Codex's sandbox and Claude Code's permissions
+- [ ] Core loop shows the full tool-calling pipeline
+- [ ] Monorepo section describes the package boundaries and data flow
+- [ ] Multi-LLM API section contrasts with Aider's multi-model and Kilo Code's OpenRouter approach
 
 ---
 
-### Task 16: Phase 6 Synthesis — Integrate AutoGPT + Open Interpreter into Docs
+### Task 16: Phase 6 Synthesis — Integrate AutoGPT + Pi Agent into Docs
 
 - `[ ]` **Status: Not Started**
-- **DEPENDS ON:** Task 13, Task 14, Task 15
+- **DEPENDS ON:** Task 13, Task 14, Task 15b
 
-**Objective:** Using the AutoGPT and Open Interpreter research reports, update all relevant `docs/` module files. Evolve `architectural_hierarchy.md` to v6.
+**Objective:** Using the AutoGPT and Pi Agent research reports, update all relevant `docs/` module files. Evolve `architectural_hierarchy.md` to v6.
 
 **INPUTS:**
 - `docs/_research/autogpt_research.md` (Task 14)
-- `docs/_research/open_interpreter_research.md` (Task 15)
+- `docs/_research/pi_agent_research.md` (Task 15b)
 - ALL current files in `docs/01_*` through `docs/08_*` (state after Task 13)
 - `docs/00_meta/architectural_hierarchy.md` v5
 
 **OUTPUTS (update):**
-- `docs/01_core_loop/agentic_loop.md` — Add AutoGPT's autonomous loop and OI's REPL loop as additional patterns.
+- `docs/01_core_loop/agentic_loop.md` — Add AutoGPT's autonomous loop as an additional pattern.
 - `docs/02_cognition/task_decomposition.md` — Add AutoGPT's goal decomposition alongside BabyAGI's.
 - `docs/02_cognition/reasoning_patterns.md` — Add AutoGPT's self-critique and evaluation patterns.
+- `docs/02_cognition/model_routing.md` — Add Pi Agent's unified multi-LLM API alongside existing routing patterns.
 - `docs/04_memory/episodic_memory.md` — Populate with AutoGPT's execution trace memory (was a stub).
 - `docs/04_memory/semantic_memory.md` — Add AutoGPT's vector store patterns alongside BabyAGI's.
-- `docs/05_action_and_tools/tool_architecture.md` — Add AutoGPT's plugin interface.
-- `docs/05_action_and_tools/command_execution.md` — Add Open Interpreter's multi-language REPL execution.
-- `docs/05_action_and_tools/extensibility.md` — Add AutoGPT's plugin system alongside MCP patterns.
-- `docs/07_permissions_and_governance/safety_guardrails.md` — Populate with OI's safe mode, AutoGPT's budget limits (was a stub).
-- `docs/08_user_interaction/output_formatting.md` — Populate with OI's streaming architecture (was a stub).
+- `docs/05_action_and_tools/tool_architecture.md` — Add AutoGPT's plugin interface, Pi Agent's tool-calling runtime.
+- `docs/05_action_and_tools/extensibility.md` — Add AutoGPT's plugin system alongside MCP and OpenCode extension patterns.
+- `docs/07_permissions_and_governance/safety_guardrails.md` — Populate with AutoGPT's budget limits (was a stub).
+- `docs/08_user_interaction/output_formatting.md` — Add Pi Agent's terminal UI alongside OpenCode's TUI rendering.
 - `docs/00_meta/architectural_hierarchy.md` — Evolve to **v6**.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] All files updated with `[AUTOGPT]` and `[OI]` tagged content
+- [ ] All files updated with `[AUTOGPT]` and `[PI]` tagged content
 - [ ] `agentic_loop.md` now contains multiple distinct loop patterns
 - [ ] `safety_guardrails.md` is populated as a first-class document
-- [ ] `extensibility.md` now has two paradigms: MCP (protocol-based) and plugins (code-based)
+- [ ] `extensibility.md` now has three paradigms: MCP (protocol-based), plugins (code-based), and OpenCode extensions
 - [ ] `architectural_hierarchy.md` v6 documents changes from v5
 
 ---
@@ -701,14 +737,16 @@ flowchart TD
     T10 --> T11
     
     T0 --> T12[T12: Kilo Code Research]:::research
+    T0 --> T15[T15: OpenCode Research]:::research
     T11 --> T13[T13: Phase 5 Synthesis]:::synthesis
     T12 --> T13
+    T15 --> T13
     
     T0 --> T14[T14: AutoGPT Research]:::research
-    T0 --> T15[T15: Open Interpreter Research]:::research
+    T0 --> T15b[T15b: Pi Agent Research]:::research
     T13 --> T16[T16: Phase 6 Synthesis]:::synthesis
     T14 --> T16
-    T15 --> T16
+    T15b --> T16
     
     T0 --> T17[T17: Specialist Research]:::research
     T16 --> T18[T18: Phase 7 Synthesis]:::synthesis
@@ -736,8 +774,8 @@ Research tasks that share no dependencies can run in parallel within their group
 | **Group B** | Task 4 + Task 5 | Phase 2 |
 | **Group C** | Task 7 *(runs alone)* | Phase 3 |
 | **Group D** | Task 9 + Task 10 | Phase 4 |
-| **Group E** | Task 12 *(runs alone)* | Phase 5 |
-| **Group F** | Task 14 + Task 15 | Phase 6 |
+| **Group E** | Task 12 + Task 15 | Phase 5 |
+| **Group F** | Task 14 + Task 15b | Phase 6 |
 | **Group G** | Task 17 *(runs alone)* | Phase 7 |
 
 > [!WARNING]
@@ -752,11 +790,11 @@ Research tasks that share no dependencies can run in parallel within their group
 
 | Metric | Value |
 |---|---|
-| Total tasks | 20 (Task 0 through Task 19) |
+| Total tasks | 21 (Task 0 through Task 19, including Task 15b) |
 | Phases | 8 (including scaffolding and QA) |
-| Research tasks | 11 |
+| Research tasks | 12 |
 | Synthesis tasks | 7 (strictly sequential — forms the critical path) |
 | Scaffolding tasks | 1 |
 | QA tasks | 1 |
-| Total output files | 30 module docs + 4 meta docs + 11 research reports = 45 files |
+| Total output files | 30 module docs + 4 meta docs + 12 research reports = 46 files |
 | Hierarchy versions | v0 → v1 → v2 → v3 → v4 → v5 → v6 → vFINAL |
