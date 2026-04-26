@@ -343,7 +343,7 @@
 
 ### Task 9: Cline — Research Full Architecture
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Analyze Cline's architecture — the original IDE-embedded autonomous coding agent. Focus on its human-in-the-loop per-action approval model, browser automation, MCP client, and tool system.
@@ -365,9 +365,9 @@
   6. **Context Management**: How Cline handles file context in the IDE environment.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Human-in-the-loop section describes the exact approval flow with UI states
-- [ ] Browser automation section covers the Puppeteer integration at implementation level
-- [ ] Tool system section catalogs all available tools with their parameters
+- [x] Human-in-the-loop section describes the exact approval flow with UI states
+- [x] Browser automation section covers the Puppeteer integration at implementation level
+- [x] Tool system section catalogs all available tools with their parameters
 
 ---
 

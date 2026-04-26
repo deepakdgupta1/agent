@@ -6,7 +6,7 @@
 | `[BABYAGI]` | BabyAGI Classic + Current | https://github.com/yoheinakajima/babyagi_archive / https://github.com/yoheinakajima/babyagi | Minimal task-driven agent baseline; current functionz delta | Phase 1 | Analyzed |
 | `[CLAUDE]` | Claude Code / claw-code | https://github.com/anthropics/claude-code | Terminal-native agentic coder | Phase 2 | Analyzed |
 | `[CODEX]` | OpenAI Codex | https://github.com/openai/codex | Sandboxed cloud agent | Phase 3 | Not Started |
-| `[CLINE]` | Cline | https://github.com/cline/cline | IDE-embedded autonomous agent | Phase 4 | Not Started |
+| `[CLINE]` | Cline | https://github.com/cline/cline | IDE-embedded autonomous agent | Phase 4 | Analyzed |
 | `[ROO]` | Roo Code | https://github.com/RooCodeInc/Roo-Code | IDE-embedded multi-persona agent | Phase 4 | Not Started |
 | `[KILO]` | Kilo Code | https://github.com/Kilo-Org/kilocode | IDE-embedded agentic platform | Phase 5 | Not Started |
 | `[AUTOGPT]` | AutoGPT | https://github.com/significant-gravitas/autogpt | Autonomous goal-seeking agent | Phase 6 | Not Started |
