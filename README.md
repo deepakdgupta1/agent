@@ -4,7 +4,7 @@
 
 > **Architecting the Next Generation of Agentic Systems.**
 
-A comprehensive, modular, and technically deep documentation suite defining the functional and technical architecture of modern AI agents. This blueprint is synthesized from the reverse-engineering of 13 industry-leading coding agents (Aider, Claude Code, Open Interpreter, etc.) to create a unified, high-fidelity specification for agentic behavior.
+A comprehensive, modular, and technically deep documentation suite defining the functional and technical architecture of modern AI agents. This blueprint is being synthesized from source-backed analysis of 13 reference agents (Aider, Claude Code, Open Interpreter, etc.) to create a unified, high-fidelity specification for agentic behavior.
 
 ---
 
@@ -47,7 +47,7 @@ This project reverse-engineers the following agents to populate the blueprint:
 | **Roo Code** | [RooCodeInc/Roo-Code](https://github.com/RooCodeInc/Roo-Code) | Agentic Modes (Persona switching), Boomerang orchestration |
 | **Codex** | [openai/codex](https://github.com/openai/codex) | Sandbox-first architecture, Autonomy levels |
 | **AutoGPT** | [sig-grav/autogpt](https://github.com/significant-gravitas/autogpt) | Autonomous goal decomposition, Plugin systems |
-| **BabyAGI** | [yoheinakajima/babyagi](https://github.com/yoheinakajima/babyagi) | Minimal task loops (floor of capability) |
+| **BabyAGI** | [yoheinakajima/babyagi_archive](https://github.com/yoheinakajima/babyagi_archive) + [yoheinakajima/babyagi](https://github.com/yoheinakajima/babyagi) | Classic minimal task loop baseline; current functionz/self-building delta |
 | **Kilo Code** | [Kilo-Org/kilocode](https://github.com/Kilo-Org/kilocode) | Checkpoint/Diff system, Task workflows |
 | **Continue** | [continuedev/continue](https://github.com/continuedev/continue) | Provider-agnostic IDE integration, CI-agent loops |
 | **Hermes Agent** | [Nous/hermes-agent](https://github.com/NousResearch/hermes-agent) | Self-improving patterns, Model-specific tuning |
@@ -60,9 +60,9 @@ This project reverse-engineers the following agents to populate the blueprint:
 
 The blueprint is developed through a series of phased synthesis passes. Monitoring progress via [`task.md`](task.md).
 
-- [ ] **Phase 0: Scaffolding** — Create `docs/` tree and meta-files.
-- [ ] **Phase 1: Foundation** — Aider + BabyAGI Analysis.
-- [ ] **Phase 2: Claude Code** — Tool systems & Permissions.
+- [x] **Phase 0: Scaffolding** — Create `docs/` tree and meta-files.
+- [x] **Phase 1: Foundation** — Aider + BabyAGI research correction and synthesis.
+- [ ] **Phase 2: Claude Code** — Research complete; synthesis pending.
 - [ ] **Phase 3: OpenAI Codex** — Sandboxing & Autonomy.
 - [ ] **Phase 4: Cline + Roo Code** — IDEs & Multi-agent modes.
 - [ ] **Phase 5: Kilo Code** — Checkpoints & Diffs.
@@ -76,8 +76,8 @@ The blueprint is developed through a series of phased synthesis passes. Monitori
 
 ```
 .
-├── docs/                   # (Coming Soon) Final Blueprint Documentation Suite
-├── _research/              # (Coming Soon) Intermediate research reports per agent
+├── docs/                   # Blueprint documentation suite
+├── docs/_research/         # Intermediate research reports per agent
 ├── assets/                 # Brand assets and graphics
 ├── [agent-clones]/         # Reference source code for all analyzed agents
 ├── task.md                 # Master execution checklist

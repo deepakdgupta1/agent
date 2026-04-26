@@ -17,3 +17,14 @@
 | Procedural Memory | Structural logic or behavioral rules the agent follows. |
 | Sub-Agent | A subordinate agent spawned by a main agent to handle a specific sub-task with a restricted toolset. |
 | CoT (Chain of Thought) | A prompting technique forcing the model to articulate intermediate reasoning steps before answering. |
+| ToolUse Block | A structured assistant content block carrying `{ id, name, input }` that requests a tool invocation; paired with a `ToolResult` block by `tool_use_id`. [CLAUDE] |
+| ToolResult Block | A structured content block carrying `{ tool_use_id, tool_name, output, is_error }` that returns the outcome of a tool invocation; appended to the session before the next iteration. [CLAUDE] |
+| Tool-Use Loop | An agentic loop pattern where the model decides termination by emitting an assistant response with no `ToolUse` blocks; each iteration is one (LLM call → tool dispatch → result injection) cycle. [CLAUDE] |
+| Permission Mode | The active authorization tier for tool invocations (`ReadOnly`, `WorkspaceWrite`, `DangerFullAccess`, plus runtime-internal `Prompt` and `Allow`). [CLAUDE] |
+| Permission Rule | A `ToolName(matcher)` grammar entry in `permissions.{allow, deny, ask}` that matches against an extracted subject from the tool input. [CLAUDE] |
+| Hook | A shell command configured under `hooks.{PreToolUse, PostToolUse, PostToolUseFailure}` that fires at a tool-call lifecycle event with a JSON payload on stdin and an extensible JSON schema on stdout. [CLAUDE] |
+| Auto-Compaction | A post-turn pass that rewrites a session by replacing older messages with a system summary while preserving the last 4 verbatim, triggered when cumulative input tokens exceed `CLAUDE_CODE_AUTO_COMPACT_INPUT_TOKENS` (default `100_000`). [CLAUDE] |
+| Sub-Agent (Claude Code) | A child `ConversationRuntime` spawned by the `Agent` tool in a separate thread with a fresh `Session`, isolated permissions, a per-`subagent_type` tool subset, and `max_iterations: 32`; communicates results via `<agent_id>.md` + `<agent_id>.json` manifest files. [CLAUDE] |
+| Qualified MCP Tool Name | The literal model-facing name of an MCP-bridged tool, formatted as `mcp__<server>__<tool>` after `normalize_name_for_mcp` sanitization. [CLAUDE] |
+| Dynamic Boundary Marker | The literal string `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` inserted between static safety preamble and dynamic context in the system prompt; a string anchor, not a JSON delimiter. [CLAUDE] |
+| `.claw/` Settings Root | claw-code's branded settings directory (analog of upstream's `.claude/`); houses `settings.json`, `settings.local.json`, optional `CLAUDE.md` and `instructions.md`. [CLAUDE] |

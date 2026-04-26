@@ -182,7 +182,7 @@
 
 ### Task 4: Claude Code — Research Core Loop, Tools & Permissions
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Deep-dive into Claude Code's architecture focusing on its agentic loop, tool system, permission model, and hooks system. Use official documentation and source code.
@@ -203,16 +203,18 @@
   5. **Autonomy Levels**: How `--dangerously-skip-permissions` and managed policies work.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Agentic loop section describes the full cycle with data flowing between components
-- [ ] Tool system section lists all known tools with their parameters
-- [ ] Permission model section covers the cascading priority logic
-- [ ] Hooks section includes the lifecycle events and JSON schemas
+- [x] Agentic loop section describes the full cycle with data flowing between components
+- [x] Tool system section lists all known tools with their parameters
+- [x] Permission model section covers the cascading priority logic
+- [x] Hooks section includes the lifecycle events and JSON schemas
+
+> **Source-of-truth note:** Claude Code is closed-source; analysis was performed against the open-source reimplementation **claw-code** at `/Users/deepg/Desktop/agent/claw-code/` (HEAD `a389f8d`). The harness is in `rust/crates/`, not the Python `src/` scaffold. Significant divergences from upstream Claude Code documentation are flagged inline in the report (3 of 9 hook events implemented; settings root `.claw/` not `.claude/`; default mode `DangerFullAccess`; no managed-policy paths; no hook matcher syntax). Synthesis (Task 6) should treat the report as describing claw-code's reality and supplement with upstream docs where the blueprint requires patterns claw-code does not implement.
 
 ---
 
 ### Task 5: Claude Code — Research Memory, Sub-Agents, MCP & Extensibility
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Deep-dive into Claude Code's memory architecture, sub-agent system, MCP integration, and extensibility mechanisms.
@@ -233,16 +235,18 @@
   5. **Slash Commands**: `/init`, `/memory`, `/bug`, `/compact`, `/clear`, custom commands — how they're parsed and executed.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Memory section covers all memory file locations and loading precedence
-- [ ] Sub-agent section describes the spawning mechanism and context isolation boundary
-- [ ] MCP section explains the protocol handshake and tool registration flow
-- [ ] Context window section describes truncation/compaction strategies
+- [x] Memory section covers all memory file locations and loading precedence
+- [x] Sub-agent section describes the spawning mechanism and context isolation boundary
+- [x] MCP section explains the protocol handshake and tool registration flow
+- [x] Context window section describes truncation/compaction strategies
+
+> **Source-of-truth note (Part 2):** Same claw-code clone (HEAD `a389f8d`). Additional divergences from upstream Claude Code, flagged inline in the report — for the synthesis agent (Task 6) to fill from upstream docs where the blueprint requires patterns claw-code does not implement: (a) memory discovery walks cwd ancestry only — no user-home `~/.claude/CLAUDE.md`, no enterprise/managed paths, no `@include` directives; (b) `/memory` is read-only — no auto-write-back; (c) sub-agent surface is split into three distinct primitives — `Agent` (real sub-runtime spawn in a thread), `TaskCreate` (in-memory bookkeeping only), `WorkerCreate` (state machine over an externally-spawned process). No `Browser` sub-agent; (d) MCP: only stdio transport actually connects — `sse`/`http`/`ws`/`sdk`/`claudeai-proxy` parse but are routed to `unsupported_servers`; (e) Context window: no `cache_control` / prompt-caching breakpoints anywhere; token estimation is a `len()/4+1` heuristic, not a real tokenizer; (f) Slash commands: 87 specs, ~30 fully implemented; `/bug` is absent (closest: `/bughunter`); custom commands surface as skills under `.claw/commands/` (legacy `.claude/commands/` also walked), not as a separate slash-command registry.
 
 ---
 
 ### Task 6: Phase 2 Synthesis — Integrate Claude Code into Docs
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 3, Task 4, Task 5
 
 **Objective:** Using the two Claude Code research reports, update all relevant `docs/` module files. Add Claude Code patterns alongside existing Aider/BabyAGI content. Evolve `architectural_hierarchy.md` to v2.
