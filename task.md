@@ -98,11 +98,11 @@
   Each section must include enough detail for another agent to later write flowcharts and sequence diagrams from it.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Research report covers all 7 sections listed above
-- [ ] Each section describes step-by-step logic (not marketing-level descriptions)
-- [ ] Edit format section includes concrete examples of each format's prompt structure
-- [ ] Repo-map section explains the tree-sitter → tags → ranking pipeline
-- [ ] Report explicitly notes unique/novel patterns not seen in typical agent designs
+- [x] Research report covers all 7 sections listed above
+- [x] Each section describes step-by-step logic (not marketing-level descriptions)
+- [x] Edit format section includes concrete examples of each format's prompt structure
+- [x] Repo-map section explains the tree-sitter → tags → ranking pipeline
+- [x] Report explicitly notes unique/novel patterns not seen in typical agent designs
 
 ---
 
@@ -130,10 +130,10 @@
   5. **Simplicity Analysis**: What is intentionally absent (no tools, no edit formats, no permissions) — this defines the "floor" of the capability spectrum.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Report covers all 5 sections
-- [ ] Core loop is described step-by-step with exact data flow between the three functions
-- [ ] Report includes the actual prompt templates used for task creation, prioritization, and execution
-- [ ] "Simplicity Analysis" section explicitly lists what is missing compared to the framework
+- [x] Report covers all 5 sections
+- [x] Core loop is described step-by-step with exact data flow between the three functions
+- [x] Report includes the actual prompt templates used for task creation, prioritization, and execution
+- [x] "Simplicity Analysis" section explicitly lists what is missing compared to the framework
 
 ---
 
@@ -169,12 +169,12 @@
 - `docs/00_meta/architectural_hierarchy.md` — Evolve to **v1**: document gaps discovered and refinements made.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Every file listed above is populated beyond the stub template
-- [ ] Each populated file contains at least one Mermaid flowchart and one sequence diagram
-- [ ] All agent-specific content carries `[AIDER]` or `[BABYAGI]` inline tags
-- [ ] Each file ends with an Agent Attribution Table
-- [ ] `architectural_hierarchy.md` v1 documents what changed from v0 and why
-- [ ] Files NOT relevant to Aider/BabyAGI remain as stubs (don't invent content)
+- [x] Every file listed above is populated beyond the stub template
+- [x] Each populated file contains at least one Mermaid flowchart and one sequence diagram
+- [x] All agent-specific content carries `[AIDER]` or `[BABYAGI]` inline tags
+- [x] Each file ends with an Agent Attribution Table
+- [x] `architectural_hierarchy.md` v1 documents what changed from v0 and why
+- [x] Files NOT relevant to Aider/BabyAGI remain as stubs (don't invent content)
 
 ---
 
@@ -273,11 +273,11 @@
 - `docs/00_meta/architectural_hierarchy.md` — Evolve to **v2**.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] All files above are updated with new content alongside existing Phase 1 content
-- [ ] New content carries `[CLAUDE]` attribution tags
-- [ ] New Mermaid diagrams added where Claude Code introduces new flows
-- [ ] `multi_agent_patterns.md` includes sub-agent spawning sequence diagram
-- [ ] `architectural_hierarchy.md` v2 documents changes from v1
+- [x] All files above are updated with new content alongside existing Phase 1 content
+- [x] New content carries `[CLAUDE]` attribution tags
+- [x] New Mermaid diagrams added where Claude Code introduces new flows
+- [x] `multi_agent_patterns.md` includes sub-agent spawning sequence diagram
+- [x] `architectural_hierarchy.md` v2 documents changes from v1
 
 ---
 
@@ -306,9 +306,9 @@
   5. **Context Management**: How Codex handles context within the sandboxed environment.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Sandbox architecture is described at implementation level (not just "it's sandboxed")
-- [ ] Autonomy levels section shows exactly which operations each level permits/blocks
-- [ ] Report contrasts Codex's approach with what's already documented from Aider/Claude Code
+- [x] Sandbox architecture is described at implementation level (not just "it's sandboxed")
+- [x] Autonomy levels section shows exactly which operations each level permits/blocks
+- [x] Report contrasts Codex's approach with what's already documented from Aider/Claude Code
 
 ---
 
@@ -332,10 +332,10 @@
 - `docs/00_meta/architectural_hierarchy.md` — Evolve to **v3** if warranted.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] All files above updated with `[CODEX]` tagged content
-- [ ] `sandboxing.md` is richly detailed — Codex's key contribution to the blueprint
-- [ ] `permission_model.md` now has two distinct systems compared side-by-side (Claude Code + Codex)
-- [ ] `architectural_hierarchy.md` v3 reflects any framework changes
+- [x] All files above updated with `[CODEX]` tagged content
+- [x] `sandboxing.md` is richly detailed — Codex's key contribution to the blueprint
+- [x] `permission_model.md` now has two distinct systems compared side-by-side (Claude Code + Codex)
+- [x] `architectural_hierarchy.md` v3 reflects any framework changes
 
 ---
 
