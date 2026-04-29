@@ -1,8 +1,13 @@
 # Multi-Agent Patterns
-> Module: 06_orchestration | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 06_orchestration | Status: Phase 4 | Last Agent: Cline/Roo Synthesis
 
 ## 1. Overview
-Multi-agent patterns are mechanisms by which a parent agent delegates work to a subordinate agent — typically with a reduced tool set and an isolated context — and aggregates the result. This document specifies the [CLAUDE] sub-agent pattern as the Phase 2 reference. Phase 4 will add Roo Code's Boomerang orchestration alongside; Phase 6 will add AutoGPT-style autonomous spawning.
+Multi-agent patterns are mechanisms by which a parent agent delegates work to a subordinate agent — typically with a reduced tool set and an isolated context — and aggregates the result. This document specifies the [CLAUDE] sub-agent pattern (Phase 2) and the [ROO] Boomerang / Task Orchestration pattern (Phase 4) as the two primary delegation models. [CLINE]'s `new_task` tool is documented as a contrast — same tool name, fundamentally different semantics.
+
+> **Three delegation paradigms compared:**
+> - **[CLAUDE] `Agent` tool** — In-process, fire-and-forget. Spawns a child `ConversationRuntime` in a worker thread. Parent gets a file-based manifest path; must poll for results. Child has a fresh `Session`, reduced tool set per `subagent_type`, and a 32-iteration cap.
+> - **[ROO] `new_task` (Boomerang)** — Durable, persistent, mode-typed delegation. Parent is flushed to disk and disposed. Child gets the entire UI/API stack. On `attempt_completion`, the child's summary is injected as a synthetic `tool_result` into the parent's API conversation history. The parent resumes as if `new_task` returned synchronously. Unbounded child turns; spans arbitrary clock time.
+> - **[CLINE] `new_task`** — Create a new task with preloaded continuation context. No parent linkage, no return path, no auto-resume. The user must manually return to the previous task. Same tool name as Roo, fundamentally different semantics.
 
 [CLAUDE] exposes **three distinct primitives** that the upstream task spec collapses into a single "Task" tool. None of them is named `Task` at the tool surface in claw-code; the spec's "Task" is closest to the **`Agent`** tool. The three primitives:
 
@@ -161,25 +166,68 @@ sequenceDiagram
     Note over ParentRuntime,FS: No streaming back to parent.
     Note over ParentRuntime,FS: Parent must call read_file to fetch results.
     ParentRuntime->>FS: (next iteration) read_file(manifest_path)
-    FS-->>ParentRuntime: child output
 ```
+
+## Boomerang Flow Diagram [ROO]
+```mermaid
+sequenceDiagram
+    participant O as Orchestrator
+    participant P as Parent
+    participant C as Child
+    participant FS as Disk
+    O->>P: ToolUse(new_task, mode, message)
+    P->>FS: flushPendingToolResults
+    P->>P: dispose parent
+    P->>FS: persist delegation status
+    FS->>C: spawn child
+    C->>C: run task loop
+    C->>C: attempt_completion
+    C->>P: return summary
+    P->>FS: reopen parent from disk
+    FS->>P: load history
+    P->>P: inject synthetic tool_result
+    P->>P: resumeAfterDelegation
+```
+
+## Side-by-Side Comparison: Sub-Agent vs Boomerang vs Cline new_task
+
+| Dimension | [CLAUDE] `Agent` | [ROO] `new_task` (Boomerang) | [CLINE] `new_task` |
+| --- | --- | --- | --- |
+| **Lifetime** | In-process; child thread joins before parent continues | Durable; parent exits memory; child spans unbounded time | One-shot; creates new task, no return |
+| **Context isolation** | Fresh `Session`, reduced tool set, own `PermissionPolicy` | Entirely separate Task with its own mode’s system prompt, tools, and optionally different LLM | Preloaded context, no parent linkage |
+| **Result return** | File-based: `<agent_id>.md` + `.json` manifest; parent polls | Synthetic `tool_result` injection into parent’s API history; parent auto-resumes | None — user manually returns |
+| **Mode/persona** | `subagent_type` selects tool subset + persona suffix | `mode` parameter selects full mode (roleDefinition + groups + model config) | N/A |
+| **Iteration cap** | 32 iterations (hard-coded) | Unbounded (same as any Task) | N/A |
+| **Parallelism** | Sequential spawning; one child thread per `Agent` call | Sequential only; single-open-task invariant | `use_subagents` allows up to 5 parallel |
+| **Nesting** | Not architecturally supported | Multi-level: `HistoryItem.childIds` array with `parentTaskId` chain | N/A |
+| **Persistence** | Manifest survives crashes; runtime state does not | Full persistence: parent + child history on disk; survives editor restarts | Task persisted but no parent linkage |
+| **Per-child model** | `DEFAULT_AGENT_MODEL = "claude-opus-4-6"` (hard-coded) | Per-mode API config: `ProviderSettingsManager.getModeConfigId(mode)` | Same model as parent |
 
 ## 6. Variations & Trade-offs
 
 | Pattern | Benefit | Trade-off |
 | --- | --- | --- |
-| **`Agent` spawning a fresh `ConversationRuntime`** [CLAUDE] | Real context isolation: child can't pollute parent's `Session::messages` or `usage_tracker`; child has its own permission policy. | No live streaming back: parent must poll the manifest file. Child's discovery re-walks the filesystem — duplicate work if many agents share the same cwd. |
+| **`Agent` spawning a fresh `ConversationRuntime`** [CLAUDE] | Real context isolation: child can't pollute parent's `Session::messages` or `usage_tracker`; child has its own permission policy. | No live streaming back: parent must poll the manifest file. Child’s discovery re-walks the filesystem — duplicate work if many agents share the same cwd. |
 | **Per-`subagent_type` tool subsets** [CLAUDE] | A `Plan` agent can't accidentally write files; an `Explore` agent can't run `bash`. Predictable safety floor. | Subset is hard-coded in Rust — adding a new type requires harness changes. |
 | **`max_iterations = 32` cap on children** [CLAUDE] | Bounds runaway sub-agents. | Children that need long trajectories will hit the cap and emit a `RuntimeError` — caller must check the manifest. |
 | **File-based handoff (manifest + output)** [CLAUDE] | Result survives parent crashes; manifest is human-inspectable; no IPC complexity. | Parent must spend extra tool calls (`read_file`) to surface child results into its context. |
 | **`TaskRegistry` (no spawn)** [CLAUDE] | Cheap bookkeeping; user can inspect TODOs without paying for inference. | Easy to confuse with the `Agent` tool — naming is upstream-divergent in claw-code. |
 | **`WorkerObserve` state machine** [CLAUDE] | Lets the agent supervise *external* coding agents (terminal/tmux) without being the spawner. | Detection is string-pattern based — fragile if the external agent's prompts change. |
 | **`Browser` sub-agent absent** [CLAUDE] | Surface area is smaller; fewer permission tiers to manage. | Browser-driven workflows (Cline-style) require MCP shims (`mcp__Claude_in_Chrome__*`). |
+| **Boomerang: synthetic `tool_result` injection** [ROO] | Parent LLM sees delegation as a function call — "I called `new_task`, it returned this summary." No awareness of the sub-conversation. Clean semantic boundary. | History rewriting on disk is complex; idempotency guards (`validateAndFixToolResultIds`) needed for correctness; corrupted history falls back to plain text. |
+| **Single-open-task invariant** [ROO] | Avoids resource races (file watchers, MCP refcounts, stream ownership). Simpler than concurrent parent+child. | Parent literally exits memory — no real-time parent monitoring of child progress. |
+| **Mode-typed delegation** [ROO] | `architect` plans → spawns `code` → spawns `debug`. Each subtask sees only the prompt suited to its role. Per-mode model routing gives cost/capability optimization per subtask. | Mode switch overhead (500ms sleep); per-mode API config adds configuration surface. |
+| **`preventCompletionWithOpenTodos`** [ROO] | Blocks `attempt_completion` if any todo is open — ensures thoroughness before returning to parent. | Requires the LLM to explicitly maintain the todo list via `update_todo_list`. |
+| **Hierarchical nesting** [ROO] | Multi-level delegation (orchestrator → architect → code → debug) with correct `parentTaskId` chain unwinding. | Deep nesting creates long dependency chains; each level adds a persist-dispose-resume cycle. |
+| **Cline `new_task` (no return)** [CLINE] | Simple context handoff — creates a fresh conversation with preloaded context. | No parent tracking; no auto-resume; user must manually navigate back. Not a delegation pattern. |
+| **Cline `use_subagents` (parallel in-process)** [CLINE] | Up to 5 parallel subagents in a single turn — fan-out for embarrassingly parallel tasks. | In-process only; no persistence; no mode typing; results must fit in a single turn. |
 
 ## 7. Agent Attribution Table
 
 | Agent | Source-backed contribution |
 | --- | --- |
 | [CLAUDE] | `Agent` tool spawning a child `ConversationRuntime` in a `clawd-agent-{id}` thread; `DEFAULT_AGENT_MODEL = "claude-opus-4-6"`; `DEFAULT_AGENT_MAX_ITERATIONS = 32`; per-`subagent_type` tool subsets (`Explore`, `Plan`, `Verification`, `claw-guide`, `statusline-setup`, default); fresh `Session` + isolated `PermissionPolicy` per child; sub-agent persona suffix appended to a re-discovered system prompt; file-based result handoff via `<agent_id>.md` + `<agent_id>.json` manifest under `agent_store_dir()`; separate `TaskRegistry` bookkeeping primitives (`TaskCreate` etc.) with no LLM invocation; `WorkerCreate`/`WorkerObserve` state machine for externally-spawned coding agents; `TeamCreate`/`TeamDelete` task tagging. |
+| [ROO] | Boomerang / Task Orchestration: `new_task { mode, message, todos? }` tool spawning a durable, persistent, mode-typed child task; `orchestrator` mode with `groups: []` as the coordination engine; single-open-task invariant with persist-dispose-resume lifecycle; `delegateParentAndOpenChild` 8-step handoff (verify → flush → dispose → mode switch → create child → persist delegation metadata → start child → emit event) with critical ordering of steps 5→6→7; `new_task` isolation enforcement truncating blocks after delegation and pre-injecting error `tool_result`s for skipped tools; child runs as normal Task with `parentTaskId` set; `attempt_completion` in child triggers `delegateToParent()` → `askFinishSubTaskApproval()` → `reopenParentFromDelegation()`; synthetic `tool_result` injection: scan parent API history backwards for `new_task` `tool_use_id`, append `user` message with `tool_result` containing child summary, idempotent overwrite, `validateAndFixToolResultIds()` for multi-tool messages, plain-text fallback on corrupted history; parent re-loaded into memory via `createTaskWithHistoryItem` → `overwriteClineMessages` → `overwriteApiConversationHistory` → `resumeAfterDelegation()`; hierarchical nesting via `HistoryItem.childIds` array and `parentTaskId` chain; per-mode model routing via `ProviderSettingsManager.getModeConfigId(mode)` during `handleModeSwitch`; delegation metadata: `status` enum (`active`, `delegated`, `completed`), `delegatedToId`, `awaitingChildId`, `completedByChildId`; `TaskDelegated`, `TaskDelegationCompleted`, `TaskDelegationResumed` events; `switch_mode { mode_slug, reason }` as the in-place (same task) alternative to `new_task` delegation. |
+| [CLINE] | `new_task { context }` creating a new task with preloaded continuation context (no parent linkage, no return path, no auto-resume — user manually returns); `use_subagents { prompt_1..prompt_5 }` running up to five in-process parallel subagents in a single turn when subagents are enabled; configured subagent tools surfaced as dedicated native tool names via `SharedToolHandler`. |
 
-> Phase 4 [ROO]'s Boomerang orchestration will be added alongside; Phase 6 [AUTOGPT]'s self-spawning loop will provide a third pattern.
+> Phase 6 [AUTOGPT]’s self-spawning autonomous loop will provide a fourth pattern.

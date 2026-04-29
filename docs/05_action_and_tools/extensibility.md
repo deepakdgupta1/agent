@@ -1,8 +1,14 @@
 # Extensibility
-> Module: 05_action_and_tools | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 05_action_and_tools | Status: Phase 4 | Last Agent: Cline/Roo Synthesis
 
 ## 1. Overview
-Extensibility describes how an agent's tool catalog can grow at runtime — without modifying the harness binary. This document specifies the [CLAUDE] MCP integration as the Phase 2 reference. Phase 4 will add Cline/Roo Code's MCP client variants; Phase 6 will add AutoGPT's plugin system as the contrasting *code-based* extension paradigm.
+Extensibility describes how an agent's tool catalog can grow at runtime — without modifying the harness binary. This document specifies the [CLAUDE] MCP integration (Phase 2) and the [CLINE] / [ROO] IDE-embedded MCP client variants (Phase 4) as MCP-first extensibility paradigms.
+
+[CLAUDE] uses MCP as its primary extension surface, with only **stdio** transport wired up at HEAD (SSE/HTTP/WS parse but don’t connect). See below for the full [CLAUDE] specification.
+
+[CLINE] implements an MCP client via `McpHub` (`src/services/mcp/McpHub.ts`) that manages the full server lifecycle: discovery, connection, tool/resource/template listing, and per-call dispatch. Cline reads MCP configurations from `mcp_settings.json` (workspace or global) and supports **stdio**, **SSE**, and **WebSocket** (via `streamablehttp`) transports. Cline exposes two MCP tools: `use_mcp_tool { server_name, tool_name, arguments }` for tool calls and `access_mcp_resource { server_uri, uri }` for resource reads. Per-tool auto-approval via `mcp_settings.json` allows selective unattended use. (Cline research §3.3.)
+
+[ROO] inherits Cline’s `McpHub` but adds **mode-conditional MCP gating** (MCP tools only available if the active mode includes `mcp` in its `groups` list), per-server `alwaysAllow` lists, `disabledTools` lists, and tool deduplication when multiple servers expose the same tool name. Roo also reads Cline’s `cline_mcp_settings.json` for backward compatibility. The `orchestrator` mode (`groups: []`) cannot use MCP tools at all. (Roo research §2.1.)
 
 [CLAUDE] uses the **Model Context Protocol** (MCP) as its primary extension surface. An MCP server is an external process that speaks JSON-RPC 2.0 over stdio (or, in spec, SSE/HTTP/WebSocket — but only stdio is wired up at HEAD `a389f8d`). The harness discovers MCP server configurations from settings files, spawns the configured stdio servers on first use, requests their tool list, registers each tool as a `RuntimeToolDefinition` with a qualified name `mcp__<server>__<tool>`, and then those qualified names appear alongside built-in tools on `MessageRequest.tools` (claw-code: `rust/crates/runtime/src/mcp_stdio.rs`, `mcp.rs`, `mcp_tool_bridge.rs`).
 
@@ -180,10 +186,135 @@ sequenceDiagram
 | **No `notifications/initialized` after handshake** [CLAUDE] | One fewer round-trip on cold-start. | Strict spec-conformant servers may reject subsequent calls. |
 | **No graceful shutdown JSON-RPC** [CLAUDE] | Predictable: `kill` always works. | Servers with persistent state may not flush; operator must handle in-server. |
 
+## [CLINE] MCP Client Architecture
+
+### McpHub Lifecycle [CLINE]
+
+`McpHub` (`src/services/mcp/McpHub.ts`) is the central MCP manager:
+
+1. **Settings loading**: Reads `mcp_settings.json` from workspace directory (preferred) or global settings directory. File watched via `chokidar` watcher.
+2. **Connection lifecycle per server**: `connectToServer(name, config)` calls `createMcpTransport(config)` → transport instance → `Client.connect(transport)` → `listTools()` / `listResources()` / `listResourceTemplates()` / `listPrompts()`.
+3. **Reconnection**: 5s delay between connection attempts; retries on failure.
+4. **Shutdown**: `deleteConnection(name)` closes transport and client; `dispose()` closes all.
+
+### Transport Variants [CLINE]
+
+| Transport | Config key | Implementation |
+| --- | --- | --- |
+| **Stdio** | `command` present | `StdioClientTransport(command, args, env)` with extended PATH resolution and PYTHONPATH/VIRTUAL_ENV support |
+| **SSE** | `url` + `transportType: "sse"` | `SSEClientTransport(url, headers)` |
+| **WebSocket** | `url` + `transportType: "streamablehttp"` | `StreamableHTTPClientTransport(url, headers)` |
+
+### MCP Tools Exposed [CLINE]
+
+| Tool | Parameters | Action |
+| --- | --- | --- |
+| `use_mcp_tool` | `{ server_name, tool_name, arguments }` | Calls `mcpHub.callTool(server, tool, args)` via JSON-RPC `tools/call` |
+| `access_mcp_resource` | `{ server_uri, uri }` | Calls `mcpHub.readResource(server, uri)` via JSON-RPC `resources/read` |
+
+### Per-Tool Auto-Approval [CLINE]
+
+In `mcp_settings.json`, each server can declare:
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "command": "npx",
+      "args": ["@my-server/mcp"],
+      "autoApprove": ["safe_tool_1", "safe_tool_2"]
+    }
+  }
+}
+```
+Tools in the `autoApprove` array bypass the `ask("use_mcp_server", ...)` approval gate.
+
+### Approval Flow [CLINE]
+
+1. LLM emits `use_mcp_tool { server_name, tool_name, arguments }`.
+2. `UseMcpToolHandler` checks if the tool is in the server’s `autoApprove` list.
+3. If not auto-approved: `ask("use_mcp_server", tool_proposal)` — user approves/rejects.
+4. On approval: `McpHub.callTool(server, tool, args)` → JSON-RPC.
+5. Result returned to the loop as a tool result.
+
+## [ROO] MCP Client Variants
+
+### Mode-Conditional MCP Gating [ROO]
+
+The system prompt only includes MCP capabilities if:
+```typescript
+const hasMcpGroup = modeConfig.groups.some(g => getGroupName(g) === "mcp")
+const hasMcpServers = mcpHub && mcpHub.getServers().length > 0
+const shouldIncludeMcp = hasMcpGroup && hasMcpServers
+```
+- `code` mode (groups: `read, edit, command, mcp`) → sees MCP tools
+- `orchestrator` mode (groups: `[]`) → does NOT see MCP tools
+- `ask` mode (groups: `read, mcp`) → sees MCP tools
+
+### Per-Server `alwaysAllow` and `disabledTools` [ROO]
+
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "alwaysAllow": ["safe_read_tool"],
+      "disabledTools": ["dangerous_admin_tool"]
+    }
+  }
+}
+```
+- `alwaysAllow`: bypass approval for listed tools.
+- `disabledTools`: completely hide listed tools from the model — they won’t appear in the tool list.
+
+### Tool Deduplication [ROO]
+
+When multiple MCP servers expose a tool with the same name, Roo silently deduplicates. Deduplication priority is determined by server ordering in the settings file. The model sees only one version of the tool.
+
+### Settings Compatibility [ROO]
+
+Roo reads MCP configs from:
+1. `<workspace>/.roo/mcp.json` (preferred)
+2. `<workspace>/cline_mcp_settings.json` (Cline compat)
+3. Global settings (user-level)
+
+## MCP Client Comparison
+
+| Dimension | [CLAUDE] | [CLINE] | [ROO] |
+| --- | --- | --- | --- |
+| Manager | `McpServerManager` (Rust) | `McpHub` (TypeScript) | `McpHub` (TypeScript, forked) |
+| Transport | Stdio only (SSE/HTTP/WS parse but don’t connect) | Stdio + SSE + WebSocket (streamable HTTP) | Stdio + SSE + WebSocket (inherited) |
+| Qualified names | `mcp__server__tool` | `use_mcp_tool { server_name, tool_name }` | `use_mcp_tool { server_name, tool_name }` |
+| Tool listing | `tools/list` paginated; cached in `BTreeMap` | `listTools()` on connect; refreshed on reconnect | Same as Cline + `disabledTools` filter |
+| Auto-approval | Annotation-driven tier (`readOnlyHint`, `destructive`, `openWorld`) | Per-tool `autoApprove` list in `mcp_settings.json` | Per-server `alwaysAllow` + `disabledTools` |
+| Mode gating | N/A (always available) | N/A (always available if server connected) | Mode-conditional: only if mode has `mcp` group |
+| Deduplication | N/A (unique qualified names) | N/A | Silent dedup by server ordering |
+| Settings file | `.claw/settings.json` (`mcpServers` key) | `mcp_settings.json` (workspace or global) | `.roo/mcp.json` + Cline-compat fallback |
+| Shutdown | `kill` (no graceful JSON-RPC) | `transport.close()` | `transport.close()` (inherited) |
+
+## 6. Variations & Trade-offs
+
+| Variation | Benefit | Trade-off |
+| --- | --- | --- |
+| **Stdio-only transport** [CLAUDE] | Simple, robust, parent process owns lifecycle. | Remote MCP servers (SSE / HTTP / WebSocket) parse from settings but don’t connect; cross-host MCP requires a stdio shim. |
+| **Qualified-name format `mcp__server__tool`** [CLAUDE] | Server origin is visible in every model-side tool name; permission rules can target servers. | Long names eat context window per tool; rule-authoring requires escaping rules for the double underscore. |
+| **Per-call MCP stdio in `MCP::call_tool` (built-in spec)** [CLAUDE] | Isolated, no cross-call state leaks via the manager. | Spawns and tears down the server process every call — high latency for chatty servers. The runtime-qualified path uses a long-lived manager and avoids this. |
+| **`discover_tools_best_effort` over per-server failures** [CLAUDE] | A broken server doesn’t abort the whole run. | Operator must check the discovery report; silent partial failures are easy to miss. |
+| **Three permission tiers from MCP `annotations`** [CLAUDE] | Model-facing permission tier reflects the server’s self-declared safety. | Server can self-declare `readOnlyHint: true` dishonestly; deny-rules at the operator level remain the trust anchor. |
+| **No `notifications/initialized` after handshake** [CLAUDE] | One fewer round-trip on cold-start. | Strict spec-conformant servers may reject subsequent calls. |
+| **No graceful shutdown JSON-RPC** [CLAUDE] | Predictable: `kill` always works. | Servers with persistent state may not flush; operator must handle in-server. |
+| **Multi-transport support (stdio + SSE + WebSocket)** [CLINE] | Can connect to remote MCP servers hosted as HTTP services — enables cloud-hosted and team-shared MCP servers. | More transport code to maintain; SSE and streamable HTTP transports add connection state complexity. |
+| **Per-tool `autoApprove` in settings** [CLINE] | Fine-grained: specific safe tools bypass approval while dangerous tools from the same server still require user confirmation. | Settings file grows with the number of trusted tools; new tools from server updates are not auto-approved until explicitly listed. |
+| **`server_name + tool_name` naming** [CLINE] [ROO] | More readable than `mcp__server__tool`; server and tool are explicit parameters, not encoded in the name. | Model must provide two separate parameters for every call; server name spelling errors silently fail. |
+| **Mode-conditional MCP gating** [ROO] | Orchestrator can’t accidentally invoke MCP tools; only modes with `mcp` group see MCP capabilities in the system prompt. | Mode authors must remember to include `mcp` in groups; forgetting it silently hides all MCP tools for that mode. |
+| **`disabledTools` per server** [ROO] | Completely hides dangerous tools from the model — not just denied but invisible, preventing the model from even attempting them. | Configuration overhead; tool names must be exact-matched. |
+| **Silent tool deduplication** [ROO] | Prevents confusion when multiple servers expose same-name tools. | Server ordering dependency — first server wins; second server’s version is silently dropped. |
+| **Cline-compat settings fallback** [ROO] | Smooth migration from Cline to Roo — existing `cline_mcp_settings.json` works without changes. | Two settings files to check; precedence rules add complexity. |
+
 ## 7. Agent Attribution Table
 
 | Agent | Source-backed contribution |
 | --- | --- |
 | [CLAUDE] | `mcpServers` settings shape with `Stdio` / `Sse` / `Http` / `Ws` / `Sdk` / `ManagedProxy` variants; stdio-only actual transport at HEAD `a389f8d`; `ensure_server_ready` lazy bootstrap; `tools/list` cursor-paginated discovery with `discover_tools_best_effort` partial-failure tolerance; `mcp__<server>__<tool>` qualified-name format with `normalize_name_for_mcp` rules; `mcp_runtime_tool_definition` mapping incl. `permission_mode_for_mcp_tool` annotation-driven tier; `MCPTool`/`ListMcpResourcesTool`/`ReadMcpResourceTool` runtime wrappers alongside built-in `MCP`/`ListMcpResources`/`ReadMcpResource` specs; LSP-style `Content-Length` JSON-RPC framing; per-call re-spawn in `MCP::call_tool` vs long-lived manager in `execute_runtime_tool`; read-only `/mcp` inspector slash command. |
+| [CLINE] | `McpHub` (`src/services/mcp/McpHub.ts`) as the central MCP manager with full lifecycle (discover → connect → list → call → disconnect); three transports (stdio via `StdioClientTransport` with PATH/PYTHONPATH resolution, SSE via `SSEClientTransport`, WebSocket via `StreamableHTTPClientTransport`); `use_mcp_tool { server_name, tool_name, arguments }` and `access_mcp_resource { server_uri, uri }` as the two MCP-facing tools; `mcp_settings.json` (workspace or global) with per-server config and per-tool `autoApprove` list; chokidar file watcher for settings hot-reload; 5s reconnection delay on transport failure; `ask("use_mcp_server", ...)` approval gate with auto-approve bypass for listed tools; `listTools()` / `listResources()` / `listResourceTemplates()` / `listPrompts()` discovery on connect. |
+| [ROO] | Mode-conditional MCP gating (`shouldIncludeMcp = hasMcpGroup && hasMcpServers`); per-server `alwaysAllow` list and `disabledTools` list; silent tool deduplication when multiple servers expose same-name tools (first server wins); `.roo/mcp.json` as preferred settings with `cline_mcp_settings.json` backward-compat fallback; `orchestrator` mode (`groups: []`) blocked from MCP access. |
 
-> Phase 4 [CLINE] and [ROO] will add IDE-side MCP client variants for comparison; Phase 6 [AUTOGPT] will add the contrasting *code-based* plugin paradigm.
+> Phase 6 [AUTOGPT] will add the contrasting *code-based* plugin paradigm.

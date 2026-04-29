@@ -373,7 +373,7 @@
 
 ### Task 10: Roo Code — Research Mode System & Boomerang Orchestration
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Analyze Roo Code's architecture with focus on its unique mode system (multiple agent personas) and the Boomerang multi-agent orchestration pattern.
@@ -394,15 +394,15 @@
   5. **MCP Integration**: Any differences from Cline's MCP implementation.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Mode system section includes the exact configuration structure for each mode
-- [ ] Boomerang section describes the full orchestration flow with data handoffs
-- [ ] Differences-from-Cline section is explicit about architectural divergence
+- [x] Mode system section includes the exact configuration structure for each mode
+- [x] Boomerang section describes the full orchestration flow with data handoffs
+- [x] Differences-from-Cline section is explicit about architectural divergence
 
 ---
 
 ### Task 11: Phase 4 Synthesis — Integrate Cline + Roo Code into Docs
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 8, Task 9, Task 10
 
 **Objective:** Using the Cline and Roo Code research reports, update relevant `docs/` module files. These agents introduce the IDE-embedded agent pattern, browser automation, and mode-based persona switching. Evolve `architectural_hierarchy.md` to v4.
@@ -424,11 +424,11 @@
 - `docs/00_meta/architectural_hierarchy.md` — Evolve to **v4**.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] All files updated with `[CLINE]` and `[ROO]` tagged content
-- [ ] `workflow_modes.md` is the first fully populated document showing mode architecture
-- [ ] `browser_interaction.md` contains detailed Puppeteer flow
-- [ ] Boomerang and sub-agent patterns are compared side-by-side in `multi_agent_patterns.md`
-- [ ] `architectural_hierarchy.md` v4 documents changes from v3
+- [x] All files updated with `[CLINE]` and `[ROO]` tagged content
+- [x] `workflow_modes.md` is the first fully populated document showing mode architecture
+- [x] `browser_interaction.md` contains detailed Puppeteer flow
+- [x] Boomerang and sub-agent patterns are compared side-by-side in `multi_agent_patterns.md`
+- [x] `architectural_hierarchy.md` v4 documents changes from v3
 
 ---
 

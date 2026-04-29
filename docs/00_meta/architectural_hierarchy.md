@@ -1,7 +1,7 @@
-# Architectural Hierarchy v3
+# Architectural Hierarchy v4
 
 This document tracks the evolution of the Master AI Agent Blueprint framework.
-Version: v3
+Version: v4
 
 ## Version history
 
@@ -10,7 +10,28 @@ Version: v3
 | v0 | 0 | (seed) | `AI Agent Feature Hierarchy Development.md` |
 | v1 | 1 | [AIDER], [BABYAGI] | `aider_research.md`, `babyagi_research.md` |
 | v2 | 2 | + [CLAUDE] (claw-code) | `claude_code_research_part1.md`, `claude_code_research_part2.md` |
-| **v3** | 3 | + [CODEX] | `codex_research.md` |
+| v3 | 3 | + [CODEX] | `codex_research.md` |
+| **v4** | 4 | + [CLINE], [ROO] | `cline_research.md`, `roo_code_research.md` |
+
+## Scope of v4
+
+Version v4 incorporates Phase 4 findings from `docs/_research/cline_research.md` and `docs/_research/roo_code_research.md`. Four structural additions dominate v4:
+
+1. **IDE-embedded agent loop as a third macro-pattern.** The blueprint now recognises three distinct loop families: *interactive code-edit loop* (Aider, terminal-based), *tool-use protocol loop* (Claude Code, Rust runtime / Codex, Rust CLI), and *IDE-embedded per-action-approval loop* (Cline/Roo Code, VS Code extension). The IDE-embedded loop introduces per-action approval as the default, streaming partial tool presentation in the webview, mode-multiplexed prompt/tool-surface swapping (Roo), and VS Code extension lifecycle management. [CLINE] [ROO]
+
+2. **Mode system as a first-class orchestration primitive.** Roo Code elevates persona-switching from a binary Plan/Act toggle (Cline) to a full `ModeConfig` framework — `(roleDefinition, groups, customInstructions, fileRegex restrictions)` — with five built-in modes (architect, code, debug, ask, orchestrator) and unlimited user-defined custom modes via `.roomodes` YAML files. Mode simultaneously controls system prompt persona, tool-group RBAC, file-write restrictions, and per-mode model routing. No other agent in the blueprint unifies all four axes into a single user-editable record. [ROO]
+
+3. **Boomerang multi-agent delegation.** Roo Code's `new_task { mode, message, todos? }` implements a durable, persistent, mode-typed parent↔child delegation pattern where: the parent is flushed to disk and disposed; the child runs as a normal Task with the full UI/API stack; on `attempt_completion`, the child's summary is injected as a **synthetic `tool_result`** into the parent's API conversation history; the parent resumes as if `new_task` returned synchronously. This is structurally different from Claude Code's in-process `Agent` sub-agent (ephemeral, 32-iteration cap, file-based manifest) and from Cline's `new_task` (create-and-forget with no return path). [ROO]
+
+4. **Per-action approval as a third permission paradigm.** The permission taxonomy now has four paradigms: mode-based (`PermissionMode` enum [CLAUDE]), two-dimensional matrix (`AskForApproval × SandboxPolicy` [CODEX]), per-action approval (`ask()` blocking with granular auto-approval categories [CLINE]), and mode-as-permission (tool-group RBAC with `fileRegex` restrictions [ROO]). Cline's `CommandPermissionController` adds pattern-based command allow/deny rules. Roo removes hooks entirely (Cline's 9 lifecycle hooks) in favour of MCP servers. [CLINE] [ROO]
+
+Additional v4 refinements:
+
+- **Browser automation populated.** `docs/05_action_and_tools/browser_interaction.md` is no longer a stub — it documents Cline's Puppeteer-based screenshot-driven browser automation (the only first-party browser integration in the blueprint) and Roo's deliberate removal of browser as a deprecated tool group in favour of MCP-based browser servers. [CLINE] [ROO]
+- **MCP client comparison expanded.** `docs/05_action_and_tools/extensibility.md` now covers three MCP client implementations: Claude Code's Rust-based stdio-only `McpServerManager`, Cline's TypeScript `McpHub` with stdio+SSE+WebSocket transports, and Roo's mode-conditional variant with `alwaysAllow`, `disabledTools`, and silent deduplication. [CLINE] [ROO]
+- **Feedback loops expanded.** `docs/08_user_interaction/feedback_loops.md` adds Cline's per-action approval as a feedback mechanism, the `didRejectTool` cascade, `attempt_completion` as a bidirectional feedback gate, and Roo's mode-driven feedback patterns (debug mode's structured diagnosis flow, Boomerang completion feedback). [CLINE] [ROO]
+
+> **Source-of-truth note (v4)**: the [CLINE] research is grounded in a local checkout of `cline/cline` (the `cline/` directory in the workspace). The [ROO] research is grounded in a local checkout of `RooVetGit/Roo-Code` (the `roo/` directory). Where Roo Code diverges from its Cline fork (mode system, Boomerang delegation, browser deprecation, hooks removal), these divergences are documented as deliberate architectural choices, not bugs.
 
 ## Scope of v3
 
@@ -29,7 +50,7 @@ Version v2 incorporates Phase 2 findings from `docs/_research/claude_code_resear
 
 > **Source-of-truth note**: the [CLAUDE] research is grounded in the local clone at `/Users/deepg/Desktop/agent/claw-code/` pinned at HEAD `a389f8dff1d591d2eafc2f48747313cd556412ee`. The harness lives in the **Rust** workspace under `rust/crates/`. Where claw-code diverges from upstream Claude Code documentation, the research and synthesis report **source reality** (e.g., 5 `PermissionMode` variants vs. upstream's 3 modes; 3 hook events vs. upstream's 9; project-only `CLAUDE.md` discovery; `.claw/`-branded settings root; default mode `DangerFullAccess`). These divergences are called out in-line in the module documents.
 
-## The v2 Framework Mapped to the 8-Module Structure
+## The v4 Framework Mapped to the 8-Module Structure
 
 ### Level 1: Macro-Architecture and Ecosystem Autonomy
 Mapped to:
@@ -37,18 +58,18 @@ Mapped to:
 - `docs/06_orchestration/`
 - `docs/07_permissions_and_governance/`
 
-Refinement from v2: macro-architecture now distinguishes **in-process loops** ([AIDER], [CLAUDE]) from **queue-mediated loops** ([CODEX]). The Submission/Event protocol pair (`Op` ↔ `EventMsg`) lets one runtime drive multiple front-ends (TUI / headless / MCP-server / IDE-app-server) unchanged. Approval, compaction, MCP, undo, realtime, and tool lifecycle are *observable* messages on these queues rather than private callbacks. [CODEX]
+Refinement from v4: macro-architecture now recognises **three distinct loop families**: (1) interactive code-edit loop [AIDER], (2) tool-use protocol loop [CLAUDE] [CODEX], and (3) IDE-embedded per-action-approval loop [CLINE] [ROO]. The IDE-embedded loop is entered via `startTask()` / `resumeTaskFromHistory()` → `initiateTaskLoop()` → `recursivelyMakeClineRequests()`, with streaming response parsing via `parseAssistantMessageV2()` and per-action approval via the `ask()` / `pWaitFor()` paradigm. [CLINE]
 
-Refinement from v1: macro-architecture now includes a third top-level operating mode — **the multi-tool-call turn** [CLAUDE]. One user message into `ConversationRuntime::run_turn` produces an arbitrary internal trajectory of LLM calls + tool dispatches before returning, and the model itself decides termination by emitting a text-only assistant response. This sits alongside Aider's user-steered edit loop and archived BabyAGI's objective task loop. [AIDER] [BABYAGI] [CLAUDE]
+Refinement from v4: orchestration gains **two new delegation patterns**: Roo Code's Boomerang (`new_task { mode, message, todos? }` with persist-dispose-resume lifecycle, synthetic `tool_result` injection, and hierarchical nesting via `HistoryItem.childIds` / `parentTaskId`) and Cline's parallel `use_subagents` (up to 5 in-process subagents in a single turn). These join Claude Code's in-process `Agent` tool. [ROO] [CLINE]
 
-The orchestration module now includes a real **sub-agent spawning primitive**: `Agent` spawns a child `ConversationRuntime` in a `clawd-agent-{id}` thread with a reduced tool set, fresh `Session`, and isolated `PermissionPolicy`. Communication back to the parent is file-based (`<agent_id>.md` + `<agent_id>.json` manifest). [CLAUDE]
+Refinement from v4: the mode system (`docs/06_orchestration/workflow_modes.md`) is now a fully-populated module documenting five built-in modes, custom mode definitions via `.roomodes`, `TOOL_GROUPS` registry, `isToolAllowedForMode` validation, per-mode model routing, and `switch_mode` / `new_task` as the two mode-change primitives. [ROO]
 
 ### Level 2: Sensory Perception and Input Processing
 Mapped to:
 - `docs/08_user_interaction/input_processing.md`
 - `docs/03_context_engine/`
 
-Refinement from v1: input processing now documents the **three-tier REPL interception model** (slash command → bare-skill bypass → `run_turn`) [CLAUDE]. Slash commands are intercepted before the model sees the input — one of 139 spec-table entries / ~30 parser categories — and `/skills`'s `Invoke(prompt)` is the **one** slash-command path that ends up calling the model. [CLAUDE] Aider's command-first preprocessing remains the conversational analog. [AIDER]
+No structural change in v4. Cline and Roo Code use the same `ask()` / `say()` paradigm for input processing. The Plan/Act mode toggle [CLINE] and the mode-aware system prompt [ROO] extend input processing within the existing framework.
 
 ### Level 3: Context and Retrieval Engine
 Mapped to:
@@ -57,20 +78,16 @@ Mapped to:
 - `docs/03_context_engine/retrieval_strategies.md`
 - `docs/03_context_engine/token_economics.md`
 
-Refinement from v2: the project-doc layer gains a **vendor-neutral filename convention** with explicit precedence: `AGENTS.override.md` then `AGENTS.md`, walked **root → leaf** (leaf wins; opposite direction from claw-code's `CLAUDE.md` walker), concatenated under the literal separator `--- project-doc ---`, with a `project_doc_max_bytes` budget that *truncates* (not skips) over-long files (`core/src/agents_md.rs`). [CODEX]
+Refinement from v4: context assembly gains **mode-aware prompt construction** [ROO]. The system prompt is assembled per-mode: `roleDefinition` as the leading line, MCP capabilities conditional on the mode's `mcp` group, `modesSection` listing all available modes for the orchestrator picker, and mode-scoped rule directories `.roo/rules-${mode}/*`. This is structurally different from [CLAUDE]'s single system-prompt assembly per turn and [CODEX]'s AGENTS.md root→leaf injection.
 
-The compaction story also gains a second pattern: **Memento-style summarisation**. Rather than asking the model for a fresh narrative, [CODEX] re-encodes *the last assistant message of the turn* (which by Codex's prompt design is a structured turn-end summary) with a `SUMMARY_PREFIX` and uses it as the synthetic user message in the rebuilt history. `COMPACT_USER_MESSAGE_MAX_TOKENS = 20_000` caps verbatim recent-user-message preservation; older user messages are iterated *in reverse*, accumulated to the cap, then the next is truncated. `InitialContextInjection::{DoNotInject, BeforeLastUserMessage}` controls AGENTS.md re-insertion (mid-turn vs. pre-turn compaction). Pre-compaction history is preserved as `ghost_snapshots` so `Op::Undo` can rewind across the boundary (`core/src/compact.rs`). [CODEX]
-
-Refinement from v1: the context engine now distinguishes **prompt-time discovery** [CLAUDE] from per-call retrieval. Claude Code builds the system prompt **once per turn** via `SystemPromptBuilder::build`, walking cwd ancestors for `CLAUDE.md`/`CLAUDE.local.md`/`.claw/CLAUDE.md`/`.claw/instructions.md`, deduping by content hash, and capping each file at 4_000 chars and the whole block at 12_000 chars (`prompt.rs:43-44, 144-166`). [CLAUDE] Retrieval per call is *not* used; instead, the full `session.messages` is cloned into every iteration's `ApiRequest` until auto-compaction kicks in. [CLAUDE]
+Refinement from v4: retrieval gains an **embedded code-index** via `codebase_search` [ROO] — a Qdrant-backed vector store with 8 embedder backends (OpenAI, Fireworks, Gemini, Ollama, etc.) providing semantic code search within the `read` tool group.
 
 ### Level 4: The Core Cognitive Engine
 Mapped to:
 - `docs/01_core_loop/`
 - `docs/02_cognition/`
 
-Refinement from v2: the model client gains a **provider-locked, transport-redundant** pattern. [CODEX] uses **only** the OpenAI Responses API (no Chat Completions branch in `core/src/client.rs`), with WebSocket-primary and HTTP-SSE fallback (the session pins to HTTP after `UPGRADE_REQUIRED`). This contrasts with [AIDER] (LiteLLM, any provider) and [CLAUDE] (Anthropic Messages API). The trade is provider-portability for first-class `function_call` items including the freeform-grammar `apply_patch` tool. [CODEX]
-
-Refinement from v1: cognition now includes a **structurally-emergent reasoning pattern** [CLAUDE] — interleaved text and tool-use blocks (`build_assistant_message`, `conversation.rs:706-753`), `TodoWrite` as a metacognitive scratch-pad, `Skill` for packaged routines, `AskUserQuestion` for ambiguity escalation, `EnterPlanMode`/`ExitPlanMode` for posture switching, and `StructuredOutput` for JSON-typed thinking. There is no explicit `Thinking` content block or `extended_thinking` flag in claw-code at HEAD `a389f8d`. [CLAUDE] Self-correction emerges from `is_error: true` tool results re-entering the model context on the next iteration — there is no harness-level retry counter. [CLAUDE]
+Refinement from v4: the model client gains a **multi-provider, per-mode routing pattern** [ROO]. `ProviderSettingsManager.getModeConfigId(mode)` returns a saved API config per mode, enabling patterns like GPT-5 for `code` mode, Claude Opus for `architect` mode, and a cheaper model for `ask` mode. This is distinct from [AIDER]'s per-call architect/editor split and [CLINE]'s single-model-per-task configuration.
 
 ### Level 5: Metacognition, Feedback, and Self-Regulation
 Mapped to:
@@ -78,36 +95,54 @@ Mapped to:
 - `docs/08_user_interaction/feedback_loops.md`
 - `docs/07_permissions_and_governance/`
 
-Refinement from v1: metacognition now includes the **hooks system** as a programmable feedback surface [CLAUDE]. Three lifecycle events (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`) — flat `string[]` config without matcher syntax — let shell scripts intercept every tool call, override the permission decision, rewrite tool inputs (`updatedInput`), or inject `additionalContext` into the conversation. [CLAUDE] The complementary `SessionTracer` provides hot-path telemetry without subprocess cost. [CLAUDE]
+Refinement from v4: feedback loops gain **per-action approval as a feedback mechanism** [CLINE]. The `ask()` / `say()` paradigm creates a bidirectional feedback channel at every tool use. The `didRejectTool` cascade, `attempt_completion` as a feedback gate, and the `consecutiveMistakeCount` / `mistake_limit_reached` escalation add structured error-feedback paths. Nine lifecycle hooks (`PreToolUse`, `PostToolUse`, etc.) provide a programmable feedback surface with `contextModification` injection. [CLINE]
+
+Refinement from v4: metacognition gains **mode-driven feedback patterns** [ROO]. Debug mode's structured "reflect → distill → validate → confirm" cycle, architect mode's "end with switch_mode to request implementation" forwarding, and Boomerang completion feedback (child summary as synthetic `tool_result`) provide three distinct prompt-encoded feedback strategies. [ROO]
+
+Refinement from v4: the hooks system **diverges** between Cline and Roo. Cline has 9 lifecycle hooks executed as external processes with JSON I/O. Roo removes hooks entirely — `RooCodeEventName.*` events are for in-process API/bridge consumers only. Where Cline uses hooks for extensibility, Roo's answer is "use MCP servers." [CLINE] [ROO]
 
 ### Level 6: Memory Architecture and Temporal Persistence
 Mapped to:
 - `docs/04_memory/`
 - `docs/03_context_engine/retrieval_strategies.md`
 
-Refinement from v1: persistent memory is **promoted to a first-class mechanism** [CLAUDE]. `discover_instruction_files(cwd)` walks ancestors and probes four filenames per directory in fixed order; root-most-first load order; content-hash dedupe; rendered as `# Claude instructions` with `## <filename> (scope: <dir>)` subheadings. [CLAUDE] Auto-compaction at `cumulative input_tokens >= 100_000` (default) replaces older messages with a system summary while preserving the last 4 verbatim (`compact.rs:71-183`). [CLAUDE] **Notably absent in claw-code at HEAD `a389f8d`**: user-home memory file, enterprise memory file, `@include` directives, auto-write-back from `/memory`. [CLAUDE]
+Refinement from v4: context-window management gains two patterns: Cline's `summarize_task` auto-condense (summarises conversation when context nears capacity) and standard truncation (removes a quarter of conversation from `conversationHistoryDeletedRange`). [CLINE] [ROO]
+
+Refinement from v4: the Boomerang lifecycle introduces **cross-task memory persistence** [ROO]. Parent and child task histories are independently persisted to disk. The parent's API conversation history survives child execution across arbitrary clock time. `ghost_snapshots` (Codex) vs. `HistoryItem.childIds / parentTaskId / awaitingChildId` (Roo) represent two persistence strategies for multi-agent coordination.
 
 ### Level 7: Action Orchestration and Executable Skill Libraries
 Mapped to:
 - `docs/05_action_and_tools/`
 - `docs/07_permissions_and_governance/permission_model.md`
 
-Refinement from v2: the action layer gains a **freeform-grammar custom-tool pattern** alongside the typed-spec registry. [CODEX]'s `apply_patch` is a multi-file, multi-action edit primitive whose payload is the patch text itself (parsed by the standalone `codex-rs/apply-patch/` crate against `tools/src/tool_apply_patch.lark`), not a JSON `{ patch: string }` schema. The envelope (`*** Begin Patch` / `*** Add File:` / `*** Update File:` / `*** Delete File:` / `*** Move to:` / `@@ <anchor>` / `*** End Patch`) sits between [AIDER]'s "parse edits out of prose" and [CLAUDE]'s "single-file typed `edit_file` tool." A JSON `{ "input": string }` fallback exists for older models. [CODEX]
+Refinement from v4: the action layer gains **browser automation as a first-class tool** [CLINE]. Puppeteer-based `BrowserSession` with headless + remote CDP modes, six browser actions (`launch`, `click`, `type`, `scroll_down`, `scroll_up`, `close`), screenshot-driven visual reasoning (screenshot as image content block after every action), and `waitTillHTMLStable()` page stability mechanism. This is the only agent in the blueprint with built-in browser automation. [CLINE]
 
-The shell-family registry also expands to four config-driven variants (`shell` array-argv, `local_shell` custom, `exec_command` + `write_stdin` unified-session, `shell_command` string-form) with no default `read_file`/`write_file` pair — every read flows through the same approval+sandbox pipeline. [CODEX]
+Refinement from v4: the action layer gains **browser deprecation as an architectural policy** [ROO]. `deprecatedToolGroups = ["browser"]` with `groupEntryArraySchema` silent-strip preprocessor demonstrates the "MCP eats the agent's first-party tool surface" pattern — if a capability can be an MCP server, push it to the protocol layer. [ROO]
 
-Refinement from v1: the action layer now has a **typed-spec registry** [CLAUDE] — `ToolSpec { name, description, input_schema, required_permission }` aggregated by `GlobalToolRegistry` from three sources (50 built-in specs + plugin tools + runtime MCP tools), filtered by `--allowedTools`, sent on `MessageRequest.tools` with `tool_choice: Auto`. [CLAUDE] Tool calls and results travel as `ContentBlock::ToolUse` / `ContentBlock::ToolResult` correlated by `tool_use_id`. [CLAUDE]
-
-The **MCP integration** is now documented: `mcpServers` settings shape with six transport variants, but only `stdio` actually connects at HEAD `a389f8d`. Qualified-name format `mcp__<server>__<tool>` brings runtime-discovered tools into the same model-facing surface as built-ins. [CLAUDE]
+Refinement from v4: MCP client comparison expands to three implementations: Claude Code (Rust, stdio-only), Cline (TypeScript, stdio+SSE+WebSocket), Roo (TypeScript, mode-conditional with `alwaysAllow`/`disabledTools`/deduplication). [CLINE] [ROO]
 
 ### Level 8: Governance, Guardrails, and Alignment
 Mapped to:
 - `docs/07_permissions_and_governance/`
 - `docs/08_user_interaction/`
 
-Refinement from v2: governance is now **two-dimensional**. The blueprint formalises that "ask the human?" and "what can physically run?" are separable concerns. [CODEX] makes this explicit via `AskForApproval × SandboxPolicy`. The sandbox is a runtime-level OS containment layer (Seatbelt / bwrap+seccomp / restricted-token+job-object), not a tool-feature flag. `Never` does **not** mean "unsandboxed"; only `DangerFullAccess` or `ExternalSandbox` drop OS containment, and only `--dangerously-bypass-approvals-and-sandbox` drops both axes simultaneously. Approval is a wire-protocol round-trip (`EventMsg::*ApprovalRequest` ↔ `Op::*Approval`); `ReviewDecision` carries `Approved | ApprovedForSession | ApprovedExecpolicyAmendment | NetworkPolicyAmendment | Denied | TimedOut | Abort`, so a single reply can both authorize the immediate action and persist a session-scoped exec-policy / network amendment. [CODEX]
+Refinement from v4: the permission taxonomy expands to **four paradigms**: mode-based [CLAUDE], two-dimensional matrix [CODEX], per-action approval [CLINE], and mode-as-permission [ROO]. Cline's `CommandPermissionController` adds pattern-based command allow/deny rules via `CLINE_COMMAND_PERMISSIONS` environment variable. Roo's `isToolAllowedForMode` validation with `fileRegex` restrictions adds file-level write enforcement per mode. [CLINE] [ROO]
 
-Refinement from v1: governance now has a **mode-based permission system** with rule grammar and override layers [CLAUDE]. Five `PermissionMode` variants (three CLI-exposed: `read-only`, `workspace-write`, `danger-full-access`) plus deny/allow/ask rule lists with `ToolName(matcher)` grammar; ordered authorization (`deny → hook → ask → mode/allow → default deny`); `PermissionEnforcer` workspace-boundary check; `is_read_only_command` heuristic for `bash` under `ReadOnly`. [CLAUDE] **Notable divergences**: claw-code's default mode is `DangerFullAccess` (upstream defaults to a safer mode); managed/enterprise policy paths are **not implemented**; `--dangerously-skip-permissions` is "skip the prompter and mode-escalation gate" — it does **not** bypass deny rules, hook denies, or workspace-boundary checks. [CLAUDE]
+Refinement from v4: governance gains the **"MCP servers replace hooks" divergence** — Cline has 9 lifecycle hooks as external processes; Roo explicitly removes them. This is documented as a design philosophy difference, not a missing feature. [CLINE] [ROO]
+
+## What Changed from v3 (v4 deltas)
+
+| Change | Why it changed in v4 | Phase 4 evidence |
+| :--- | :--- | :--- |
+| IDE-embedded agent loop recognised as a **third macro-pattern**. | Terminal loops (Aider) and Rust-runtime loops (Claude Code, Codex) don't capture the VS Code extension lifecycle, streaming webview UI, or per-action approval-as-default. | `src/core/task/index.ts::recursivelyMakeClineRequests`, `ask()` / `pWaitFor()` polling, `parseAssistantMessageV2()`. [CLINE] |
+| **Mode system** elevated to a first-class orchestration primitive. | Cline's binary Plan/Act toggle doesn't generalise. Roo's `ModeConfig` framework provides personas × tool-RBAC × file-RBAC × model-routing in a single user-editable YAML record. | `packages/types/src/mode.ts`, `src/core/tools/validateToolUse.ts`, `CustomModesManager.ts`, `.roomodes`. [ROO] |
+| **Boomerang delegation** as a durable multi-agent pattern. | Claude Code's `Agent` tool is ephemeral (in-process, 32-iteration cap). Roo's `new_task` persists the parent to disk, disposes it, runs the child with the full stack, and on `attempt_completion` injects a synthetic `tool_result` to resume the parent. | `ClineProvider.ts:3231-3560`, `NewTaskTool.ts`, `AttemptCompletionTool.ts`, `new-task-isolation.spec.ts`. [ROO] |
+| **Per-action approval** as a third permission paradigm. | Claude Code's mode-based and Codex's matrix-based models don't capture the "every tool blocks until approved" pattern with granular auto-approve categories. | `ask()` / `say()` paradigm, `AutoApprove` class, `autoApprovalSettings`, `didRejectTool`. [CLINE] |
+| **Browser automation populated** from stub. | No prior agent had built-in browser automation. Cline's Puppeteer integration and Roo's deliberate removal are both significant. | `BrowserSession.ts`, `BrowserDiscovery.ts`, `deprecatedToolGroups = ["browser"]`. [CLINE] [ROO] |
+| **MCP client comparison** expanded to three implementations. | Claude Code's stdio-only Rust client is architecturally distinct from Cline/Roo's TypeScript multi-transport `McpHub`. Mode-conditional MCP gating is unique to Roo. | `McpHub.ts`, `mcp_settings.json`, `shouldIncludeMcp`. [CLINE] [ROO] |
+| **Mode-as-permission** as a fourth permission paradigm. | Roo's tool-group RBAC + `fileRegex` is structurally different from Claude Code's mode-based, Codex's matrix-based, and Cline's per-action models. | `isToolAllowedForMode`, `FileRestrictionError`, `ALWAYS_AVAILABLE_TOOLS`. [ROO] |
+| **Hooks divergence documented.** | Cline has 9 lifecycle hooks; Roo removes them. This design philosophy difference ("hooks vs. MCP servers for extensibility") is a significant architectural fork. | Cline `hooks.ts`, Roo's `RooCodeEventName` (in-process only). [CLINE] [ROO] |
+| **Feedback loops enriched** with per-action and mode-driven patterns. | Aider's reflected-message and BabyAGI's task-result feedback don't capture the bidirectional approval-as-feedback loop or the mode-scoped diagnosis workflow. | `ask()` paradigm, `didRejectTool`, `attempt_completion` feedback, debug mode instructions. [CLINE] [ROO] |
 
 ## What Changed from v2 (v3 deltas)
 
@@ -116,7 +151,7 @@ Refinement from v1: governance now has a **mode-based permission system** with r
 | Sandbox elevated to a **runtime-level property** with shared `SandboxPolicy` enum, three OS backends, and a single `manager.rs` dispatcher. | Phase 2's [CLAUDE] surfaced sandbox-shaping fields on `bash` but did not enforce them. Codex shows the proper pattern: containment is the runtime's job, not a tool's option. | `codex-rs/sandboxing/src/{manager,seatbelt}.rs`, `codex-rs/linux-sandbox/src/*`, `codex-rs/protocol/src/protocol.rs::SandboxPolicy`. [CODEX] |
 | Permission model becomes **two-dimensional** (`AskForApproval × SandboxPolicy`). | Collapsing both questions into one variant (claw-code's `PermissionMode`) loses the distinction between "no prompts" and "no containment." Codex shows them are independent. | `core/src/safety.rs`, `core/src/exec_policy.rs`, `utils/approval-presets/src/lib.rs`. [CODEX] |
 | Approval becomes a **wire-protocol round-trip** rather than an in-process callback. | Phase 1/2 approval flows are tied to a single host process. Codex's queue-mediated approval lets the same `core` crate drive TUI, headless `exec`, MCP-server-as-Codex, and IDE/app-server unchanged. | `Op::ExecApproval` / `Op::PatchApproval`, `EventMsg::ExecApprovalRequest` / `EventMsg::ApplyPatchApprovalRequest`, `ReviewDecision`. [CODEX] |
-| `apply_patch` envelope as a **freeform-grammar custom tool**. | Aider has many text-protocol edit formats; claw-code has typed `edit_file`. Codex finds a middle ground: multi-file/multi-action grammar-constrained payload that is the patch itself. | `codex-rs/apply-patch/`, `codex-rs/tools/src/{tool_apply_patch.lark,apply_patch_tool.rs}`. [CODEX] |
+| `apply_patch` envelope as a **freeform-grammar custom tool**. | Aider has many text-protocol edit formats; claw-code has typed `edit_file`. Codex finds a middle ground: multi-file/multi-action grammar-constrained payload that is the patch text itself. | `codex-rs/apply-patch/`, `codex-rs/tools/src/{tool_apply_patch.lark,apply_patch_tool.rs}`. [CODEX] |
 | Vendor-neutral project-doc convention (`AGENTS.override.md` > `AGENTS.md`, root → leaf, `--- project-doc ---` separator, byte-budget *truncation*). | Both Aider's repo-map and claw-code's `CLAUDE.md` bake the agent brand into the filename. Codex picks a vendor-neutral name and walks root → leaf so the leaf wins. | `core/src/agents_md.rs`. [CODEX] |
 | Memento-style auto-compaction with `ghost_snapshots` for `Op::Undo`. | claw-code's compaction asks the model for a fresh summary. Codex's compaction reuses the structured turn-end summary that the prompt design already requires the model to emit, and preserves pre-compaction history for undo. | `core/src/compact.rs`, `COMPACT_USER_MESSAGE_MAX_TOKENS = 20_000`, `InitialContextInjection::{DoNotInject, BeforeLastUserMessage}`. [CODEX] |
 | Standalone sandbox helper-binary pattern (`codex-linux-sandbox`). | Restricting the long-lived parent CLI is wrong; restricting the per-command child via a separate executable is right. The helper handles bwrap then re-execs itself for seccomp. | `codex-rs/linux-sandbox/`. [CODEX] |
@@ -136,19 +171,17 @@ Refinement from v1: governance now has a **mode-based permission system** with r
 | Added **MCP extensibility** to Level 7. | Phase 1 had no plugin/extension surface. Claude Code's MCP integration provides a standard JSON-RPC-over-stdio extension paradigm. | `mcp_stdio.rs`, `mcp.rs`, `mcp_tool_bridge.rs`. [CLAUDE] |
 | Promoted **slash-command interception** to Level 2. | Phase 1's `Commands.run()` (Aider) was the precursor; Claude Code generalizes it with a 139-entry spec table, ~30 parsed categories, hard-coded REPL exits, and the bare-skill bypass. | `main.rs:3579-3617`, `commands/src/lib.rs:1207, 1290-1496`. [CLAUDE] |
 
-## v3 Phase 3 Gaps (carried into Phase 4+)
+## v4 Phase 4 Gaps (carried into Phase 5+)
 
-After v3, **`sandboxing.md` is now richly populated** — it is the central Phase 3 deliverable. The following remain as placeholders or partial stubs:
+After v4, the following remain as placeholders or partial stubs:
 
-- **Browser interaction** (`docs/05_action_and_tools/browser_interaction.md`) — Phase 4 [CLINE] will populate this. claw-code does not implement a `Browser` sub-agent; `mcp__Claude_in_Chrome__*` are deferred MCP tools, not built-ins.
-- **Workflow modes** (`docs/06_orchestration/workflow_modes.md`) — Phase 4 [ROO] will populate this with the mode-system architecture (Code, Architect, Debug, Ask, Orchestrator).
 - **Task lifecycle** (`docs/06_orchestration/task_lifecycle.md`) — Phase 5 [KILO] will populate this with checkpoint/diff patterns. claw-code's `TaskRegistry` is bookkeeping only.
 - **Episodic memory** (`docs/04_memory/episodic_memory.md`) — Phase 6 [AUTOGPT] will populate this with execution-trace memory.
 - **Output formatting** (`docs/08_user_interaction/output_formatting.md`) — Phase 5 [OPENCODE] and Phase 6 [PI] will populate this with TUI rendering and terminal UI architecture.
 - **Safety guardrails** (`docs/07_permissions_and_governance/safety_guardrails.md`) — Phase 6 [AUTOGPT] will populate this with budget limits and safety constraints.
 - **Reasoning patterns** beyond Phase 2 — Phase 6 [AUTOGPT] will add explicit self-critique loops; Claude Code's pattern is structurally emergent rather than prompt-engineered.
-- **Plugin paradigm contrast** (`docs/05_action_and_tools/extensibility.md`) — Phase 6 [AUTOGPT] will add the *code-based* plugin pattern alongside the *protocol-based* MCP pattern documented in Phase 2.
-- **Per-action approval** (`docs/07_permissions_and_governance/permission_model.md`) — Phase 4 [CLINE] will add this as a third permission paradigm alongside [CLAUDE]'s modes and [CODEX]'s `AskForApproval × SandboxPolicy` matrix.
-- **OpenRouter multi-provider routing** (`docs/02_cognition/model_routing.md`) — Phase 5 [KILO] will add this. Aider's architect/editor model split is the Phase 1 reference; Claude Code uses one provider per session.
+- **Plugin paradigm contrast** (`docs/05_action_and_tools/extensibility.md`) — Phase 6 [AUTOGPT] will add the *code-based* plugin pattern alongside the *protocol-based* MCP pattern.
+- **OpenRouter multi-provider routing** (`docs/02_cognition/model_routing.md`) — Phase 5 [KILO] will add this. Roo's per-mode model routing is the Phase 4 reference.
+- **File-level permissions** (`docs/07_permissions_and_governance/permission_model.md`) — Phase 5 [KILO] will add this as a fifth permission paradigm.
 
-The hierarchy will be revised in v4 (Phase 4, [CLINE] + [ROO]) with IDE-embedded agent loops, Puppeteer browser automation, the mode-system architecture, the Boomerang multi-agent orchestration pattern, and per-action approval as the central additions.
+The hierarchy will be revised in v5 (Phase 5, [KILO] + [OPENCODE]) with file-level permissions, checkpoint/diff lifecycle, TUI architecture, and OpenRouter multi-provider routing as the central additions.

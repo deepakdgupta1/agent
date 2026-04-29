@@ -1,8 +1,14 @@
 # Permission Model
-> Module: 07_permissions_and_governance | Status: Phase 3 | Last Agent: Codex Synthesis
+> Module: 07_permissions_and_governance | Status: Phase 4 | Last Agent: Cline/Roo Synthesis
 
 ## 1. Overview
-A permission model is the policy layer that decides whether a given tool invocation is allowed, denied, or escalated to the user. This document specifies the [CLAUDE] mode-based permission system as the Phase 2 reference and the [CODEX] two-dimensional `AskForApproval × SandboxPolicy` matrix as the Phase 3 reference. Phase 4 will add Cline's per-action approval; Phase 5 will add Kilo Code's file-level permissions.
+A permission model is the policy layer that decides whether a given tool invocation is allowed, denied, or escalated to the user. This document specifies the [CLAUDE] mode-based permission system (Phase 2), the [CODEX] two-dimensional `AskForApproval × SandboxPolicy` matrix (Phase 3), and the [CLINE] per-action approval model (Phase 4) as three distinct paradigms. [ROO]'s mode-as-permission system is documented as a fourth approach that uses tool-group RBAC with file-regex restrictions.
+
+> **Four paradigms compared:**
+> - **[CLAUDE]** is **mode-first**: a single `PermissionMode` drives both "ask?" and "what can run?" — they collapse into one axis, with rules and hooks as overrides.
+> - **[CODEX]** decomposes the two questions: `AskForApproval` decides whether a human is consulted; `SandboxPolicy` decides what is physically possible. The two compose independently.
+> - **[CLINE]** is **per-action-first**: every tool use is presented to the user for approval by default. Granular auto-approval settings (`autoApprovalSettings`) and YOLO mode provide bypass mechanisms. A `CommandPermissionController` adds pattern-based command allow/deny rules.
+> - **[ROO]** uses **mode-as-permission**: the active mode's `groups` list IS the permission policy — no separate RBAC layer. `fileRegex` restrictions add write-path enforcement. No hooks system (unlike Cline). MCP access is mode-conditional.
 
 > **Two paradigms compared.** [CLAUDE] is **mode-first**: a single `PermissionMode` (`ReadOnly` / `WorkspaceWrite` / `DangerFullAccess`) drives both "ask?" and "what can run?" — they collapse into one axis, with rules and hooks as overrides. [CODEX] decomposes the two questions: `AskForApproval` decides whether a human is consulted; `SandboxPolicy` decides what is physically possible. The two compose. Critically, in Codex `Never + WorkspaceWrite` means "no prompts inside the sandbox," not "unsandboxed shell." See [sandboxing.md](sandboxing.md) for the containment side.
 
@@ -458,27 +464,122 @@ sequenceDiagram
     Core-->>Model: tool_result
 ```
 
-### Side-by-side comparison [CLAUDE] vs [CODEX]
+## [CLINE] Per-Action Approval Model
 
-| Axis | [CLAUDE] (claw-code) | [CODEX] |
+### The ask/say Paradigm [CLINE]
+
+Cline's approval model is built on two communication primitives:
+
+- **`say(type, text, images, files, partial)`** — One-way message to the user (informational). Does NOT block execution.
+- **`ask(type, text, partial)`** — Two-way message that **blocks until the user responds**. Uses `pWaitFor()` to poll `taskState.askResponse` every 100ms.
+
+### Ask Types (Approval Boundaries) [CLINE]
+
+| Ask Type | When Triggered | User Options |
 | --- | --- | --- |
-| Policy shape | Single `PermissionMode` enum (5 variants, 3 CLI-exposed) collapses "ask?" and "what can run?" | Two-dimensional: `AskForApproval` (5 variants) × `SandboxPolicy` (4 variants) |
-| Default | `DangerFullAccess` (claw-code-specific divergence from upstream) | `OnRequest + WorkspaceWrite` (`auto` preset) |
-| Approval mechanism | In-process `PermissionPrompter::decide` callback | Wire-protocol round-trip (`EventMsg::*ApprovalRequest` ↔ `Op::*Approval`) |
-| Containment when "no prompts" mode is set | `DangerFullAccess` = no prompts AND no containment | `Never` ≠ no containment; sandbox is determined by `SandboxPolicy` independently |
-| Rule grammar | `ToolName(matcher)` with `*`/`prefix:*`/`Exact`; `permissions.{allow,deny,ask}` lists | exec-policy rules with `prompt` / classify-as-dangerous / etc. classification; per-call `ApprovedExecpolicyAmendment` can persist additions |
-| Override channels | Hooks (`PermissionOverride::Allow/Deny/Ask`); workspace-boundary `PermissionEnforcer` | `Granular(GranularApprovalConfig)` per-category booleans; `ApprovedForSession` / amendment decisions |
-| Bypass | `--dangerously-skip-permissions` (still respects deny rules + hooks + workspace boundary) | `full-access` preset / `--dangerously-bypass-approvals-and-sandbox` (drops both prompts AND sandbox) |
-| What "skip permissions" means | Skip prompter + mode-escalation gate; deny rules and hooks still apply | Drop both approval AND OS sandbox simultaneously (`Never + DangerFullAccess`) |
-| Multi-front-end portability | In-process callback constrains the runtime to a single host | Queue-mediated approval portable across TUI, headless `exec`, MCP-server, IDE/app-server |
-| Path safety enforcement | `PermissionEnforcer::check_file_write(path, workspace_root)` heuristic | `is_write_patch_constrained_to_writable_paths` + protected `.git`/`.agents`/`.codex` subpaths + kernel-level sandbox |
+| `tool` | File, read/search/list, web, and other tool proposals | Approve / Reject / Edit |
+| `command` | Shell command proposed | Approve / Reject |
+| `command_output` | Running command receives additional output | Provide output / Continue |
+| `browser_action_launch` | Browser launch requested | Approve / Reject |
+| `use_mcp_server` | MCP server/tool use requires approval | Approve / Reject |
+| `use_subagents` | Subagent delegation requested | Approve / Reject |
+| `completion_result` | Task completion proposed | Accept / Provide Feedback |
+| `api_req_failed` | API error occurred | Retry / Cancel |
+| `mistake_limit_reached` | Too many errors | Provide Guidance / Cancel |
+| `followup` | LLM asks a question | Respond |
+
+### Auto-Approval Settings [CLINE]
+
+| Mode | Behavior |
+| --- | --- |
+| **YOLO Mode** (`yoloModeToggled`) | Auto-approves ALL tools — reads, writes, commands, browser, MCP |
+| **Granular Settings** (`autoApprovalSettings`) | Per-category: `readFiles`, `editFiles`, `executeSafeCommands`, `executeAllCommands`, `useBrowser`, `useMcp` |
+| **Path-Aware** | Distinguishes workspace-local vs external files (`editFilesExternally` toggle) |
+| **MCP Per-Tool** | Individual MCP tools can be marked `autoApprove` in `mcp_settings.json` |
+
+### Command Permission Controller [CLINE]
+
+`CommandPermissionController` (`src/core/permissions/CommandPermissionController.ts`) validates shell commands via `CLINE_COMMAND_PERMISSIONS` environment variable:
+
+```json
+{
+  "allow": ["npm *", "git *", "echo *"],
+  "deny": ["rm -rf *", "sudo *"],
+  "allowRedirects": false
+}
+```
+
+Evaluation rules:
+1. Parse command into segments (split by `&&`, `||`, `|`, `;`).
+2. Detect dangerous characters (backticks outside single quotes, newlines outside quotes).
+3. Check for redirect operators (`>`, `>>`, `<`) — blocked unless `allowRedirects: true`.
+4. Validate each segment against deny rules (first, takes precedence), then allow rules.
+5. Recursively validate subshell contents `(...)` and `$(...)`.
+6. No rules defined → allow everything (backward compatibility).
+
+### Rejection Propagation [CLINE]
+
+When a user rejects a tool via `ask()`, `taskState.didRejectTool = true` is set. All subsequent tool blocks **in the same turn** are skipped — the rejection cascades to prevent partially-approved tool sequences.
+
+## [ROO] Mode-as-Permission
+
+### Tool-Group RBAC [ROO]
+
+The active mode's `groups` list IS the permission policy — there is no separate per-tool RBAC layer. `isToolAllowedForMode` (`src/core/tools/validateToolUse.ts:120-239`) is the gatekeeper:
+
+1. Resolve tool aliases (`write_file` → `write_to_file`).
+2. If `toolRequirements` explicitly disables → deny.
+3. If in `ALWAYS_AVAILABLE_TOOLS` → allow.
+4. Walk mode's `groups`:
+   - If tool found in group AND group has `fileRegex` → validate path against regex; throw `FileRestrictionError` on mismatch.
+   - If tool found → allow.
+5. No matching group → deny.
+
+### File-Regex Write Restrictions [ROO]
+
+The `architect` mode's `["edit", { fileRegex: "\\.md$" }]` group entry means it can write `plan.md` but NOT source code. For `apply_patch`, every file path in the patch is extracted and validated against the regex. This is enforced at the validator, not just the prompt.
+
+### Mode-Conditional MCP Access [ROO]
+
+MCP tools are only available if the active mode includes `mcp` in its `groups` list. The `orchestrator` mode (`groups: []`) cannot use MCP tools. This is the MCP gating in the system prompt:
+```typescript
+const shouldIncludeMcp = hasMcpGroup && hasMcpServers
+```
+
+### No Hooks System [ROO]
+
+Roo Code does NOT have a hooks subsystem. Cline's 9 lifecycle hooks (`TaskStart`, `PreToolUse`, `PostToolUse`, etc.) are absent. Roo's `RooCodeEventName.*` events are for in-process API/bridge consumers, not user-extensible scripts. Where Cline uses hooks for extensibility, Roo's answer is "use MCP servers."
+
+### Differences from Cline [ROO]
+
+| Dimension | [CLINE] | [ROO] |
+| --- | --- | --- |
+| Permission model | Per-action approval (ask/say) + `CommandPermissionController` + hooks | Mode-group RBAC + `fileRegex` + mode-conditional MCP |
+| Auto-approval | Granular `autoApprovalSettings` + YOLO + per-MCP-tool | Per-server `alwaysAllow` list + `disabledTools` list |
+| Hooks | 9 lifecycle events as external processes with JSON I/O | None — use MCP servers instead |
+| File restrictions | `.clineignore` (gitignore-style) | `.rooignore` + per-mode `fileRegex` |
+| Rule sources | `.clinerules/` (flat) + `.cursorrules` + `.windsurfrules` + `.agents/` compat | `.roo/rules-${mode}/` (mode-scoped) + `.roorules` + `.clinerules` compat + `AGENTS.md` |
+
+## Four-Paradigm Comparison
+
+| Axis | [CLAUDE] | [CODEX] | [CLINE] | [ROO] |
+| --- | --- | --- | --- | --- |
+| Policy shape | Single `PermissionMode` (5 variants) | Two-dimensional `AskForApproval × SandboxPolicy` | Per-action approval with granular auto-approve categories | Mode's `groups` list IS the permission policy |
+| Default | `DangerFullAccess` (claw-code) | `OnRequest + WorkspaceWrite` (`auto` preset) | Per-action (every tool asks) | Mode-dependent (code = full edit/command; architect = read + md-only edit) |
+| Approval mechanism | In-process `PermissionPrompter::decide` | Wire-protocol round-trip | `ask()` blocking with 100ms `pWaitFor` polling | Same as Cline (fork) |
+| Override channels | Hooks + deny/allow/ask rules | `Granular` per-category booleans + session amendments | YOLO mode + granular settings + hooks + `CommandPermissionController` | Per-mode tool groups + `fileRegex` (no hooks) |
+| Command filtering | `is_read_only_command` heuristic | exec-policy rules | Pattern-based `CLINE_COMMAND_PERMISSIONS` allow/deny | Same as Cline per-action approval |
+| Bypass | `--dangerously-skip-permissions` (still respects deny rules) | `full-access` / `--dangerously-bypass-approvals-and-sandbox` | YOLO mode auto-approves everything | YOLO mode (inherited from Cline) |
+| MCP gating | Mode + connection state | Per-category `mcp_elicitations` | Global when servers exist + per-tool `autoApprove` | Mode-conditional (only if mode has `mcp` group) |
+| Extensibility | Hooks + rules | Exec-policy amendments | Hooks (9 lifecycle events) | MCP servers (no hooks) |
 
 ## 7. Agent Attribution Table
 
 | Agent | Source-backed contribution |
 | --- | --- |
 | [CLAUDE] | `PermissionMode` enum (`ReadOnly`/`WorkspaceWrite`/`DangerFullAccess`/`Prompt`/`Allow`); CLI-exposed three-mode surface; settings-file alias mapping (`default`→`ReadOnly`, `auto`→`WorkspaceWrite`, `dontAsk`→`DangerFullAccess`); 5-path settings discovery with last-wins deep merge; `.claw/`-branded settings root with `.claude/`-style legacy `.claw.json` aliases; `permissions.{allow,deny,ask}` rule lists with `ToolName(matcher)` grammar (`*` / `prefix:*` / `Exact`); `extract_permission_subject` positional key probing; ordered authorization (`deny` → hook → ask → mode/allow → default deny); `PermissionPrompter::decide` contract with hard-deny fallback; `PermissionEnforcer::check_file_write` workspace-boundary; `is_read_only_command` heuristic for `bash` under `ReadOnly`; `--dangerously-skip-permissions` semantics that still respect deny rules and hooks; default mode `DangerFullAccess` (claw-code-specific divergence). |
-
 | [CODEX] | Two-dimensional autonomy matrix (`AskForApproval × SandboxPolicy`) decoupling "ask the human?" from "what can physically run"; five-variant `AskForApproval` (`UnlessTrusted`, `OnFailure` *(deprecated)*, `OnRequest` *(default)*, `Granular(GranularApprovalConfig)`, `Never`); four-variant `SandboxPolicy` (`DangerFullAccess`, `ReadOnly`, `ExternalSandbox`, `WorkspaceWrite`); three named presets (`read-only`, `auto`, `full-access`) plus the headless `--full-auto` flag (which is *not* the `auto` preset); per-category gating logic in `safety.rs` (patch), `exec_policy.rs` (shell), and `Granular` flags (skill / MCP elicitation / `request_permissions`); patch decision tree returning `AutoApprove { sandbox_type, user_explicitly_approved } | AskUser | Reject`; approval as a wire-protocol round-trip (`EventMsg::ExecApprovalRequest` / `EventMsg::ApplyPatchApprovalRequest` ↔ `Op::ExecApproval { id, turn_id, decision }` / `Op::PatchApproval { id, decision }`); `ReviewDecision` carrying `Approved | ApprovedForSession | ApprovedExecpolicyAmendment | NetworkPolicyAmendment | Denied | TimedOut | Abort` so a single reply can both authorize and persist a session amendment; sandbox-denial → no-sandbox-retry approval path for retry-eligible policies; the explicit semantic that `Never` means "no prompts" and **not** "unsandboxed" — containment continues to be decided by `SandboxPolicy`; `--dangerously-bypass-approvals-and-sandbox` as the only true full-bypass escape hatch (drops both axes simultaneously). |
+| [CLINE] | Per-action approval via the `ask()` / `say()` paradigm — `ask()` blocks with `pWaitFor()` polling at 100ms intervals; 17+ ask types (`tool`, `command`, `command_output`, `browser_action_launch`, `use_mcp_server`, `use_subagents`, `completion_result`, `followup`, etc.); granular auto-approval via `AutoApprove` class with `yoloModeToggled` (auto-approve ALL tools), per-category `autoApprovalSettings` (`readFiles`, `editFiles`, `executeSafeCommands`, `executeAllCommands`, `useBrowser`, `useMcp`), path-aware `editFilesExternally` toggle, and per-MCP-tool `autoApprove` in `mcp_settings.json`; `CommandPermissionController` (`src/core/permissions/CommandPermissionController.ts`) with pattern-based `allow`/`deny` rules via `CLINE_COMMAND_PERMISSIONS` env var, segment-by-segment validation, dangerous-character detection, redirect blocking, and recursive subshell validation; `didRejectTool` flag cascading rejection to all subsequent tool blocks in the same turn; 9 lifecycle hooks (`TaskStart`, `TaskResume`, `TaskCancel`, `TaskComplete`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Notification`, `PreCompact`) executed as external processes with JSON I/O and `contextModification` injection; notification system (VS Code notifications, sound alerts, hook-driven events). |
+| [ROO] | Mode-as-permission: active mode's `groups` list is the permission policy with no separate RBAC layer; `isToolAllowedForMode` validator with alias resolution, `ALWAYS_AVAILABLE_TOOLS` bypass, group walking, and `FileRestrictionError` for regex-protected groups; `architect` mode markdown-only edits via `fileRegex: "\\.md$"`; `apply_patch` per-file-path regex validation; mode-conditional MCP access (`shouldIncludeMcp = hasMcpGroup && hasMcpServers`); `orchestrator` mode with `groups: []` — only always-available tools; no hooks system (Roo's `RooCodeEventName.*` events are for in-process listeners only); `.rooignore` (renamed from `.clineignore`); per-server `alwaysAllow` list and `disabledTools` list for MCP tool gating; mode-scoped rule directories `.roo/rules-${mode}/*` as prompt-level permission guidance. |
 
-> Phase 4 [CLINE] will add per-action approval; Phase 5 [KILO] will add file-level permissions.
+> Phase 5 [KILO] will add file-level permissions as a fifth paradigm.
