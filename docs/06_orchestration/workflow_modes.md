@@ -1,5 +1,5 @@
 # Workflow Modes
-> Module: 06_orchestration | Status: Phase 4 | Last Agent: Cline/Roo Synthesis
+> Module: 06_orchestration | Status: Phase 5 | Last Agent: Kilo/OpenCode Synthesis
 
 ## 1. Overview
 Workflow modes are named agent personas that swap the system prompt, allowed-tool surface, and behavioral constraints at runtime without changing the underlying agent loop. This document specifies [ROO]'s mode system as the Phase 4 reference — the first agent in the blueprint to elevate persona-switching to a first-class, user-extensible primitive. [CLINE]'s Plan/Act toggle is documented as the precursor pattern that Roo Code generalizes.
@@ -9,6 +9,10 @@ Workflow modes are named agent personas that swap the system prompt, allowed-too
 [CLINE] has a binary **Plan Mode / Act Mode** toggle, not a first-class mode system. Plan Mode restricts file-modification tools (`write_to_file`, `replace_in_file`, `apply_patch`, `new_rule`) when `strictPlanModeEnabled` is on, and the model communicates via the `plan_mode_respond` tool. Act Mode enables all tools and uses `act_mode_respond` for progress updates. Switching between Plan and Act is a UI button action, not a tool call. (Cline research §3.4.)
 
 [ROO] **replaced** the Plan/Act binary toggle with the mode framework. There is no `plan_mode_respond` or `act_mode_respond` tool in Roo Code — planning is now a *mode* (`architect`) with the same enforcement machinery as any other mode. (Roo research §4.3.)
+
+[KILO] uses a **named-agent system** that parallels Roo's modes but is structurally different. Kilo defines six native agents (`code`, `plan`, `debug`, `ask`, `orchestrator`, `explore`) with per-agent permission rulesets composed via `Permission.fromConfig()` + `Permission.merge()`. Unlike Roo's `ModeConfig` YAML records that unify persona × tool-RBAC × file-RBAC × model-config, Kilo's agents are defined in TypeScript via `patchAgents()` with explicit permission merging of defaults + agent-specific rules + user config + deny overrides. The `build → code` renaming maintains backward compatibility. Custom agents can be defined via markdown files in config directories (no `.roomodes`-style YAML needed). Plan mode has a structured `PlanFollowup` handoff to code mode. (Kilo research §6.)
+
+[OPENCODE] provides the base agent framework with `build`, `plan`, `general`, and `explore` agents. Each agent has a `mode` field (`"primary"` or `"subagent"`) and an optional model override. The agent list is extensible via markdown files in config directories. (OpenCode research §3.)
 
 ## 2. Blueprint Specification
 
@@ -389,4 +393,63 @@ sequenceDiagram
 | [ROO] | `ModeConfig` schema (`slug`, `name`, `roleDefinition`, `whenToUse`, `description`, `customInstructions`, `groups` with `groupEntrySchema` supporting `fileRegex` restrictions); five built-in modes (`architect` with markdown-only edits, `code` with full edit/command, `ask` as read-only assistant, `debug` with structured diagnosis workflow, `orchestrator` with `groups: []` and only always-available tools); `TOOL_GROUPS` registry (`read`, `edit` with `customTools`, `command`, `mcp`, `modes` with `alwaysAvailable: true`); `ALWAYS_AVAILABLE_TOOLS` list guaranteeing `switch_mode`/`new_task`/`attempt_completion` in all modes; `TOOL_ALIASES` registry preserving model-emitted names while routing to canonical handlers; `isToolAllowedForMode` validator with alias resolution, always-available bypass, group walking, and `FileRestrictionError` for regex-protected groups; mode-aware system prompt assembly with conditional MCP catalog based on mode groups; `modesSection` listing all available modes for the `switch_mode`/`new_task` picker; mode-specific rule directories `.roo/rules-${mode}/` with priority loading (global, project, subfolder, legacy fallbacks); `CustomModesManager` with `cleanInvisibleCharacters` input hardening, YAML+JSON dual-format parsing, write queue serialization, 10s cache TTL, file watcher, and schema validation with line-number error reporting; `.roomodes` project-level custom mode definitions with merge precedence (project over global, custom over built-in); `ProviderSettingsManager.getModeConfigId(mode)` per-mode API config binding; `handleModeSwitch(mode_slug)` with task history update, global state write, per-mode API config loading, webview re-render, `TaskModeSwitched`+`ModeChanged` events, and 500ms settling sleep; `switch_mode { mode_slug, reason }` as a first-class tool for in-place mode switching; `new_task { mode, message, todos? }` as the Boomerang delegation primitive (see `multi_agent_patterns.md`); `update_todo_list` as always-available task-progress tool with `preventCompletionWithOpenTodos` blocking setting; `deprecatedToolGroups = ["browser"]` with `groupEntryArraySchema` silent-strip preprocessor; mode import/export with bundled rule files. |
 | [CLINE] | Binary Plan/Act mode toggle (not a first-class mode system); `strictPlanModeEnabled` gate blocking `FILE_NEW`, `FILE_EDIT`, `APPLY_PATCH` tool types in Plan Mode; `plan_mode_respond { response, needs_more_exploration, task_progress }` tool for plan presentation with user response/option-selection/mode-switch interaction; `act_mode_respond { response, task_progress }` non-blocking progress tool with anti-narration guard; Plan↔Act switching via UI button action (not a tool call); Focus Chain as an alternative to Roo's `update_todo_list` — implicit `task_progress` parameter on many tools rather than an explicit checklist tool. |
 
-> Phase 5 [OPENCODE] will add built-in agent personas (`build`/`plan`) alongside Roo's mode system. Phase 7 [CONTINUE] may add CI-integrated rule-mode patterns.
+> Phase 5 [OPENCODE] adds built-in agent personas (`code`/`plan`/`debug`/`ask`/`orchestrator`/`explore`) [KILO] alongside Roo's mode system.
+
+## [KILO] Named Agent System
+
+### Agent Registry [KILO]
+
+Kilo defines agents in `packages/opencode/src/kilocode/agent/index.ts` via the `patchAgents()` function, which modifies the base OpenCode agent map:
+
+| Agent | Mode | Description | Key Permission Rules |
+| --- | --- | --- | --- |
+| `code` | primary | Highly skilled software engineer (renamed from OpenCode's `build`) | Full `bash` access + `semantic_search` + user overrides |
+| `plan` | primary | Read-only + plan file writes | `readOnlyBash` + MCP rules + edits restricted to `.kilo/plans/*.md`, `.opencode/plans/*.md`, `{data}/plans/*.md` |
+| `explore` | primary | Codebase exploration and search | Deny-default + `read`, `grep`, `glob`, `bash`, `webfetch`, `websearch`, `codesearch`, `codebase_search`, `semantic_search` |
+| `debug` | primary | Diagnose and fix software issues | Full defaults + `question`, `suggest`, `plan_enter`, `semantic_search` |
+| `orchestrator` | primary (deprecated) | Coordinate complex tasks in parallel | Read-only + `task`, `todoread`, `todowrite`, `question`. Bash **denied** (enforced *after* user config) |
+| `ask` | primary | Answer questions without modifications | `readOnlyBash` + read/search tools + MCP (with approval). All file edits **denied**. User denies re-applied after MCP rules |
+
+### Permission Composition Order [KILO]
+
+```
+defaults → agent-specific rules → user config → deny overrides
+```
+
+Key design decisions:
+- `orchestrator.bash = "deny"` is applied **after** user config — users cannot re-enable shell for the orchestrator.
+- `ask` mode re-applies `user.filter(r => r.action === "deny")` after the ask-specific MCP rules — explicit user denies always win over auto-generated MCP rules.
+- `plan` mode uses `planGuard(mcpRules)` which restricts edits to plan file paths only.
+
+### Agent Lifecycle Differences from Roo [KILO] vs [ROO]
+
+| Dimension | Kilo Agents | Roo Modes |
+| --- | --- | --- |
+| Definition format | TypeScript `patchAgents()` function | YAML `.roomodes` records |
+| Schema | Ad-hoc per-agent objects with `permission: Permission.Ruleset` | `ModeConfig` schema with `roleDefinition`, `groups`, `customInstructions` |
+| Tool access control | Explicit `Permission.fromConfig()` + `Permission.merge()` | `TOOL_GROUPS` registry + `isToolAllowedForMode` validator |
+| File restrictions | Path-based via `Permission.fromConfig({ edit: { "*.md": "allow" } })` | Regex-based via `fileRegex` in group options |
+| Custom agents | Markdown files in config directories | `.roomodes` YAML/JSON + `CustomModesManager` |
+| Mode switching | Session prompt queue retargeting + new session creation | `switch_mode` tool (in-place) + `new_task` (Boomerang) |
+| Model routing | Plan→code model resolution (state file → config → fallback) | `ProviderSettingsManager.getModeConfigId(mode)` per-mode API config |
+
+### Custom Agent Definition via Markdown [KILO] [OPENCODE]
+
+Agents can be defined by placing `.md` files in config directories:
+```
+~/.config/kilo/agents/<name>.md
+<project>/.kilo/agents/<name>.md
+```
+
+The markdown file's frontmatter defines agent metadata (model, temperature, etc.), and the body becomes the agent's system prompt. The `remove()` function handles deletion of custom agents by scanning config directories and legacy `.kilocodemodes` YAML files.
+
+## 7. Agent Attribution Table
+
+| Agent | Source-backed contribution |
+| --- | --- |
+| [ROO] | `ModeConfig` schema (`slug`, `name`, `roleDefinition`, `whenToUse`, `description`, `customInstructions`, `groups` with `groupEntrySchema` supporting `fileRegex` restrictions); five built-in modes (`architect` with markdown-only edits, `code` with full edit/command, `ask` as read-only assistant, `debug` with structured diagnosis workflow, `orchestrator` with `groups: []` and only always-available tools); `TOOL_GROUPS` registry (`read`, `edit` with `customTools`, `command`, `mcp`, `modes` with `alwaysAvailable: true`); `ALWAYS_AVAILABLE_TOOLS` list guaranteeing `switch_mode`/`new_task`/`attempt_completion` in all modes; `TOOL_ALIASES` registry preserving model-emitted names while routing to canonical handlers; `isToolAllowedForMode` validator with alias resolution, always-available bypass, group walking, and `FileRestrictionError` for regex-protected groups; mode-aware system prompt assembly with conditional MCP catalog based on mode groups; `modesSection` listing all available modes for the `switch_mode`/`new_task` picker; mode-specific rule directories `.roo/rules-${mode}/` with priority loading (global, project, subfolder, legacy fallbacks); `CustomModesManager` with `cleanInvisibleCharacters` input hardening, YAML+JSON dual-format parsing, write queue serialization, 10s cache TTL, file watcher, and schema validation with line-number error reporting; `.roomodes` project-level custom mode definitions with merge precedence (project over global, custom over built-in); `ProviderSettingsManager.getModeConfigId(mode)` per-mode API config binding; `handleModeSwitch(mode_slug)` with task history update, global state write, per-mode API config loading, webview re-render, `TaskModeSwitched`+`ModeChanged` events, and 500ms settling sleep; `switch_mode { mode_slug, reason }` as a first-class tool for in-place mode switching; `new_task { mode, message, todos? }` as the Boomerang delegation primitive (see `multi_agent_patterns.md`); `update_todo_list` as always-available task-progress tool with `preventCompletionWithOpenTodos` blocking setting; `deprecatedToolGroups = ["browser"]` with `groupEntryArraySchema` silent-strip preprocessor; mode import/export with bundled rule files. |
+| [CLINE] | Binary Plan/Act mode toggle (not a first-class mode system); `strictPlanModeEnabled` gate blocking `FILE_NEW`, `FILE_EDIT`, `APPLY_PATCH` tool types in Plan Mode; `plan_mode_respond { response, needs_more_exploration, task_progress }` tool for plan presentation with user response/option-selection/mode-switch interaction; `act_mode_respond { response, task_progress }` non-blocking progress tool with anti-narration guard; Plan↔Act switching via UI button action (not a tool call); Focus Chain as an alternative to Roo's `update_todo_list` — implicit `task_progress` parameter on many tools rather than an explicit checklist tool. |
+| [KILO] | `patchAgents()` function (`kilocode/agent/index.ts`) modifying the base agent map: `build → code` renaming with `resolveKey()` / `preprocessConfig()` backward compatibility; six native agents (`code`, `plan`, `debug`, `ask`, `orchestrator`, `explore`) with per-agent permission rulesets; `bash` full-access map (60+ command patterns with `*: ask` default); `readOnlyBash` deny-default map with selective git read-only ops and shell metacharacter blocking; `askGuard(mcpRules)` for read-only agents; `planGuard(mcpRules)` for plan-mode agents with `.kilo/plans/*.md` write restriction; `getMcpRules(cfg)` auto-generating per-server MCP wildcard rules from config; `prepare(cfg)` pre-computing mcpRules + defaults patch; `telemetryOptions(cfg)` for OpenTelemetry integration; `processConfigItem()` for displayName/deprecated extraction; custom agent definition via markdown files in config directories; `remove(name)` scanning config dirs + legacy `.kilocodemodes` YAML for custom agent deletion. |
+| [OPENCODE] | Base agent framework with `build`, `plan`, `general`, and `explore` agents; agent `mode` field (`"primary"` / `"subagent"` / `"all"`); optional per-agent model override (`{ modelID, providerID }`); extensible agent registry via markdown files in config directories; `Agent.Service` with `get(name)` lookup. |
+
+> Phase 7 [CONTINUE] may add CI-integrated rule-mode patterns.

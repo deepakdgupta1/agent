@@ -4,7 +4,7 @@
 ## 1. Overview
 Browser interaction describes how an agent launches, controls, and reasons about a web browser within its tool-use loop. This document specifies the [CLINE] Puppeteer-based, screenshot-driven browser automation pattern as the Phase 4 reference. It is the **only** agent in the blueprint with first-party, built-in browser automation at the time of writing.
 
-[CLINE] implements browser automation via **Puppeteer** in `src/services/browser/BrowserSession.ts`. The agent launches a Chrome/Chromium instance (headless or via remote debugging protocol), navigates to URLs, performs click/type/scroll actions, and after every action captures a **screenshot** that is sent back to the LLM as an image content block. The LLM then reasons visually about the page state — inspecting rendered layout, reading text from the screenshot, and deciding what to click or type next based on coordinates. This is Cline's "Computer Use" capability. (Cline research §4.)
+[CLINE] implements browser automation via **Puppeteer** in `src/services/browser/BrowserSession.ts`. The agent launches a Chrome/Chromium instance (headless or via remote debugging protocol), navigates to URLs, performs click/type/scroll actions, and after every action **except `close`** captures a **screenshot** that is sent back to the LLM as an image content block (`BrowserToolHandler.ts:177`, `BrowserSession.ts:340`). The `close` action returns a text confirmation without a screenshot. The LLM reasons visually about the page state — inspecting rendered layout, reading text from the screenshot, and deciding what to click or type next based on coordinates. This is Cline's "Computer Use" capability. (Cline research §4.)
 
 [ROO] **removed browser automation entirely** from its Cline fork. `packages/types/src/tool.ts:16` declares `deprecatedToolGroups = ["browser"]`, and the schema preprocessor silently strips the `browser` group from any custom mode's configuration. There is no active `browser_action` tool or `BrowserSession.ts` in Roo Code's current `src/` tree, despite the `package.json` still listing `puppeteer-core` and `puppeteer-chromium-resolver` as dependencies. Roo's architectural bet is to **push browser interaction to MCP servers** (e.g., a `browsermcp` MCP server) rather than maintaining it as a first-party feature. This is the cleanest example in the blueprint of "MCP eats the agent's first-party tool surface." (Roo research §4.3, §6.10.)
 
@@ -50,7 +50,7 @@ The `browser_action` tool accepts the following actions:
 
 ### Screenshot-Driven Interaction Model [CLINE]
 
-After **every** action, `doAction()` executes a standard post-action pipeline:
+After every action **except `close`**, `doAction()` executes a standard post-action pipeline:
 
 1. **Attach listeners** — Console log and page error listeners are registered.
 2. **Execute action** — The requested browser action runs.

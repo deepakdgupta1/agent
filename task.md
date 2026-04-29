@@ -436,7 +436,7 @@
 
 ### Task 12: Kilo Code — Research Task Workflows & Checkpoints
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Analyze Kilo Code's architecture focusing on its task-based workflow system, checkpoint/diff mechanism, and file-level permission model.
@@ -457,15 +457,15 @@
   5. **Differences from Cline/Roo Code**: What Kilo Code adds or changes architecturally.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Checkpoint system section describes the implementation at code level
-- [ ] Permission model section contrasts with Cline and Roo Code
-- [ ] Multi-provider section covers the routing/selection logic
+- [x] Checkpoint system section describes the implementation at code level
+- [x] Permission model section contrasts with Cline and Roo Code
+- [x] Multi-provider section covers the routing/selection logic
 
 ---
 
 ### Task 15: OpenCode — Research TUI Agent Architecture & Client/Server Model
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Complete**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Analyze OpenCode's architecture focusing on its terminal-based TUI, client/server model, built-in agent personas (build, plan), and multi-provider support.
@@ -486,9 +486,9 @@
   5. **Plugin/Extension System**: How the agent can be extended with plugins, themes, and custom tools.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Core loop shows the full TUI-driven execution pipeline
-- [ ] Client/server section covers the architectural separation and communication
-- [ ] Built-in agents section contrasts with Roo Code's mode system and Claude Code's sub-agents
+- [x] Core loop shows the full TUI-driven execution pipeline
+- [x] Client/server section covers the architectural separation and communication
+- [x] Built-in agents section contrasts with Roo Code's mode system and Claude Code's sub-agents
 
 ---
 
