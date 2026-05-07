@@ -9,7 +9,7 @@
 | `[CLINE]` | Cline | https://github.com/cline/cline | IDE-embedded autonomous agent | Phase 4 | Analyzed |
 | `[ROO]` | Roo Code | https://github.com/RooCodeInc/Roo-Code | IDE-embedded multi-persona agent | Phase 4 | Analyzed |
 | `[KILO]` | Kilo Code | https://github.com/Kilo-Org/kilocode | IDE-embedded agentic platform (OpenCode fork) | Phase 5 | Analyzed |
-| `[AUTOGPT]` | AutoGPT | https://github.com/significant-gravitas/autogpt | Autonomous goal-seeking agent | Phase 6 | Not Started |
+| `[AUTOGPT]` | AutoGPT | https://github.com/significant-gravitas/autogpt | Autonomous goal-seeking agent | Phase 6 | Analyzed |
 | `[OPENCODE]` | OpenCode | https://github.com/anomalyco/opencode | Terminal-based TUI coding agent | Phase 5 | Not Started |
 | `[PI]` | Pi Agent | https://github.com/badlogic/pi-mono | Modular coding agent runtime | Phase 6 | Not Started |
 | `[CONTINUE]` | Continue | https://github.com/continuedev/continue | IDE coding assistant framework | Phase 7 | Not Started |

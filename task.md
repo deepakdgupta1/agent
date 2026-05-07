@@ -529,7 +529,7 @@
 
 ### Task 14: AutoGPT — Research Goal Decomposition & Autonomous Loops
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Analyze AutoGPT's architecture focusing on its goal-seeking autonomous loop, plugin system, and long-running task management.
@@ -551,10 +551,12 @@
   6. **Budget & Limits**: Token/cost budgets, iteration limits, termination conditions.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Autonomous loop section shows the full cycle without human gates
-- [ ] Goal decomposition section shows the planning prompt and output format
-- [ ] Plugin system section describes the plugin interface and registration mechanism
-- [ ] Self-critique section covers the prompt engineering behind self-evaluation
+- [x] Autonomous loop section shows the full cycle without human gates
+- [x] Goal decomposition section shows the planning prompt and output format
+- [x] Plugin system section describes the plugin interface and registration mechanism
+- [x] Self-critique section covers the prompt engineering behind self-evaluation
+
+> **Source-of-truth note:** AutoGPT's repo is now a two-project monorepo. The autonomous-loop architecture (the Phase-6 deliverable) lives in `classic/` (`classic/forge/` framework + `classic/original_autogpt/` agent), explicitly marked **unsupported / educational** by the in-tree `classic/CLAUDE.md`. The supported product, `autogpt_platform/`, has pivoted to a 95-block dataflow-graph architecture (Next.js + FastAPI + Postgres + Prisma) and no longer implements goal-decomposing autonomous loops; LLM nodes (`claude_code.py`, `codex.py`, …) are individual graph steps. The classic agent still ships a **`PlatformBlocksComponent`** that exposes platform blocks as classic commands when `PLATFORM_API_KEY` is set, which is the explicit bridge between the two architectures. The report focuses on classic and includes a §10 platform-delta. Additional findings worth flagging for synthesis (Task 16): (a) **7 swappable prompt strategies** (one_shot, plan_execute, ReWOO, reflexion, tree_of_thoughts, lats, multi_agent_debate) hot-swap on a single agent runtime via `Agent._create_prompt_strategy`; (b) ReWOO's `EXECUTING` phase replays cached actions by raising `UseCachedActionException` out of `build_prompt`, **skipping the LLM call entirely** — caught by `Agent.propose_action` via string-name comparison to avoid an import cycle; (c) the legacy `auto_gpt_plugin_template` plugin system is **defunct in this checkout** (`classic/original_autogpt/plugins/` is empty), replaced by the component system + `SKILL.md` progressive-disclosure plugin format; (d) `total_budget` cost tracking exists in `ModelProviderBudget` but is **logged-only, not enforced** as a hard stop — a real gap vs Codex; (e) `ReflexionPromptStrategy.memory` (max 20 reflections) survives task switches but **is not serialized to `state.json`**, so a process restart erases it.
 
 ---
 
