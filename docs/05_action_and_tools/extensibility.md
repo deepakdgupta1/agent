@@ -1,14 +1,16 @@
 # Extensibility
-> Module: 05_action_and_tools | Status: Phase 6 | Last Agent: AutoGPT/Pi Synthesis
+> Module: 05_action_and_tools | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
-Extensibility describes how an agent's tool catalog can grow at runtime — without modifying the harness binary. The blueprint now recognises **three paradigms**:
+Extensibility describes how an agent's tool catalog can grow at runtime — without modifying the harness binary. The blueprint now recognises **five paradigms**:
 
 1. **Protocol-based** ([CLAUDE], [CLINE], [ROO]) — Model Context Protocol (MCP) JSON-RPC servers exposed over stdio, SSE, streamable HTTP, etc. Tools are external processes that speak a wire protocol.
 2. **Code-based plugins** ([AUTOGPT], [PI]) — In-process components / hooks. Tools are Python or TypeScript classes/methods in the same process as the agent. AutoGPT uses the *component system* (`AgentComponent` subclasses + `@command` decorator + `SkillComponent` for runtime-discoverable `SKILL.md`); Pi uses *extension hooks* on the `Agent` class.
 3. **Loader-based providers** ([OPENCODE]) — Async factory functions registered in a `customLoaders` map; provider/tool surface is constructed at startup but the loader contract is open.
+4. **Rule-based / CI-integrated** ([CONTINUE]) — Markdown rules with YAML frontmatter (`.continuerules`, `.continue/checks/`, `.continue/agents/`) that compose with context providers and execute as IDE commands or CI status checks. This is a **prompt-as-code** extensibility model — version-controlled alongside source code.
+5. **Autonomous skill creation** ([HERMES]) — The agent monitors successful task completions and auto-creates reusable skill files (`~/.hermes/skills/`). Skills are markdown with YAML metadata, compatible with the [agentskills.io](https://agentskills.io) open standard. This is **self-extending** extensibility — the agent grows its own tool catalog without operator intervention.
 
-This document specifies the [CLAUDE] MCP integration (Phase 2) and the [CLINE] / [ROO] IDE-embedded MCP client variants (Phase 4) as the protocol paradigm, and the Phase 6 [AUTOGPT] component / `SKILL.md` and [PI] extension-hook systems as the code-based paradigm.
+**Phase 7 additions**: [OPENCLAW] adds a **two-style plugin system** (isolated + in-process) behind its 22+ channel adapter abstraction. [ZED] adds **ACP (Agent Control Protocol) servers** as an MCP-like protocol integrated into the editor's entity model.
 
 [CLAUDE] uses MCP as its primary extension surface, with only **stdio** transport wired up at HEAD (SSE/HTTP/WS parse but don’t connect). See below for the full [CLAUDE] specification.
 
@@ -447,14 +449,14 @@ A third extension surface lives in `@earendil-works/pi-ai`: `registerApiProvider
 
 ## Three-Paradigm Comparison
 
-| Dimension | Protocol (MCP) [CLAUDE] [CLINE] [ROO] | Code-based plugin [AUTOGPT] [PI] | Loader-based [OPENCODE] |
-| --- | --- | --- | --- |
-| Where does the tool run? | External process / remote server | In-process | Constructed at startup, in-process |
-| What does the tool author write? | JSON-RPC server (any language) | Python class subclass + `@command` decorator [AUTOGPT]; TypeScript `AgentTool<T>` object [PI] | Async factory function returning AI SDK provider |
-| Discovery | Stdio handshake + `tools/list` JSON-RPC | Metaclass auto-discovery [AUTOGPT]; explicit attachment to `Agent.state.tools` [PI] | Loader registered in `customLoaders` map |
-| Runtime extensibility (no source change) | Yes — drop a server config into `mcpServers` | YES for skills (`SKILL.md` files in `.autogpt/skills/` are dynamically loaded); NO for components (Python source change) | Yes — loader can read config |
-| User-contributable without code | YES (drop a stdio server config) | YES via `SKILL.md` markdown files [AUTOGPT]; partial via extension hooks [PI] | YES via loader config |
-| Permission mapping | Per-server / per-tool ACL or annotation tier | 5-level cascade [AUTOGPT]; `beforeToolCall` hook [PI] | Inherits from agent's permission system |
-| Coupling | Loose (wire protocol) | Tight (in-process imports / hooks) | Medium (in-process but registered) |
-| Latency | Network/IPC round-trip per call | Function call | Function call (after one-time loader init) |
-| Failure isolation | Server crash isolated; runtime continues | Component error → pipeline retry [AUTOGPT]; thrown errors → `isError: true` tool result [PI] | Loader error surfaces at model-resolution time |
+| Dimension | Protocol (MCP) [CLAUDE] [CLINE] [ROO] | Code-based plugin [AUTOGPT] [PI] | Loader-based [OPENCODE] | Rule-based / CI-integrated [CONTINUE] | Autonomous skill creation [HERMES] |
+| --- | --- | --- | --- | --- | --- |
+| Where does the tool run? | External process / remote server | In-process | Constructed at startup, in-process | LLM call orchestrated by CLI or IDE | In-process (skill loaded at prompt assembly) |
+| What does the tool author write? | JSON-RPC server (any language) | Python class subclass + `@command` decorator [AUTOGPT]; TypeScript `AgentTool<T>` object [PI] | Async factory function returning AI SDK provider | Markdown file with YAML frontmatter | Nothing — the agent creates skills autonomously |
+| Discovery | Stdio handshake + `tools/list` JSON-RPC | Metaclass auto-discovery [AUTOGPT]; explicit attachment to `Agent.state.tools` [PI] | Loader registered in `customLoaders` map | File-glob `.continuerules`, `.continue/checks/`, colocated `rules.md` | File-glob `~/.hermes/skills/*.md` |
+| Runtime extensibility (no source change) | Yes — drop a server config into `mcpServers` | YES for skills (`SKILL.md` files in `.autogpt/skills/` are dynamically loaded); NO for components (Python source change) | Yes — loader can read config | YES — commit a markdown rule to the repo | YES — agent auto-creates skill files |
+| User-contributable without code | YES (drop a stdio server config) | YES via `SKILL.md` markdown files [AUTOGPT]; partial via extension hooks [PI] | YES via loader config | YES — write markdown rules | YES — but primarily agent-authored |
+| Permission mapping | Per-server / per-tool ACL or annotation tier | 5-level cascade [AUTOGPT]; `beforeToolCall` hook [PI] | Inherits from agent's permission system | N/A — rules are stateless LLM prompts | Inherits from agent's backend permissions |
+| Coupling | Loose (wire protocol) | Tight (in-process imports / hooks) | Medium (in-process but registered) | Loose (markdown files, no runtime coupling) | Tight (agent runtime writes skill files) |
+| Latency | Network/IPC round-trip per call | Function call | Function call (after one-time loader init) | LLM call latency | Function call (skill loaded into prompt) |
+| Failure isolation | Server crash isolated; runtime continues | Component error → pipeline retry [AUTOGPT]; thrown errors → `isError: true` tool result [PI] | Loader error surfaces at model-resolution time | Rule failure = LLM output quality issue | Skill failure = LLM misapplication |

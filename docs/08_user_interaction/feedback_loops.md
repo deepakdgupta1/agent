@@ -1,5 +1,5 @@
 # Feedback Loops
-> Module: 08_user_interaction | Status: Phase 4 | Last Agent: Cline/Roo Synthesis
+> Module: 08_user_interaction | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 
@@ -9,7 +9,27 @@ Aider separates autonomous correction from user-approved correction. [AIDER] Edi
 
 BabyAGI has a feedback loop, but it is task-oriented rather than validation-oriented. [BABYAGI] A completed task result is stored in vector memory, then passed into task creation and prioritization prompts to reshape the queue. [BABYAGI] There is no lint/test validation, no patch failure reflection, no approval gate, and no retry state beyond the generated next tasks. [BABYAGI]
 
-[CLINE] introduces **per-action human feedback** as the primary feedback loop. Every tool use is presented to the user via the `ask()` blocking primitive before execution. The user can approve, reject, or provide feedback. Rejection cascades via `didRejectTool` — all subsequent tools in the same turn are skipped and a rejection message is fed back to the LLM. The `attempt_completion` tool creates a bidirectional feedback gate: the user can accept or provide feedback that loops back into the conversation. Auto-approval settings (`yoloModeToggled`, granular `autoApprovalSettings`) selectively bypass approval gates. [CLINE]
+[CLINE] introduces **per-action human feedback** as the primary feedback loop. Every tool use is presented to the user via the `ask()` primitive before execution. The user can approve, reject, or provide feedback. Rejection cascades via `didRejectTool` — all subsequent tools in the same turn are skipped and a rejection message is fed back to the LLM. The `attempt_completion` tool creates a bidirectional feedback gate: the user can accept or provide feedback that loops back into the conversation. Auto-approval settings (`yoloModeToggled`, granular `autoApprovalSettings`) selectively bypass approval gates. [CLINE]
+
+> Cross-link: AutoGPT's `WatchdogComponent` (repetition → fast_llm escalation) is documented in `agentic_loop.md`; permission denial as feedback (`ActionInterruptedByHuman`) is in `safety_guardrails.md`; Pi's `afterToolCall` + `shouldStopAfterTurn` hooks are in `safety_guardrails.md` and `tool_architecture.md`.
+
+### [CONTINUE] CI-as-Feedback Pattern
+
+Continue introduces a novel feedback paradigm where **CI checks function as automated code-quality feedback loops**. The CLI (`extensions/cli/`, invoked as `cn`) reads check rules from `.continue/checks/`, hydrates them with project context from context providers, calls the LLM, and posts green/red GitHub status checks with suggested diffs.
+
+This is structurally different from all prior feedback loops in the blueprint:
+- **Aider's lint/test reflection** is synchronous and in-session.
+- **Cline's `checkRepeatedToolCall`** is runtime-only and loses state across sessions.
+- **Continue's CI checks** are **asynchronous, cross-session, and triggered by PRs** — the feedback arrives as a GitHub status check, not an in-IDE interaction.
+
+The check rules are version-controlled alongside source code (`.continue/checks/*.md`), so feedback criteria evolve with the codebase. This treats **code review policies as testable artifacts** — analogous to how linters and test suites provide automated feedback but applied to LLM-powered code review.
+
+| Dimension | [AIDER] lint/test | [CLINE] checkRepeatedToolCall | [CONTINUE] CI checks |
+| --- | --- | --- | --- |
+| Trigger | Post-edit in session | Runtime loop detection | PR event (CI pipeline) |
+| Feedback target | LLM (via retry prompt) | LLM (via mistake counter) | Developer (via GitHub status check) |
+| Persistence | Session-scoped | Session-scoped | Cross-session (CI artifacts) |
+| Extensibility | Fixed (lint + test) | Fixed (same-tool-same-args) | Open (any markdown rule) |
 
 [ROO] extends the feedback pattern with **mode-driven feedback**: the active mode's roleDefinition and customInstructions shape what kind of feedback the agent produces. The `debug` mode's instructions direct the agent to "reflect on 5-7 possible sources, distill to 1-2, add logs to validate, ask the user to confirm the diagnosis before fixing" — a structured feedback cycle. The `architect` mode ends with "use switch_mode to request implementation" — forwarding the plan as feedback to the next mode. Boomerang delegation provides a third feedback path: the child's `attempt_completion` summary is injected as a synthetic `tool_result` into the parent's history. [ROO]
 

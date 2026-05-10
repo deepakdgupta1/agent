@@ -1,5 +1,5 @@
 # Safety Guardrails
-> Module: 07_permissions_and_governance | Status: Phase 6 | Last Agent: AutoGPT/Pi Synthesis
+> Module: 07_permissions_and_governance | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 Safety guardrails are runtime mechanisms that bound an agent's autonomy along axes that aren't covered by per-action permissions: cycle counts, monetary cost, token usage, sub-agent depth, repetition / liveness, and consecutive failures. They are the *quantitative* constraints that complement the *qualitative* permission model in `permission_model.md`.

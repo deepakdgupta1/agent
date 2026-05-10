@@ -1,5 +1,5 @@
 # Prompt Orchestration
-> Module: 01_core_loop | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 01_core_loop | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 Prompt orchestration defines how state is selected, ordered, formatted, and constrained before a model call.
@@ -153,6 +153,7 @@ sequenceDiagram
 | Dynamic-boundary marker [CLAUDE] | Lets downstream tooling and prompt caches treat preamble (cacheable) vs. dynamic (non-cacheable) as distinct regions. | The marker is a literal string only; no JSON delimiter — fragile if a downstream tool tries to split on it. |
 | Tool definitions on `tools` field [CLAUDE] | Provider-native: model sees structured `ToolDefinition` schemas, not human-readable doc strings. | Adding a tool requires a `ToolSpec` registration; ad-hoc shell hooks must be wrapped to be visible. |
 | Hook-driven `additionalContext` [CLAUDE] | Per-tool-call context injection without rebuilding the system prompt. | The hook author owns the JSON contract — bad output is silently logged and ignored (`hooks.rs:445-501`). |
+| **Distributed source-controlled rules** [CONTINUE] | Rules are committed to the repo as markdown files with YAML frontmatter (`.continuerules`, `.continue/checks/`, `.continue/agents/`, colocated `rules.md`). The CLI (`cn`) hydrates rules with project context from context providers, calls the LLM, and posts results as CI status checks. This **decentralizes prompt configuration into the codebase** — teams version agent behavior alongside their code, without tool restarts. Rules compose slash commands (`/fix`, `/test`, `/review`). | Rules are stateless — no conversation memory across invocations. Quality depends on the LLM following markdown instructions. CI integration adds latency to the PR workflow. |
 
 ## 7. Agent Attribution Table
 | Agent | Source-backed contribution |
@@ -160,3 +161,4 @@ sequenceDiagram
 | [AIDER] | Ordered `ChatChunks`, repo-map/read-only/editable-file separation, edit-format prompts, token checks, and prompt caching behavior. |
 | [BABYAGI] | Three prompt-building functions for execution, task creation, and prioritization, with shared `openai_call()` dispatch and numbered-list output contracts. |
 | [CLAUDE] | `SystemPromptBuilder::build` with 11-section composition; `__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__` literal marker; cwd-ancestor `CLAUDE.md` discovery with content-hash deduping; per-file (4k) and total (12k) char caps on the instruction block; tool definitions sent on `MessageRequest.tools` with `tool_choice: Auto`; per-iteration message cloning; post-turn `compact_session` summary injection. |
+| [CONTINUE] | **Distributed, source-controlled rule-based prompt assembly**: rules are markdown files with YAML frontmatter (`name`, `description`, instructions) committed to `.continuerules` (workspace root), `.continue/checks/` (CI checks), `.continue/agents/` (long-running agents), or colocated `rules.md` (directory-scoped overrides). `core/llm/rules/rules-utils.ts` defines rule metadata types and source display names. Rules compose with context providers (`core/context/`) to assemble prompts: the rule specifies *what to check*, the context provider supplies *what to check it against*, and the LLM call is made via the provider-agnostic abstraction (`core/llm/providers/ProviderInterface.ts`). Slash commands (`/plan`, `/fix`, `/test`) are thin wrappers over rules, making prompt orchestration user-extensible without touching IDE extension code. In CI mode, the CLI (`extensions/cli/`) reads check rules from `.continue/checks/`, hydrates them with project context, calls the LLM, and posts green/red GitHub status checks with suggested diffs — **treating code review rules as version-controlled artifacts** analogous to linters or test suites. |

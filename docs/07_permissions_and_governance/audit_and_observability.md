@@ -1,5 +1,5 @@
 # Audit and Observability
-> Module: 07_permissions_and_governance | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 07_permissions_and_governance | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 Audit and observability are the mechanisms by which an agent's actions are recorded, intercepted, and externally programmable — independent of the model's behavior. This document specifies the [CLAUDE] hooks system as the Phase 2 reference. It is the harness's primary observability *and* policy-extension surface: hooks both watch and decide.

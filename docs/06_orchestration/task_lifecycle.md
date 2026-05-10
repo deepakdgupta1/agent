@@ -1,5 +1,5 @@
 # Task Lifecycle
-> Module: 06_orchestration | Status: Phase 5 | Last Agent: Kilo/OpenCode Synthesis
+> Module: 06_orchestration | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 A task lifecycle describes how an agent transitions work through discrete phases — from initiation through execution to completion, with optional checkpointing, review, and handoff between phases. This document specifies five distinct lifecycle patterns discovered across the blueprint's agents.

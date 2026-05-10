@@ -12,7 +12,7 @@
 | `[AUTOGPT]` | AutoGPT | https://github.com/significant-gravitas/autogpt | Autonomous goal-seeking agent | Phase 6 | Analyzed |
 | `[OPENCODE]` | OpenCode | https://github.com/anomalyco/opencode | Terminal-based TUI coding agent | Phase 5 | Analyzed |
 | `[PI]` | Pi Agent | https://github.com/badlogic/pi-mono | Modular coding agent runtime | Phase 6 | Analyzed |
-| `[CONTINUE]` | Continue | https://github.com/continuedev/continue | IDE coding assistant framework | Phase 7 | Not Started |
-| `[HERMES]` | Hermes Agent | https://github.com/NousResearch/hermes-agent | Self-improving agent framework | Phase 7 | Not Started |
-| `[OPENCLAW]` | OpenClaw | https://github.com/openclaw/openclaw | Cross-platform personal assistant | Phase 7 | Not Started |
-| `[ZED]` | Zed | https://github.com/zed-industries/zed | Editor with integrated AI agent | Phase 7 | Not Started |
+| `[CONTINUE]` | Continue | https://github.com/continuedev/continue | IDE coding assistant framework | Phase 7 | Analyzed |
+| `[HERMES]` | Hermes Agent | https://github.com/NousResearch/hermes-agent | Self-improving agent framework | Phase 7 | Analyzed |
+| `[OPENCLAW]` | OpenClaw | https://github.com/openclaw/openclaw | Cross-platform personal assistant | Phase 7 | Analyzed |
+| `[ZED]` | Zed | https://github.com/zed-industries/zed | Editor with integrated AI agent | Phase 7 | Analyzed |

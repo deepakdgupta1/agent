@@ -1,5 +1,5 @@
 # Task Decomposition
-> Module: 02_cognition | Status: Phase 6 | Last Agent: AutoGPT Synthesis
+> Module: 02_cognition | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 Task decomposition converts a broad objective or user request into smaller work units that can be executed, validated, or reordered.

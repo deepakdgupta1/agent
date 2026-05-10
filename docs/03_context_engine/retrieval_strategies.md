@@ -1,5 +1,5 @@
 # Retrieval Strategies
-> Module: 03_context_engine | Status: Phase 1 Draft | Last Agent: Worker D
+> Module: 03_context_engine | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 
@@ -63,9 +63,11 @@ sequenceDiagram
 - Graph retrieval can find structurally important code without embeddings, but it is tied to identifier quality and parser coverage. [AIDER]
 - Vector retrieval is domain-flexible and very small in BabyAGI, but it does not preserve source structure or full historical result detail. [BABYAGI]
 - Reflection-based file addition improves context iteratively, while BabyAGI relies on the next loop iteration after memory insertion. [AIDER][BABYAGI]
+- Context-provider-based retrieval decouples the retrieval source from the agent rule, enabling composable retrieval strategies per rule or slash command. Each provider is loaded on-demand and can be added without code changes. [CONTINUE]
 
 ## 7. Agent Attribution Table
 | Agent | Source-backed contribution |
 |---|---|
 | Aider | [AIDER] File-scope retrieval, mention scanning, read-only context, repo-map graph ranking, and reflected file-addition passes. |
 | BabyAGI | [BABYAGI] Objective-based semantic retrieval from completed task results and insertion of recalled task names into execution prompts. |
+| Continue | [CONTINUE] **Context providers as pluggable retrieval**: `core/context/` defines a `ContextProvider` interface (`getContextItems(query: string): Promise<ContextItem[]>`). Built-in providers include codebase search, terminal output, git history, web search, docs, and filesystem. Providers are loaded on-demand by rules and can be mixed in a rule without code changes — just configure in `continue.json`. More granular than MCP's tool/resource abstraction and simpler than per-agent custom loaders. Agnostic to execution context (IDE vs. CLI). |

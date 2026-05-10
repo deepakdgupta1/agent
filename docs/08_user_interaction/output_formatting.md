@@ -1,5 +1,5 @@
 # Output Formatting
-> Module: 08_user_interaction | Status: Phase 6 | Last Agent: Pi Synthesis
+> Module: 08_user_interaction | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 Output formatting describes how the agent renders its reasoning, tool execution progress, and final results to the user — and how that rendering survives the realities of terminals (limited width, redraw cost, scrollback semantics, IME positioning, atomic-update support).
@@ -216,3 +216,28 @@ sequenceDiagram
 | [PI] | `pi-tui` (`packages/tui/`) terminal UI primitives: `Component { render(width): string[], handleInput?, invalidate?, wantsKeyRelease? }` interface (`packages/tui/src/tui.ts:39-62`); **differential rendering** with three strategies (first render outputs without clearing scrollback; width-change or out-of-viewport change clears `CSI 2J` and re-renders all; normal update moves cursor to first changed line, clears to end of screen, writes changed lines only — `tui.ts:180-350`); **synchronized output via `CSI 2026h` … `CSI 2026l`** wrapping every update for atomic, flicker-free rendering (`tui.ts:270-330`); built-in component library (`Text`, `TruncatedText`, `Markdown`, `Input`, `Editor` with autocomplete + slash commands + large-paste handling, `SelectList`, `SettingsList`, `Container`, `Box`, `Spacer`, `Loader`/`CancellableLoader`, `Image` with Kitty/iTerm2 protocol fallback to text); **IME support via `Focusable` interface and `CURSOR_MARKER = "\x1b_pi:c\x07"`** zero-width APC sequence — TUI scans rendered output for the marker, strips it, and positions the hardware terminal cursor there so IME candidate windows appear at the correct location; **Kitty keyboard protocol** with `wantsKeyRelease?: boolean` opt-in for key-release events and graceful fallback on legacy terminals; coding-agent integration via `assistant-message`, `bash-execution`, `custom-message` components subscribing to `AgentEvent` stream (`packages/coding-agent/src/modes/interactive/components/`); **three operating modes** — interactive TUI, batch print for CI/scripting, headless RPC JSON API. |
 
 > Cross-links: [OPENCODE] / [KILO] terminal output is owned by the session/UI layer rather than a TUI primitive — see `06_orchestration/task_lifecycle.md` and `01_core_loop/agentic_loop.md`. [CLINE] / [ROO] webview rendering is HTML/React in the VS Code extension — see `agentic_loop.md`. [AUTOGPT] uses line-oriented `rich.print` for thoughts, criticism, and tool results; not a structural component model.
+
+### [ZED] GPUI Native Rendering
+
+Zed takes a fundamentally different approach to output formatting: the agent's output is rendered directly via **GPUI** (Zed's GPU-accelerated UI framework), not via terminal protocols or web technologies. The agent panel (`crates/agent/src/agent_panel.rs`) is a native GPUI component that implements `Render`. Output includes:
+
+- **Inline diffs** rendered directly in the editor buffer, not in a separate panel.
+- **Markdown rendering** via Zed's built-in markdown parser with syntax highlighting.
+- **Tool execution results** rendered as collapsible sections in the agent panel.
+- **Streaming text deltas** displayed in real-time within the panel.
+
+This is the highest-fidelity output rendering in the blueprint — GPU-accelerated, sub-frame latency, fully integrated with the editor's visual language. Trade-off: completely non-portable; output can only be rendered inside Zed.
+
+### [OPENCLAW] Canvas Live Rendering
+
+OpenClaw's Canvas renderer provides a **live interactive rendering surface** that adapts structured agent output to platform-specific formats:
+
+| Platform | Rendering |
+| --- | --- |
+| Telegram | Markdown with inline code, escaped HTML |
+| Discord | Rich embeds with code blocks |
+| Slack | Block Kit with code sections |
+| Email | HTML with CSS styling |
+| CLI | ANSI-colored terminal output |
+
+The Canvas maintains a persistent rendering state and supports incremental updates — as the agent streams output, the Canvas updates the platform-specific rendering in place. This is the widest output surface in the blueprint (22+ channels), trading depth of rendering (Zed's GPU fidelity) for breadth of platform support.

@@ -1,5 +1,5 @@
 # Persistent Memory
-> Module: 04_memory | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 04_memory | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 Persistent memory is information that outlives a single turn or session, lives on the filesystem, and is loaded into the prompt at the start of every turn. It is distinct from working memory (per-session message history; see `working_memory.md`) and semantic memory (vector-recall surfaces; see `semantic_memory.md`).
@@ -144,6 +144,7 @@ sequenceDiagram
 
 | Agent | Source-backed contribution |
 | --- | --- |
-| [CLAUDE] | `discover_instruction_files` cwd-ancestor walk; four-filename probe order (`CLAUDE.md`, `CLAUDE.local.md`, `.claw/CLAUDE.md`, `.claw/instructions.md`); root-first load order; content-hash dedupe; `# Claude instructions` block heading with `## <filename> (scope: <dir>)` subheadings; 4k per-file and 12k total char caps; cross-link via `Claude instruction files discovered: <N>` in project context; read-only `/memory` reporter; `/init` scaffolding distinct from rolling memory. |
+| [CLAUDE] | `load_system_prompt(cwd, ...)` in `prompt.rs` with recursive cwd-ancestor walk; `CLAUDE.md`, `CLAUDE.local.md`, `.claw/CLAUDE.md`, `.claw/instructions.md` probe order; content-hash deduplication via `dedupe_instruction_files`; `MAX_INSTRUCTION_FILE_CHARS = 4_000` per-file and `MAX_TOTAL_INSTRUCTION_CHARS = 12_000` total caps; `## <filename> (scope: <ancestor-dir>)` rendering with `Claude instruction files discovered: <N>.` cross-link in project context; auto-compaction summary persistence via `format_compact_summary`. |
+| [HERMES] | **Closed-loop persistent memory**: `~/.hermes/MEMORY.md` stores general agent memory (user preferences, learned facts, project knowledge); `~/.hermes/USER.md` stores user-specific context; `~/.hermes/skills/` stores agent-created procedural memory as markdown files with YAML metadata (compatible with the [agentskills.io](https://agentskills.io) open standard). The `agent/curator.py` closed learning loop monitors successful task completions, auto-creates or refines skills based on patterns, and writes them for reuse. `agent/memory_*.py` and `agent/skill_*.py` manage the skill lifecycle (creation, editing, patching, deletion via `tools/skill_manager_tool.py`). This is **autonomous procedural memory creation** — the agent's learned workflows are first-class, reusable, cross-session assets that evolve over time. Not seen in prior agents: BabyAGI has episodic memory, Claude Code has CLAUDE.md, AutoGPT has vector stores, but none implement autonomous skill creation + self-improvement + open standard compatibility. |
 
 > [BABYAGI] and [AIDER] do not contribute filesystem-backed persistent memory in their Phase 1 evidence; see `04_memory/working_memory.md` and `04_memory/semantic_memory.md` for those agents' state-persistence patterns.

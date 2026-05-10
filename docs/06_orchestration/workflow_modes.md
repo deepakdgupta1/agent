@@ -1,5 +1,5 @@
 # Workflow Modes
-> Module: 06_orchestration | Status: Phase 5 | Last Agent: Kilo/OpenCode Synthesis
+> Module: 06_orchestration | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 Workflow modes are named agent personas that swap the system prompt, allowed-tool surface, and behavioral constraints at runtime without changing the underlying agent loop. This document specifies [ROO]'s mode system as the Phase 4 reference — the first agent in the blueprint to elevate persona-switching to a first-class, user-extensible primitive. [CLINE]'s Plan/Act toggle is documented as the precursor pattern that Roo Code generalizes.

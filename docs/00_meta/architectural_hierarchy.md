@@ -1,7 +1,7 @@
-# Architectural Hierarchy v6
+# Architectural Hierarchy v_FINAL
 
 This document tracks the evolution of the Master AI Agent Blueprint framework.
-Version: v6
+Version: v_FINAL
 
 ## Version history
 
@@ -13,11 +13,26 @@ Version: v6
 | v3 | 3 | + [CODEX] | `codex_research.md` |
 | v4 | 4 | + [CLINE], [ROO] | `cline_research.md`, `roo_code_research.md` |
 | v5 | 5 | + [KILO], [OPENCODE] | `kilo_code_research.md`, `opencode_research.md` |
-| **v6** | 6 | + [AUTOGPT], [PI] | `autogpt_research.md`, `pi_agent_research.md` |
+| v6 | 6 | + [AUTOGPT], [PI] | `autogpt_research.md`, `pi_agent_research.md` |
+| **v_FINAL** | 7 | + [CONTINUE], [HERMES], [OPENCLAW], [ZED] | `specialist_agents_research.md` |
 
-## Scope of v6
+## Scope of v_FINAL
 
-Version v6 incorporates Phase 6 findings from `docs/_research/autogpt_research.md` and `docs/_research/pi_agent_research.md`. Six structural additions dominate v6:
+Version v_FINAL incorporates Phase 7 findings from `docs/_research/specialist_agents_research.md`, integrating four specialist agents: [CONTINUE], [HERMES], [OPENCLAW], and [ZED]. Seven structural additions define v_FINAL:
+
+1. **Distributed, source-controlled rule-based extensibility.** [CONTINUE] introduces a **prompt-as-code** paradigm where agent behavior is defined in markdown rules with YAML frontmatter (`.continuerules`, `.continue/checks/`, `.continue/agents/`, colocated `rules.md`). Rules compose with pluggable context providers and execute as IDE commands or CI status checks. The CLI (`cn`) reads check rules, hydrates them with project context, calls the LLM, and posts green/red GitHub status checks with suggested diffs — treating code review policies as testable artifacts. This is a fifth extensibility paradigm alongside MCP (protocol), code-based plugins, loaders, and autonomous skills.
+
+2. **Autonomous procedural memory creation (closed learning loop).** [HERMES] introduces a **self-improving agent** pattern where the agent monitors successful task completions via `agent/curator.py` and auto-creates reusable skills (markdown with YAML metadata in `~/.hermes/skills/`). Skills are compatible with the [agentskills.io](https://agentskills.io) open standard. Future similar tasks are planned by invoking existing skills rather than re-solving from scratch. This is the first **procedural-memory-driven planning paradigm** in the blueprint — not seen in prior agents' episodic, semantic, or instruction-file memory.
+
+3. **Multi-channel messaging gateway and backend-abstracted tool dispatch.** [HERMES] routes incoming messages from 7+ channels (Telegram, Discord, Slack, WhatsApp, Signal, Email, CLI) through a gateway abstraction. Tool calls are dispatched to one of seven terminal backends (local, Docker, SSH, Singularity, Modal, Daytona, Vercel Sandbox) via a `Backend(ABC)` interface. [OPENCLAW] extends the multi-channel pattern to 22+ adapters with a Canvas live rendering surface. This is the **widest I/O surface** in the blueprint.
+
+4. **Agent-as-native-editor-entity.** [ZED] models the agent as a GPUI `Entity` struct that shares memory with the editor — synchronous access to buffer content, cursor position, worktrees, and undo/redo. Output is rendered via GPUI (GPU-accelerated, sub-frame latency). This is a fundamentally different **deployment model** from CLI processes, VS Code extensions, or HTTP servers. The agent is a data structure, not a process.
+
+5. **Five extensibility paradigms consolidated.** The blueprint now recognises five extensibility paradigms: protocol (MCP), code-based plugins (AutoGPT components + Pi hooks), loader-based (OpenCode), rule-based/CI-integrated (Continue), and autonomous skill creation (Hermes). The extensibility comparison table is expanded to five columns.
+
+6. **ACP and two-style plugin system.** [ZED] introduces Agent Control Protocol (ACP) servers as an MCP alternative integrated into the editor's entity model. [OPENCLAW] introduces a two-style plugin system (isolated vs. in-process) with 22+ channel adapters.
+
+7. **Provider transport abstraction.** [HERMES] adds a provider transport layer (`agent/transports/base.py`) with per-provider tool normalization (not just message conversion). [ZED] adds a `LanguageModelRegistry` with ACP support. Both extend the model routing paradigm beyond Phase 6's six patterns.
 
 1. **Autonomous goal-seeking loop as a fifth macro-pattern.** The blueprint now recognises five loop families: interactive code-edit (Aider), tool-use protocol (Claude Code, Codex), IDE-embedded per-action-approval (Cline, Roo Code), TUI/CLI-driven session (OpenCode, Kilo), and **autonomous goal-seeking** [AUTOGPT]. The autonomous loop centers on a single `propose_action` / `execute` pair driven by a configurable prompt strategy, with implicit observation (next-prompt assembly reads `event_history`), permission denial as feedback rather than termination, and a watchdog repetition detector that reactively escalates `fast_llm → smart_llm`. Termination is reached via `finish` (LLM-emitted), `consecutive_failures >= 3`, SIGINT, or `--continuous-limit`. (`classic/original_autogpt/autogpt/agents/agent.py:266-339, 373-460`; `app/main.py:607-787`.) [AUTOGPT]
 
@@ -279,12 +294,12 @@ Refinement from v5: the permission taxonomy expands to **five paradigms**: mode-
 | Reasoning patterns beyond Phase 2 | **Resolved** — `docs/02_cognition/reasoning_patterns.md` extended with built-in `self_criticism`, **Reflexion** explicit verbal-reinforcement loop with pluggable `Evaluator`, **ReWOO** cached-action replay via `UseCachedActionException`, **ToT** categorical evaluation with multi-sample voting, **Multi-Agent Debate** structured `CRITIQUE / CONSENSUS` phases. [AUTOGPT] |
 | Plugin paradigm contrast | **Resolved** — `docs/05_action_and_tools/extensibility.md` now documents three paradigms: protocol (MCP), code-based plugins (AutoGPT components / `SKILL.md` skills + Pi extension hooks), and loader-based (OpenCode `customLoaders`). [AUTOGPT] [PI] |
 
-## v6 Phase 6 Gaps (carried into Phase 7+)
+## v6 Phase 6 Gaps — Resolution status as of v_FINAL
 
 Honest list of items that remain partial or still stubs:
 
-- **Specialist-agent integration** — Continue, Hermes, OpenClaw, Zed (Phase 7 / Task 17) are not yet folded in. The current `agent_registry.md` reflects v6 status only.
-- **Reflexion memory persistence** [AUTOGPT] — `ReflexionPromptStrategy.memory` is *not* serialized to `state.json` so a process restart erases reflections. The blueprint records this as a real gap; future refinement could persist strategy state.
-- **Cost as hard stop** [AUTOGPT] — `total_budget` is logged but not enforced. A future blueprint refinement could codify "soft vs hard budget" as a first-class distinction.
-- **Pi's bash sandbox** [PI] — Pi runs bash in the user's shell with full access. Apps must wire their own sandboxing (no built-in equivalent of Codex's sandbox-first runtime).
-- **AutoGPT's `EvaluatorType.LLM`** [AUTOGPT] — declared in `EvaluatorType` enum but currently falls back to the heuristic regex evaluator. Marked as "would need LLM call" in source.
+- **Specialist-agent integration** — **RESOLVED** in v_FINAL. Continue, Hermes, OpenClaw, Zed (Phase 7 / Task 18) are now fully integrated across all 30 module files. The `agent_registry.md` reflects v_FINAL status.
+- **Reflexion memory persistence** [AUTOGPT] — `ReflexionPromptStrategy.memory` is *not* serialized to `state.json` so a process restart erases reflections. The blueprint records this as a real gap; future refinement could persist strategy state. **UNRESOLVED — carried forward.**
+- **Cost as hard stop** [AUTOGPT] — `total_budget` is logged but not enforced. A future blueprint refinement could codify "soft vs hard budget" as a first-class distinction. **UNRESOLVED — carried forward.**
+- **Pi's bash sandbox** [PI] — Pi runs bash in the user's shell with full access. Apps must wire their own sandboxing (no built-in equivalent of Codex's sandbox-first runtime). **UNRESOLVED — carried forward.**
+- **AutoGPT's `EvaluatorType.LLM`** [AUTOGPT] — declared in `EvaluatorType` enum but currently falls back to the heuristic regex evaluator. Marked as "would need LLM call" in source. **UNRESOLVED — carried forward.**

@@ -1,5 +1,5 @@
 # Planning Strategies
-> Module: 02_cognition | Status: Phase 1 | Last Agent: Worker C
+> Module: 02_cognition | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 Planning strategy is the policy for deciding what should happen before execution and what should be executed next.
@@ -7,6 +7,8 @@ Planning strategy is the policy for deciding what should happen before execution
 [AIDER] plans through context selection, repo-map ranking, edit-format choice, and optional architect mode; it usually keeps planning embedded in the coding conversation.
 
 [BABYAGI] plans through a create-then-prioritize cycle: completed task results generate candidate tasks, then the prioritization prompt ranks all incomplete tasks against the objective.
+
+[HERMES] plans through skill-driven composition: the agent identifies recurring patterns and codifies them into reusable skill procedures, reducing reliance on zero-shot reasoning.
 
 ## 2. Blueprint Specification
 | Element | Specification |
@@ -75,9 +77,11 @@ sequenceDiagram
 | Architect/editor planning [AIDER] | Separates high-level instructions from low-level edit protocol. | Adds an acceptance step and a second coder invocation. |
 | Create-prioritize loop [BABYAGI] | Makes next-work selection explicit and objective-driven. | Queue replacement trusts the parsed LLM ordering. |
 | Vector-memory feedback [BABYAGI] | Completed work can influence future execution. | Recall is limited to top completed task names in the archive baseline. |
+| Skill-driven planning [HERMES] | Procedural-memory-driven: agent increasingly relies on learned, refined skills rather than zero-shot reasoning. | Requires curator maintenance and standard compliance for cross-agent portability. |
 
 ## 7. Agent Attribution Table
 | Agent | Source-backed contribution |
 | --- | --- |
 | [AIDER] | Planning via repo-map ranking, file scope, edit-format selection, conversation context, and optional architect/editor delegation. |
 | [BABYAGI] | Planning via execution-result-driven task creation, objective-based prioritization, queue replacement, and vector recall of completed work. |
+| [HERMES] | Planning via skill-driven composition; automates procedural memory creation via `agent/curator.py` and YAML-based skill storage for reusable, standard-compliant task execution. |

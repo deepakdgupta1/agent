@@ -1,5 +1,5 @@
 # Episodic Memory
-> Module: 04_memory | Status: Phase 6 | Last Agent: AutoGPT Synthesis
+> Module: 04_memory | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 Episodic memory stores ordered, time-indexed records of *what the agent did* and *what came of it*. Unlike semantic memory (which is similarity-keyed), episodic memory is indexed by sequence position and used to reconstruct prompts, support replay, and feed reflection.

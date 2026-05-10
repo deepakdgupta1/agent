@@ -1,5 +1,5 @@
 # Reasoning Patterns
-> Module: 02_cognition | Status: Phase 6 | Last Agent: AutoGPT Synthesis
+> Module: 02_cognition | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 Reasoning patterns describe how an agent generates intermediate steps, self-evaluates, and self-corrects between observation and final action. The "loop" is the structural carrier; the "reasoning pattern" is what the model is asked to produce *inside* each loop iteration.

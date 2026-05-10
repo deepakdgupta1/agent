@@ -1,5 +1,5 @@
 # Permission Model
-> Module: 07_permissions_and_governance | Status: Phase 5 | Last Agent: Kilo/OpenCode Synthesis
+> Module: 07_permissions_and_governance | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 A permission model is the policy layer that decides whether a given tool invocation is allowed, denied, or escalated to the user. This document specifies the [CLAUDE] mode-based permission system (Phase 2), the [CODEX] two-dimensional `AskForApproval × SandboxPolicy` matrix (Phase 3), the [CLINE] per-action approval model (Phase 4), [ROO]'s mode-as-permission system (Phase 4), and [KILO]'s config-file protection layer (Phase 5) as five distinct paradigms.

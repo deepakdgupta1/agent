@@ -1,5 +1,5 @@
 # Context Assembly
-> Module: 03_context_engine | Status: Phase 1 Draft | Last Agent: Worker D
+> Module: 03_context_engine | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 
@@ -63,9 +63,13 @@ sequenceDiagram
 - Repo-map context is cheaper and broader than full files, but it is read-only until the user adds files to chat. [AIDER]
 - Semantic recall from completed results is very small and easy to reason about, but BabyAGI loses detailed result bodies in the execution prompt because recall returns task names. [BABYAGI]
 - Summarized history preserves continuity under token pressure, but it depends on summary quality; BabyAGI avoids this complexity by keeping little working context. [AIDER][BABYAGI]
+- Context providers as pluggable seams are simpler than MCP's full tool/resource abstraction and more flexible than custom loaders. Each provider encapsulates retrieval logic and can be composed in rules without code changes — just configure in `continue.json`. [CONTINUE]
+- Editor-native project context gives the agent direct access to the project's worktrees, git state, and language registry without filesystem I/O — all cached in the editor's project model. However, it requires being embedded in the editor. [ZED]
 
 ## 7. Agent Attribution Table
 | Agent | Source-backed contribution |
 |---|---|
 | Aider | [AIDER] Structured `ChatChunks` ordering, editable vs read-only file context, repo-map insertion, history summarization, token checks, and file-scope reminders. |
 | BabyAGI | [BABYAGI] Minimal objective/task prompt assembly, top-k vector recall of completed task names, and simple prompt templates for execution, task creation, and prioritization. |
+| Continue | [CONTINUE] **Context providers as pluggable, composable seams**: `core/context/` defines a `ContextProvider` interface (`getContextItems(query: string): Promise<ContextItem[]>`). Each provider (web search, terminal output, git history, docs, codebase, filesystem) implements this and is loaded on-demand by rules. Providers are configured in `continue.json` and can be mixed without code changes. More granular than MCP (which requires the full tool/resource abstraction) and simpler than Pi's extension system (which requires SDK coupling). Providers are agnostic to execution context (IDE vs. CLI) and stackable. |
+| Zed | [ZED] **Project-level agent context integration**: agents are bound to projects via `crates/project/src/agent_registry_store.rs` and can read project-level rules (rules library in Zed's settings), project file structure and worktrees, git state, and language registry — all **without filesystem I/O**, cached in Zed's project model. The agent shares memory with the editor, so context access is synchronous. Similar to Continue's `.continuerules` but integrated into a first-party editor's settings system. |

@@ -1,5 +1,5 @@
 # Command Execution
-> Module: 05_action_and_tools | Status: Phase 3 | Last Agent: Codex Synthesis
+> Module: 05_action_and_tools | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 Command execution is the action surface that lets an agent run shell or interpreter commands against the user's environment. This document specifies the [CLAUDE] command-execution surface as the Phase 2 reference and the [CODEX] sandboxed-execution surface as the Phase 3 reference; Phase 5 will add OpenCode's TUI-driven command execution.

@@ -1,5 +1,5 @@
 # Turn Lifecycle
-> Module: 01_core_loop | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 01_core_loop | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis 
 
 ## 1. Overview
 A turn lifecycle describes what happens from one incoming work item to a stable post-turn state.

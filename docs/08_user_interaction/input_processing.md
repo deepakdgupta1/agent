@@ -1,5 +1,5 @@
 # Input Processing
-> Module: 08_user_interaction | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 08_user_interaction | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 
@@ -7,7 +7,27 @@ Input processing is the boundary where user text becomes either a direct agent r
 
 [AIDER] In Aider, `get_input()` collects the current editable files, read-only files, addable files, command metadata, and active edit format before `preproc_user_input()` interprets the user's message. Aider gives command handling priority over ordinary chat. Slash commands and bang commands are routed through `Commands.run()` before the message is sent to the model; remaining text is scanned for file mentions and URLs, which may expand context after user confirmation. This makes user input both a conversation channel and a control plane for the agent runtime. [AIDER]
 
-[BABYAGI] BabyAGI has a much smaller input surface. The archived baseline starts from environment/configuration values such as `OBJECTIVE` and `INITIAL_TASK`, then runs an autonomous task loop. It has no interactive slash-command system, no file-scope controls, and no per-turn command preprocessor. [BABYAGI]
+> [BABYAGI] input is the standing objective string plus a single enrichment pass (top-5 vector-recalled completed task names). The archive baseline has no interactive input preprocessing.
+
+### [HERMES] Multi-Channel Input Gateway
+
+Hermes processes input from 7+ messaging channels via a gateway abstraction. Each channel adapter handles platform-specific message formats:
+
+| Channel | Input format | Adapter |
+| --- | --- | --- |
+| Telegram | Text, voice, images, files via Bot API | `tui_gateway/telegram_adapter.py` |
+| Discord | Text, embeds, attachments via Discord.py | `tui_gateway/discord_adapter.py` |
+| Slack | Text, blocks, files via Slack SDK | `tui_gateway/slack_adapter.py` |
+| WhatsApp | Text, media via WhatsApp Business API | `tui_gateway/whatsapp_adapter.py` |
+| Signal | Text via Signal CLI | `tui_gateway/signal_adapter.py` |
+| Email | MIME messages via IMAP/SMTP | `tui_gateway/email_adapter.py` |
+| CLI | stdin text via TUI gateway | `tui_gateway/cli_adapter.py` |
+
+All adapters normalize incoming messages to a canonical `Message { sender, content, channel, metadata }` shape before passing to the agent loop. This is the **widest input surface** in the blueprint — no other agent processes input from 7+ channels.
+
+### [OPENCLAW] 22+ Channel Adapter Abstraction
+
+OpenClaw extends the multi-channel pattern to 22+ channels via a unified adapter interface. Each adapter implements `receive() -> Message`, `send(response)`, and `formatForChannel(content) -> PlatformSpecific`. The Canvas renderer provides a **live interactive rendering surface** for structured agent output (code blocks, tables, progress indicators) that adapts to each platform's capabilities (Telegram markdown, Discord embeds, email HTML, etc.).
 
 [CLAUDE] Claude Code (claw-code) processes input through a **three-tier interception model** in the REPL — slash commands → bare-skill bypass → ordinary `run_turn` (claw-code: `rust/crates/rusty-claude-cli/src/main.rs:3579-3617`). Slash commands are intercepted and dispatched **before** the model sees the input; the bare-skill bypass rewrites a non-slash first-token match into a `${skill} {args}` invocation; everything else flows into `ConversationRuntime::run_turn(user_input, prompter)` where it is appended to `Session::messages` as a `ContentBlock::Text` user block. None of the dispatched slash commands inject a system message into `session.messages` — the model never observes the literal `/...` text. [CLAUDE]
 

@@ -1,5 +1,5 @@
 # Tool Architecture
-> Module: 05_action_and_tools | Status: Phase 6 | Last Agent: AutoGPT/Pi Synthesis
+> Module: 05_action_and_tools | Status: Phase 7 | Last Agent: Phase 7 Specialist Synthesis
 
 ## 1. Overview
 Tool architecture describes the full lifecycle of a tool from declaration to invocation: how a tool is defined, advertised to the model, gated by permissions, dispatched, and how its result is fed back into the loop. This document specifies the [CLAUDE] tool architecture as the Phase 2 reference; later phases will add Codex's autonomy-gated tools, Cline's per-action approval, AutoGPT's plugin system, OpenCode's TUI-driven tool surface, and Pi Agent's tool-calling runtime.
@@ -158,6 +158,9 @@ sequenceDiagram
 | **Order-preserving parallel tool execution** [PI] | Tools execute concurrently (`Promise.all`), but `tool_execution_end` events fire in completion order (live UI progress) while tool-result *messages* are emitted in assistant source order (LLM message-history correctness). Other agents (Aider, Cline) execute sequentially or don't preserve message order. | Two-tier event ordering is novel and requires careful subscriber design; an event ordering bug here would corrupt either UI or message history. |
 | **`terminate: true` early-stop hint** [PI] | If every tool result in a batch sets `terminate: true`, the agent stops without another LLM call. Runtime-only — the transcript still shows standard tool results. | Termination is an array-level AND, not OR; mixing terminating and non-terminating tools in one batch keeps the loop running. |
 | **Custom message extension via TypeScript declaration merging** [PI] | Apps can inject custom `AgentMessage` types via `declare module "@earendil-works/pi-agent-core" { interface CustomAgentMessages { artifact: {...}; notification: {...} } }`. Custom messages are filtered out by `convertToLlm()` before LLM calls, allowing UI-only message types without per-message `is_llm_visible` flags. | TypeScript declaration merging is the only extension surface; runtime-discovered message types not supported. |
+| **Backend-abstracted tool dispatch** [HERMES] | Tool calls are dispatched to one of seven terminal backends (local, Docker, SSH, Singularity, Modal, Daytona, Vercel Sandbox) via a `Backend(ABC)` interface (`tools/backends/`). Each backend implements `execute(command)` and `cleanup()`. This is architecturally comparable to Pi's `*Operations` objects but targets cloud-native runtimes (Modal, Daytona, Singularity) rather than SSH/container parity. | Backend selection adds indirection; each backend must replicate local execution semantics. Cloud backends add network latency and require credential management. |
+| **ACP-based tool registration** [ZED] | Tools are registered via Agent Control Protocol (ACP) servers, an emerging protocol for connecting editors to external tool providers. ACP tools appear alongside Zed's built-in tools in the agent panel. This is Zed's alternative to MCP — tighter integration with the editor's entity model but with a smaller ecosystem. | ACP is emerging with limited adoption; MCP has broader ecosystem support. |
+| **Two-style plugin system** [OPENCLAW] | OpenClaw supports two plugin styles: **isolated plugins** (run in a separate process/sandbox, communicate over a wire protocol analogous to MCP) and **in-process plugins** (TypeScript modules loaded directly into the agent runtime for lower latency). The 22+ channel adapter abstraction (`adapters/`) uses the same interface pattern, enabling plugins for Telegram, Discord, Slack, etc. | Two plugin styles double the maintenance surface; in-process plugins lose failure isolation. |
 
 ## 7. Agent Attribution Table
 
@@ -209,3 +212,28 @@ flowchart TD
 ```
 
 > [AIDER]'s edit-format-as-tools (whole/diff/udiff/search-replace) is documented in `code_modification.md`; [BABYAGI] has no first-class tool layer and is intentionally absent from this module. Phase 5's [OPENCODE] TUI-driven tool surface is documented in `08_user_interaction/output_formatting.md`.
+
+### [HERMES] Backend Dispatch
+```mermaid
+flowchart TD
+    TC[Tool call from LLM] --> BK{Backend type?}
+    BK -- local --> L[Local shell execution]
+    BK -- docker --> D[Docker container execution]
+    BK -- ssh --> S[SSH remote execution]
+    BK -- singularity --> SG[Singularity container]
+    BK -- modal --> M[Modal serverless execution]
+    BK -- daytona --> DT[Daytona sandbox]
+    BK -- vercel --> V[Vercel Sandbox]
+    L --> R[Collect output + exit code]
+    D --> R
+    S --> R
+    SG --> R
+    M --> R
+    DT --> R
+    V --> R
+    R --> Mem[Update persistent memory if needed]
+    Mem --> Cur{Curator: notable completion?}
+    Cur -- yes --> SK[Auto-create/refine skill]
+    Cur -- no --> Next[Return result to agent loop]
+    SK --> Next
+```
