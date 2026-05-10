@@ -1,9 +1,11 @@
 # Semantic Memory
-> Module: 04_memory | Status: Phase 1 Draft | Last Agent: Worker D
+> Module: 04_memory | Status: Phase 6 | Last Agent: AutoGPT Synthesis
 
 ## 1. Overview
 
 Semantic memory stores information for later similarity-based recall. [AIDER] Aider's Phase 1 context engine does not rely on embedding memory for repository context; it uses parsed code tags, graph ranking, chat history, and summaries instead. [BABYAGI] BabyAGI uses vector storage as its durable memory for completed task results.
+
+[AUTOGPT] does **not** maintain a vector store in the modern Classic checkout (HEAD `c08b9774dc90f45f0958c6c0d9e9538d094a08af`). The 2023 BabyAGI / AutoGPT lineage used Pinecone or local FAISS to store past task results, but this checkout has fully retired that surface — there is no Chroma, no Pinecone, no FAISS, no embedding pipeline in `classic/forge/forge/components/`. All "memory" is the sequential `EpisodicActionHistory` (see `episodic_memory.md`) plus the long-term `state.json` Pydantic dump. The `SkillComponent` provides *skill discovery* over filesystem `SKILL.md` files, but discovery is YAML-frontmatter-driven, not similarity-based — see `extensibility.md`. (AutoGPT research §4.3.) This is a notable architectural retreat from the original "AutoGPT Pinecone memory" design and is honest to flag: the *idea* of vector memory persists in the project's lineage but the current Classic codebase has no implementation of it.
 
 ## 2. Blueprint Specification
 
@@ -66,3 +68,6 @@ sequenceDiagram
 |---|---|
 | Aider | [AIDER] Structural recall through repo-map tags, graph ranking, tag caching, and summarized chat history instead of embedding-backed completed-result memory. |
 | BabyAGI | [BABYAGI] Chroma/Pinecone-style vector memory for completed task results, objective-based top-k queries, and task-name recall for execution context. |
+| AutoGPT | [AUTOGPT] **No vector store in current `classic/` checkout** — the 2023 Pinecone/FAISS pattern has been retired in favor of sequential `EpisodicActionHistory` (see `episodic_memory.md`) and the `SkillComponent` filesystem-driven `SKILL.md` discovery (YAML-frontmatter, not similarity-based; see `extensibility.md`). Worth recording as a **negative result** for the blueprint: AutoGPT explicitly chose not to keep its semantic memory subsystem as it modernized. |
+| Roo Code (cross-link) | [ROO] `codebase_search` via Qdrant + 8 embedder backends, indexed at workspace level — see `03_context_engine/retrieval_strategies.md`. |
+| Kilo Code (cross-link) | [KILO] `semantic_search` via LanceDB and `recall` tool — see `03_context_engine/retrieval_strategies.md`. |

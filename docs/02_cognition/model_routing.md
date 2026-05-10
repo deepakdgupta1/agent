@@ -1,5 +1,5 @@
 # Model Routing
-> Module: 02_cognition | Status: Phase 5 | Last Agent: Kilo/OpenCode Synthesis
+> Module: 02_cognition | Status: Phase 6 | Last Agent: Pi Synthesis
 
 ## 1. Overview
 Model routing chooses which model path, prompt contract, and response parser should handle a given step.
@@ -11,6 +11,8 @@ Model routing chooses which model path, prompt contract, and response parser sho
 [KILO] introduces a **proxy-first multi-provider architecture** via the Kilo Gateway (`@kilocode/kilo-gateway`). All model requests route through a unified OpenRouter-backed proxy that adds custom auth headers, organization scoping, and model metadata (recommended index, free tier, AI SDK provider hints). The gateway wraps five AI SDK providers — OpenRouter (default), Anthropic, OpenAI, Alibaba, and OpenAI-compatible — behind a single `createKilo()` factory. Provider-specific patches inject required headers (e.g., Anthropic's `claude-code-20250219` beta, Cerebras' 3rd-party integration header). A custom timeout handler (`buildTimeoutSignal`) replaces `AbortSignal.timeout()` with a cancellable timer that clears once response headers arrive.
 
 [OPENCODE] provides the custom-loader foundation that Kilo extends. Each provider is loaded via `customLoaders` — async factory functions that return AI SDK-compatible provider instances. Providers auto-detect credentials from environment variables, auth stores, or config files. The `models.dev` registry supplies model metadata (context limits, capabilities, costs).
+
+[PI] introduces a **lazy-loaded multi-LLM API** as a third routing paradigm — distinct from Aider's role-split (architect/editor) and Kilo's gateway proxy. The `@earendil-works/pi-ai` package (`packages/ai/src/`) abstracts every LLM provider behind a single `streamSimple(model, context, options)` entry point that takes a typed `Model<Api>`, a `Context` (system prompt, messages, tools), and `SimpleStreamOptions`, returning a unified `AssistantMessageEventStream`. Providers are registered via a strict one-to-one **API → provider** registry (`packages/ai/src/providers/register-builtins.ts:342-403`) — the model's `.api` field determines the provider; there is no routing table. Crucially, every provider is **lazy-loaded** through `createLazyStream(loadAnthropicProviderModule)` / `createLazySimpleStream(...)`: SDK modules (Anthropic, OpenAI, Google, Mistral, Bedrock, etc.) are imported only on first use, so users who never touch Bedrock never load the AWS SDK. 14 APIs are supported (`anthropic-messages`, `openai-responses`, `openai-completions`, `openai-codex-responses`, `azure-openai-responses`, `mistral-conversations`, `google-generative-ai`, `google-vertex`, `bedrock-converse-stream`, plus OpenRouter, Vercel AI Gateway, Cloudflare, xAI, Groq, Cerebras, Zenmux through OpenAI-compatible endpoints). Reasoning is unified via a provider-agnostic `ThinkingLevel` enum (`minimal | low | medium | high | xhigh`) with optional per-level token budgets that providers map to their native formats (Anthropic's `budget_tokens`, OpenAI's `reasoning_effort`).
 
 ## 2. Blueprint Specification
 | Element | Specification |
@@ -46,6 +48,13 @@ Model routing chooses which model path, prompt contract, and response parser sho
 2. Loader function returns an AI SDK provider instance.
 3. Model ID is passed to `provider.languageModel(modelID)` or `provider.chatModel(modelID)`.
 4. Result is an AI SDK `LanguageModel` ready for streaming.
+
+[PI] routes by `Model.api` field via a registry of lazy-loaded providers:
+1. `streamSimple(model, context, options)` reads `model.api`.
+2. `resolveApiProvider(api)` looks up the provider in `apiRegistry: Map<Api, ApiProvider>` (`packages/ai/src/stream.ts:17-59`).
+3. If the provider's module hasn't loaded yet, `createLazyStream` invokes `loadProviderModule()` which dynamically `import()`s the SDK file (`./anthropic.js`, `./openai-responses.js`, etc.) and caches the promise.
+4. The provider's `streamSimple()` is invoked with the model + context + options.
+5. The provider transforms pi's canonical `Message[]` (user/assistant/toolResult) to the provider-native format, maps tool definitions (TypeBox → Anthropic `Tool`/OpenAI `ChatCompletionTool`/Google `function_declarations`), streams events from the SDK, and normalizes them into the unified `AssistantMessageEvent` shape (`start | text_start | text_delta | text_end | toolcall_start | toolcall_delta | toolcall_end | thinking_start | thinking_delta | thinking_end | done | error`).
 
 ## 4. Flowchart
 ```mermaid
@@ -95,6 +104,37 @@ flowchart TD
     R --> N
 ```
 
+### [PI] Lazy-loaded multi-LLM dispatch
+
+```mermaid
+flowchart TD
+    A[Agent calls streamSimple(model, context, options)] --> B[resolveApiProvider model.api]
+    B --> C{Provider in registry?}
+    C -- no --> Err[throw No API provider registered]
+    C -- yes --> D{Provider module<br/>already loaded?}
+    D -- no --> E[loadProviderModule:<br/>dynamic import the SDK file<br/>cache module promise]
+    D -- yes --> F[Use cached module]
+    E --> F
+    F --> G[provider.streamSimple]
+    G --> H[transformMessages → provider-native format]
+    H --> I[Map tools TypeBox → provider tool schema]
+    I --> J[Stream events from SDK]
+    J --> K[Normalize to AssistantMessageEvent:<br/>start/text_delta/toolcall_*/thinking_*/done/error]
+    K --> L[AssistantMessageEventStream yields to caller]
+```
+
+### Routing pattern contrast
+
+The three Phase 5/6 routing patterns differ along three orthogonal axes:
+
+| Axis | [AIDER] role-split | [KILO] gateway proxy | [PI] lazy-loaded API registry |
+| --- | --- | --- | --- |
+| Selection key | Role (architect / editor / weak / main) chosen by the agent at call time | Provider identity routed through `createKilo()` proxy | `Model.api` enum dispatches to a registered `ApiProvider` |
+| Network topology | Direct LiteLLM call per role; multiple SDKs always loaded | Single OpenRouter-backed proxy URL with patched headers and `wrappedFetch` | Direct SDK call for SDK-based providers; direct HTTP for OpenAI-compat endpoints; **no proxy layer** |
+| SDK loading | Eager (every supported SDK loaded at import time) | Eager (5 AI SDK providers wrapped at startup) | **Lazy** — provider SDK files imported only on first use |
+| Provider extensibility | Add to `MODEL_SETTINGS` table | Add a `customLoader` + register with `KILO_BUNDLED_PROVIDERS` | Call `registerApiProvider({ api, stream, streamSimple })` — extensions can add providers without modifying core |
+| Reasoning surface | Per-model temperature / top-p / extra params | Provider-specific patches (`patchCustomLoaderResult`) inject beta headers | Unified `ThinkingLevel` enum with provider-mapped budgets (`Anthropic budget_tokens`, OpenAI `reasoning_effort`) |
+
 ## 5. Sequence Diagram
 ```mermaid
 sequenceDiagram
@@ -124,6 +164,9 @@ sequenceDiagram
 | **Provider-specific patches** [KILO] | Anthropic beta headers, Cerebras 3rd-party headers, Azure endpoint overrides, and OpenRouter default headers are applied transparently by `patchCustomLoaderResult`. | Provider-patch registry must be maintained as providers evolve; patches are applied at load time, not per-request. |
 | **Custom timeout handling** [KILO] | `buildTimeoutSignal()` replaces `AbortSignal.timeout()` with a timer that clears once response headers arrive — prevents aborting healthy long-running streaming responses. | Custom abort controller management; must clear timeout on both success and failure paths. |
 | **Custom loader extensibility** [OPENCODE] | Any provider can be added via an async factory function — no source changes needed for new providers. | Loader must return an AI SDK-compatible interface; loader errors surface at model-resolution time, not at config-parse time. |
+| **Lazy-loaded provider SDKs** [PI] | Memory and cold-start saved for unused providers — users who never touch Bedrock never load the AWS SDK. Provider modules dynamically `import()`-ed on first use, with the module promise cached. | Dynamic imports require ESM-compatible runtimes; first call to a new provider pays the import cost; tooling cannot statically infer which providers are actually used. |
+| **Strict API → provider one-to-one registry** [PI] | No routing table; the model's `.api` field deterministically picks the provider. Extensions add providers via `registerApiProvider({ api, stream, streamSimple })` without modifying core. | No automatic fallback or load balancing across providers; multi-provider strategies must live above the registry layer. |
+| **Unified `ThinkingLevel` enum** [PI] | Provider-agnostic reasoning configuration: `minimal \| low \| medium \| high \| xhigh` with optional per-level token budgets that providers map to their native formats (`Anthropic budget_tokens`, OpenAI `reasoning_effort`). | Some providers (Codex, Completions) emit `text_delta` with the full text rather than streaming; tool-call argument streaming is provider-dependent. |
 
 ## 7. Agent Attribution Table
 | Agent | Source-backed contribution |
@@ -133,5 +176,5 @@ sequenceDiagram
 | [ROO] | Per-mode model routing via `ProviderSettingsManager.getModeConfigId(mode)` returning saved API config per mode (GPT-5 for code, Opus for architect, cheap for ask). |
 | [KILO] | Kilo Gateway (`@kilocode/kilo-gateway`) proxy provider wrapping OpenRouter, Anthropic, OpenAI, Alibaba, and OpenAI-compatible backends behind `createKilo()` factory; `getApiKey()` credential resolution from options → env → auth store → anonymous fallback; `getKiloUrlFromToken()` token-derived API base URL; `buildKiloHeaders()` with organization ID, task ID, project ID, machine ID, editor name, and feature flag headers; `wrappedFetch` injecting auth + custom headers; `KILO_BUNDLED_PROVIDERS` mapping for provider registration; model schema extensions (`recommendedIndex`, `prompt`, `isFree`, `ai_sdk_provider`); `patchCustomLoaderResult()` injecting Anthropic beta header, OpenRouter/Vercel/Zenmux default headers, Cerebras 3rd-party header, Azure endpoint resolution; `buildTimeoutSignal()` cancellable timeout that clears on response headers; small model priority via `kilo-auto/small`; `kiloCustomLoader` async factory with credential auto-detection. |
 | [OPENCODE] | Custom loader system (`customLoaders` map) with async factory functions returning AI SDK providers; `models.dev` registry for model metadata (context limits, capabilities, costs); provider auto-detection from environment variables. |
-
-> Phase 6 [AUTOGPT] may add budget-aware routing.
+| [AUTOGPT] | `MultiProvider` thin dispatcher (`forge/llm/providers/multi.py`) selecting OpenAI / Anthropic / Groq / LiteLLM by model name; two-slot `smart_llm` / `fast_llm` configuration with `BaseAgentConfiguration.big_brain` toggle (default `True` → `smart`); strategies declare `LanguageModelClassification.SMART_MODEL \| FAST_MODEL` per phase; `Agent.complete_and_parse` injects provider-specific reasoning controls (`thinking_budget_tokens` for Claude 3.7+, `reasoning_effort: low\|medium\|high` for OpenAI o-series and GPT-5); per-task provider headers (`AP-TaskID`, `AP-StepID`, `AutoGPT-UserID`) injected via `_get_task_llm_provider`; `WatchdogComponent` is the only autonomous routing decision point — flips `big_brain=True` on detected loops, then reverts after one successful smart-LLM cycle. |
+| [PI] | `streamSimple(model, context, options)` unified entry point in `@earendil-works/pi-ai` (`packages/ai/src/stream.ts:17-59`); strict API → provider registry via `registerApiProvider({ api, stream, streamSimple })` (`packages/ai/src/providers/register-builtins.ts:342-403`); lazy provider loading via `createLazyStream(loadProviderModule)` and `createLazySimpleStream(...)` (lines 89-201) — SDK modules imported only on first use, module promise cached; 14 supported APIs (`anthropic-messages`, `openai-responses`, `openai-completions`, `openai-codex-responses`, `azure-openai-responses`, `mistral-conversations`, `google-generative-ai`, `google-vertex`, `bedrock-converse-stream`, plus OpenRouter / Vercel AI Gateway / Cloudflare / xAI / Groq / Cerebras via OpenAI-compat); per-provider `transformMessages` mapping pi's canonical `Message[]` (user/assistant/toolResult) to provider-native format; tool normalization from TypeBox to Anthropic `Tool`/OpenAI `ChatCompletionTool`/Google `function_declarations`; unified event stream (`AssistantMessageEvent`: `start`, `text_start`, `text_delta`, `text_end`, `toolcall_start`, `toolcall_delta`, `toolcall_end`, `thinking_start`, `thinking_delta`, `thinking_end`, `done`, `error`); provider-agnostic reasoning via `ThinkingLevel` enum (`minimal \| low \| medium \| high \| xhigh`) with `ThinkingBudgets {minimal?, low?, medium?, high?}` token budgets mapped to native fields per provider. |

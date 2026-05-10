@@ -494,7 +494,7 @@
 
 ### Task 13: Phase 5 Synthesis — Integrate Kilo Code + OpenCode into Docs
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 11, Task 12, Task 15
 
 **Objective:** Using the Kilo Code and OpenCode research reports, update relevant `docs/` module files. Kilo Code's primary contributions are the checkpoint/diff system, task lifecycle management, and file-level permissions. OpenCode contributes TUI agent architecture, client/server model, built-in agent personas, and plugin/extension patterns. Evolve `architectural_hierarchy.md` to v5.
@@ -517,11 +517,11 @@
 - `docs/00_meta/architectural_hierarchy.md` — Evolve to **v5**.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] All files updated with `[KILO]` and `[OPENCODE]` tagged content
-- [ ] `task_lifecycle.md` is now populated with checkpoint/diff patterns
-- [ ] `permission_model.md` now has three distinct permission paradigms documented
-- [ ] OpenCode's TUI loop and agent personas are documented
-- [ ] `architectural_hierarchy.md` v5 reflects changes from both agents
+- [x] All files updated with `[KILO]` and `[OPENCODE]` tagged content
+- [x] `task_lifecycle.md` is now populated with checkpoint/diff patterns
+- [x] `permission_model.md` now has three distinct permission paradigms documented
+- [x] OpenCode's TUI loop and agent personas are documented
+- [x] `architectural_hierarchy.md` v5 reflects changes from both agents
 
 ---
 
@@ -562,7 +562,7 @@
 
 ### Task 15b: Pi Agent — Research Agent Runtime & Tool-Calling Architecture
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Analyze Pi Agent's architecture focusing on its modular monorepo structure, agent runtime with tool-calling, unified multi-LLM API, and terminal UI.
@@ -583,15 +583,15 @@
   5. **Terminal UI**: How `pi-tui` provides the interactive coding experience.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Core loop shows the full tool-calling pipeline
-- [ ] Monorepo section describes the package boundaries and data flow
-- [ ] Multi-LLM API section contrasts with Aider's multi-model and Kilo Code's OpenRouter approach
+- [x] Core loop shows the full tool-calling pipeline
+- [x] Monorepo section describes the package boundaries and data flow
+- [x] Multi-LLM API section contrasts with Aider's multi-model and Kilo Code's OpenRouter approach
 
 ---
 
 ### Task 16: Phase 6 Synthesis — Integrate AutoGPT + Pi Agent into Docs
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 13, Task 14, Task 15b
 
 **Objective:** Using the AutoGPT and Pi Agent research reports, update all relevant `docs/` module files. Evolve `architectural_hierarchy.md` to v6.
@@ -616,11 +616,11 @@
 - `docs/00_meta/architectural_hierarchy.md` — Evolve to **v6**.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] All files updated with `[AUTOGPT]` and `[PI]` tagged content
-- [ ] `agentic_loop.md` now contains multiple distinct loop patterns
-- [ ] `safety_guardrails.md` is populated as a first-class document
-- [ ] `extensibility.md` now has three paradigms: MCP (protocol-based), plugins (code-based), and OpenCode extensions
-- [ ] `architectural_hierarchy.md` v6 documents changes from v5
+- [x] All files updated with `[AUTOGPT]` and `[PI]` tagged content
+- [x] `agentic_loop.md` now contains multiple distinct loop patterns
+- [x] `safety_guardrails.md` is populated as a first-class document
+- [x] `extensibility.md` now has three paradigms: MCP (protocol-based), plugins (code-based), and OpenCode extensions
+- [x] `architectural_hierarchy.md` v6 documents changes from v5
 
 ---
 
@@ -628,7 +628,7 @@
 
 ### Task 17: Specialist Agents — Research Continue, Hermes, OpenClaw & Zed
 
-- `[ ]` **Status: Not Started**
+- `[x]` **Status: Completed**
 - **DEPENDS ON:** Task 0
 
 **Objective:** Perform documentation-level analysis (not deep source-code) of the four specialist agents, focusing on their unique contributions to the blueprint.
@@ -649,9 +649,9 @@
   5. **Unique Contributions Summary**: For each agent, a bullet list of patterns not yet seen in the blueprint.
 
 **ACCEPTANCE CRITERIA:**
-- [ ] Each agent section identifies at least 2-3 unique contributions to the blueprint
-- [ ] Continue section covers the CI integration pattern in detail (this is unique)
-- [ ] Report is honest about which agents have limited architectural novelty
+- [x] Each agent section identifies at least 2-3 unique contributions to the blueprint
+- [x] Continue section covers the CI integration pattern in detail (this is unique)
+- [x] Report is honest about which agents have limited architectural novelty
 
 ---
 

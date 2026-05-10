@@ -1,5 +1,5 @@
 # Agentic Loop
-> Module: 01_core_loop | Status: Phase 4 | Last Agent: Cline/Roo Synthesis
+> Module: 01_core_loop | Status: Phase 6 | Last Agent: AutoGPT/Pi Synthesis
 
 ## 1. Overview
 An agentic loop is the repeatable control structure that accepts work, gathers context, invokes a model, applies or records the result, and decides whether another pass is needed.
@@ -15,6 +15,8 @@ An agentic loop is the repeatable control structure that accepts work, gathers c
 [CLINE] uses an **IDE-embedded, per-action-approval loop** implemented as a VS Code extension (`src/core/task/index.ts`). The loop is entered via `startTask()` (new task) or `resumeTaskFromHistory()` (resume), which both call `initiateTaskLoop()`. The inner `recursivelyMakeClineRequests()` performs one full API round-trip: context loading → compaction check → system prompt assembly → API request → stream processing → tool-use block parsing via `parseAssistantMessageV2()` → per-tool human approval via the `ask()` blocking primitive → tool execution → result collection → next iteration. The **defining invariant** is per-action approval: every tool use (file write, command, browser action, MCP call) is presented to the user via an approval UI before execution, blocking the loop via `pWaitFor()` polling at 100ms intervals until the user responds. Auto-approval modes (`yoloModeToggled`, granular `autoApprovalSettings`) can bypass individual gates. The loop terminates when the LLM calls `attempt_completion`, the user aborts, or the consecutive-mistake limit is reached. (Cline research §1.)
 
 [ROO] uses a **mode-multiplexed variant** of the Cline loop. The same `recursivelyMakeClineRequests` loop runs, but the active **mode** (`architect`, `code`, `debug`, `ask`, `orchestrator`, or a custom mode) swaps the system prompt's leading `roleDefinition` line, the allowed-tool surface (via `TOOL_GROUPS` + `isToolAllowedForMode` validation), and optionally the LLM provider (via per-mode API config). The `orchestrator` mode has `groups: []` — it can only use `ALWAYS_AVAILABLE_TOOLS` (`switch_mode`, `new_task`, `attempt_completion`, etc.), turning the loop into a pure coordination engine. Mode switches happen via the `switch_mode` tool (in-place, same task) or `new_task` (Boomerang delegation — see [multi_agent_patterns.md](../06_orchestration/multi_agent_patterns.md)). Roo also replaces Cline's Plan/Act binary toggle with the generalized mode framework and **removes browser automation** from the loop (pushing it to MCP servers). (Roo research §1, §4.)
+
+[AUTOGPT] uses an **autonomous goal-seeking loop** centered on a `propose_action` / `execute` pair driven by a configurable **prompt strategy** (`classic/original_autogpt/autogpt/agents/agent.py:266-339, 373-460`; `app/main.py:607-787`). One outer `while cycles_remaining > 0` loop iterates until self-termination (`finish` tool raises `AgentFinished`), user interrupt (`Ctrl+C` once → graceful stop, twice → exit), 3 consecutive `InvalidAgentResponseError`s (`AgentTerminated`), or a configured `--continuous-limit`. Inside each cycle, `propose_action` runs **three component pipelines** (`DirectiveProvider.{get_constraints,get_resources,get_best_practices}`, `CommandProvider.get_commands`, `MessageProvider.get_messages`), lazily compresses old episodes via `ActionHistoryComponent`, calls one of seven **swappable prompt strategies** (`one_shot`, `plan_execute`, `rewoo`, `reflexion`, `tree_of_thoughts`, `lats`, `multi_agent_debate`) to build the prompt, dispatches `MultiProvider.create_chat_completion`, and parses the response into `(thoughts, use_tool|use_tools)`. The `AfterParse` pipeline registers the action in episodic memory and runs `WatchdogComponent` loop detection. `execute` then runs the `PermissionManager` 5-level cascade per tool, dispatches single or parallel (`asyncio.gather`) tool calls through the `Command` registry, replaces oversized results with an error (`> send_token_limit // 3`), and the `AfterExecute` pipeline writes the `ActionResult` back onto the current `Episode`. Observation is **implicit** — there is no separate observe step; the next cycle's prompt assembly reads previous results from `event_history`. The defining invariant is the *strategy state machine*: `parse_response_content` is allowed to mutate `current_phase` (e.g. ReWOO `PLANNING → EXECUTING → SYNTHESIZING`), and `build_prompt` may raise `UseCachedActionException` to skip the LLM call entirely (ReWOO `EXECUTING` replays cached `AssistantFunctionCall`s, the source of ReWOO's claimed "5x token efficiency"). (AutoGPT research §1, §2.)
 
 ## 2. Blueprint Specification
 Core loop contract:
@@ -128,6 +130,49 @@ flowchart TD
     Append --> C
 ```
 
+[AUTOGPT] pattern — think → plan → execute → observe → repeat:
+```mermaid
+flowchart TD
+    Start([autogpt run / continue]) --> Outer[run_interaction_loop<br/>cycles_remaining = continuous_limit or inf]
+    Outer --> Sig{Ctrl+C?}
+    Sig -- 1x --> Soft[cycles_remaining = 1]
+    Sig -- 2x --> Exit([sys.exit])
+    Sig -- no --> ResumeQ{current episode<br/>has result?}
+    ResumeQ -- yes --> Think[THINK: propose_action]
+    ResumeQ -- no --> ResumeProp[reuse current_episode.action<br/>resume from persisted partial]
+    Think --> Pipe1[run_pipeline DirectiveProvider]
+    Pipe1 --> Pipe2[run_pipeline CommandProvider]
+    Pipe2 --> Compress[ActionHistoryComponent.handle_compression<br/>summarize old episodes via fast_llm]
+    Compress --> Pipe3[run_pipeline MessageProvider]
+    Pipe3 --> Plan[PLAN: prompt_strategy.build_prompt<br/>strategy may raise UseCachedActionException]
+    Plan -- exception --> Cached[Replay cached function call<br/>NO LLM CALL — ReWOO EXECUTING]
+    Plan -- normal --> LLM[MultiProvider.create_chat_completion]
+    LLM --> Parse[strategy.parse_response_content<br/>extract thoughts + use_tool / use_tools]
+    Parse --> AfterParse[AfterParse pipeline:<br/>register Episode, watchdog repetition check]
+    AfterParse --> Failures{parse failed?}
+    Failures -- 3rd in a row --> Term[AgentTerminated → save state.json]
+    Failures -- ok --> Display[ui.display_thoughts<br/>show CRITICISM block]
+    Cached --> Execute
+    Display --> Execute[EXECUTE: agent.execute proposal]
+    Execute --> Perm[permission_manager.check_command<br/>5-level cascade]
+    Perm -- deny --> Denied[Append ActionInterruptedByHuman<br/>with feedback → next prompt]
+    Perm -- allow --> Dispatch{multi-tool?}
+    Dispatch -- single --> One[_execute_tool single]
+    Dispatch -- parallel --> Many[_execute_tools_parallel<br/>asyncio.gather]
+    One --> Guard
+    Many --> Guard[Output-size guard:<br/>if tokens > send_token_limit//3 → error]
+    Guard --> AfterExec[OBSERVE: AfterExecute pipeline<br/>register_result on Episode]
+    AfterExec --> Finish{finish tool called?}
+    Finish -- yes --> Cont[prompt_finish_continuation<br/>or exit if non-interactive]
+    Finish -- no --> Watchdog{Watchdog: repetition?}
+    Watchdog -- yes --> BigBrain[big_brain = True<br/>force smart_llm next cycle<br/>event_history.rewind]
+    Watchdog -- no --> Tick[cycles_remaining -= 1<br/>unless interrupted_by_human]
+    BigBrain --> Outer
+    Denied --> Tick
+    Tick --> Outer
+    Cont --> Outer
+```
+
 [CLAUDE] pattern, expanded:
 ```mermaid
 flowchart TD
@@ -234,6 +279,9 @@ sequenceDiagram
 | Loop detection with soft/hard thresholds [CLINE] | `checkRepeatedToolCall()` catches the LLM calling the same tool with identical parameters repeatedly — soft warning at threshold, hard escalation to mistake limit. | May false-positive on legitimate repeated operations (e.g., polling a file for changes). |
 | Plan/Act binary toggle [CLINE] | Simple two-state UX. `strictPlanModeEnabled` blocks file-modification tools in Plan Mode. | Not extensible — only two modes, no custom personas, no per-mode model routing. Superseded by Roo's mode system. |
 | `orchestrator` mode with `groups: []` [ROO] | Purely coordination-focused — can only use `switch_mode`, `new_task`, `attempt_completion`, and other always-available tools. No accidental file edits or commands from the orchestrator. | Cannot read files or run commands directly; must delegate all work to child tasks in other modes. |
+| Autonomous goal-seeking loop [AUTOGPT] | Single agent runtime hosts seven dramatically different planning paradigms via swappable `PromptStrategy`; observation is implicit (next prompt re-reads `event_history`) so there is no separate observe step to reconcile. `WatchdogComponent` provides reactive fast→smart model escalation on detected repetition, the only autonomous routing in the codebase. | Cycle budget defaults to ∞ in continuous mode — runaway is bounded only by `consecutive_failures` (3 unparseable responses) and the lazy-compression token cap. `total_budget` cost tracking is logged-only, not enforced as a hard stop (gap vs Codex). Permission denial does NOT terminate; it becomes an `ActionInterruptedByHuman` and the agent re-plans, which is rich human-in-the-loop but loses cycle determinism. |
+| Strategy state machine with `UseCachedActionException` [AUTOGPT] | ReWOO's `EXECUTING` phase replays the cached `AssistantFunctionCall` by raising a typed exception out of `build_prompt`; `Agent.propose_action` catches it (by string name to avoid an import cycle), runs `AfterParse` to register the action in history, increments `cycle_count`, and returns *without* an LLM call. Token-optimization not seen in other agents. | Catching by string name is fragile across refactors. Strategy phase is held on the strategy object only and is *not* serialized into `state.json`, so a process restart loses ReWOO's plan progress and Reflexion's reflection memory. |
+| Two-mode reuse: CLI ↔ Agent Protocol HTTP [AUTOGPT] | Same `propose_action / execute` pair runs in either an interactive `while cycles_remaining > 0` outer loop or as one-cycle-per-`POST /ap/v1/agent/tasks/{id}/steps`, with `state.json` persisted between calls so a long task survives restarts. | HTTP mode shifts loop control to the client; cycle gating is external and idempotency depends on the client's behavior. |
 
 ## 7. Agent Attribution Table
 | Agent | Source-backed contribution |
@@ -243,4 +291,5 @@ sequenceDiagram
 | [CLAUDE] | `ConversationRuntime::run_turn` tool-use protocol loop with health probe, single system-prompt assembly, per-iteration message-cloning, `Vec<AssistantEvent>` reduction, hook + permission gating, file-based tool-result injection, configurable iteration cap, and post-turn auto-compaction. |
 | [CODEX] | Submission/Event queue-mediated loop where approval is a wire-protocol round-trip (`Op::ExecApproval` / `Op::PatchApproval` ↔ `EventMsg::ExecApprovalRequest` / `EventMsg::ApplyPatchApprovalRequest`); single-turn-per-session active runtime; Responses-API-only client (`core/src/client.rs`) with WebSocket-primary + HTTP-SSE fallback; `function_call`-shaped tool dispatch; safety gate (`core/src/safety.rs`) returning `AutoApprove { sandbox_type } | AskUser | Reject` for `apply_patch`; per-OS sandbox dispatcher (`sandboxing/src/manager.rs`) layered *under* the approval policy; AGENTS.md root-→-leaf injection joined under `--- project-doc ---`; Memento-style auto-compaction at the next-request token cap with `InitialContextInjection::BeforeLastUserMessage` and `ghost_snapshots` for `Op::Undo`; `EventMsg::TurnComplete` as terminal signal. |
 | [CLINE] | IDE-embedded VS Code extension loop via `startTask()` / `resumeTaskFromHistory()` → `initiateTaskLoop()` → `recursivelyMakeClineRequests()`; streaming response parsing via `StreamResponseHandler → parseAssistantMessageV2() → AssistantMessageContent[]`; `TaskPresentationScheduler` with priority levels (`immediate` / `normal`) and configurable cadence; per-action approval via the `ask()` / `say()` paradigm — `ask()` blocks with `pWaitFor()` polling at 100ms until user responds; 17+ ask types (`tool`, `command`, `command_output`, `browser_action_launch`, `use_mcp_server`, `completion_result`, `followup`, `plan_mode_respond`, etc.); granular auto-approval via `AutoApprove` class (`yoloModeToggled`, per-category `autoApprovalSettings`: `readFiles`, `editFiles`, `executeSafeCommands`, `executeAllCommands`, `useBrowser`, `useMcp`); `didRejectTool` flag that skips all subsequent tool blocks on rejection; loop detection via `checkRepeatedToolCall()` with soft-warning and hard-escalation thresholds; Plan/Act binary mode toggle with `strictPlanModeEnabled` gate; termination conditions: `attempt_completion`, user abort (7-phase cleanup), consecutive mistake limit, YOLO + too many mistakes, context window exhaustion; auto-condense (`summarize_task`) and standard truncation (`conversationHistoryDeletedRange`) for context management; git-based checkpoints via `ICheckpointManager` abstraction. |
+| [AUTOGPT] | Autonomous think→plan→execute→observe loop in `classic/original_autogpt/autogpt/agents/agent.py:266-339, 373-460` and outer `app/main.py:607-787`; **two operating modes** sharing the same `propose_action`/`execute` pair (interactive CLI `while cycles_remaining > 0` and one-cycle-per-step Agent Protocol HTTP server with `state.json` persistence between calls); **swappable prompt-strategy state machine** with seven strategies (`one_shot`, `plan_execute`, `rewoo`, `reflexion`, `tree_of_thoughts`, `lats`, `multi_agent_debate`) selected via `PROMPT_STRATEGY` env var; **`UseCachedActionException`** typed exception out of `build_prompt` that lets ReWOO `EXECUTING` skip the LLM call entirely; **three component pipelines** (`DirectiveProvider`, `CommandProvider`, `MessageProvider`) with `_topological_sort` ordering via `run_after()` declarations; **lazy compression** of episodic action history triggered only when the next prompt actually needs older episodes; `WatchdogComponent` repetition detection that flips `big_brain=True` to escalate fast_llm→smart_llm, then reverts; permission denial as an `ActionInterruptedByHuman` result that re-enters the next prompt as `[USER FEEDBACK]`; output-size guard replacing oversized tool results with an error before the next cycle; termination via the `finish` command raising `AgentFinished`, `consecutive_failures >= 3`, SIGINT (1× graceful, 2× hard), or `--continuous-limit`. |
 | [ROO] | Mode-multiplexed variant of the Cline loop; five built-in modes (`architect` with markdown-only edits, `code`, `debug`, `ask`, `orchestrator` with `groups: []`) plus arbitrary custom modes via `.roomodes`; `ModeConfig` schema (`slug`, `roleDefinition`, `groups`, `customInstructions`, `whenToUse`); mode-aware system prompt assembly with `roleDefinition` as leading line, conditional MCP catalog based on mode groups, `modesSection` listing all modes for the orchestrator picker; `isToolAllowedForMode` validation with alias resolution (`TOOL_ALIASES`), `ALWAYS_AVAILABLE_TOOLS` bypass, group walking, and `FileRestrictionError` for regex-protected groups; `switch_mode { mode_slug, reason }` tool for in-place mode change with per-mode API config loading via `ProviderSettingsManager.getModeConfigId(mode)` and 500ms settling sleep; Boomerang delegation via `new_task { mode, message, todos? }` (see `multi_agent_patterns.md`); `update_todo_list` as always-available task-progress tool with `preventCompletionWithOpenTodos` setting; mode-scoped rule directories `.roo/rules-${mode}/*`; browser automation removed (`deprecatedToolGroups = ["browser"]`); embedded code-index (`codebase_search` via Qdrant + 8 embedder backends) in the `read` group; Cline's Plan/Act replaced by the generalized mode framework. |

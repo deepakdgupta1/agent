@@ -1,5 +1,5 @@
 # Tool Architecture
-> Module: 05_action_and_tools | Status: Phase 2 | Last Agent: Claude Code Synthesis
+> Module: 05_action_and_tools | Status: Phase 6 | Last Agent: AutoGPT/Pi Synthesis
 
 ## 1. Overview
 Tool architecture describes the full lifecycle of a tool from declaration to invocation: how a tool is defined, advertised to the model, gated by permissions, dispatched, and how its result is fed back into the loop. This document specifies the [CLAUDE] tool architecture as the Phase 2 reference; later phases will add Codex's autonomy-gated tools, Cline's per-action approval, AutoGPT's plugin system, OpenCode's TUI-driven tool surface, and Pi Agent's tool-calling runtime.
@@ -151,11 +151,61 @@ sequenceDiagram
 | **`tool_choice: Auto`** [CLAUDE] | Lets the model decide whether to call a tool or emit text only — natural termination. | Cannot force a tool call without changing this; no `tool_choice: { type: "tool", name: "X" }` enforcement at HEAD. |
 | **Three permission tiers per spec** [CLAUDE] | Tier per tool means a single `PermissionMode` can authorize the whole catalog without per-call config. | Coarse-grained: any `bash` invocation requires `DangerFullAccess` regardless of the actual command; finer gating belongs in deny-rules and hooks. |
 | **`--allowedTools` filter** [CLAUDE] | Reduces the model's option space and prompt token cost. | If the user filters out a tool the system prompt assumes is available (e.g. `read_file`), the model may try and fail; harness will deny gracefully but the user-visible flow stalls. |
+| **Component-based tool composition** [AUTOGPT] | Tools live as decorated methods on `AgentComponent` subclasses; `_topological_sort` orders components by `run_after()` declarations; `CommandProvider.get_commands` is re-run *every cycle* so commands can be state-dependent (`unload_skill` only appears once a skill is loaded). 18 components wired in `Agent.__init__`. | No central registry; lookup walks `self.commands` in reverse to allow shadowing. Adding a tool requires subclassing a component or modifying an existing one — there is no runtime "register a tool from JSON" path for built-ins. The legacy plugin system (`classic/original_autogpt/plugins/`) is **defunct** in this checkout — empty directory, no `install_plugin_deps` wiring. |
+| **Three-tier pipeline retry** [AUTOGPT] | `ComponentEndpointError` retries the same component (3x); `EndpointPipelineError` restarts the whole pipeline (3x) with original args restored via `_selective_copy`; `ComponentSystemError` propagates and is used by `WatchdogComponent` to force a fresh prompt build. | Three separate retry budgets must be reasoned about; pathological retry storms are possible if every component error type is raised. |
+| **Pluggable operations objects** [PI] | Every built-in tool accepts a `*Operations` interface (e.g. `BashOperations.exec(command, cwd, options)`) so tools can target SSH, container, or remote backends without changing tool code. Aider and Cline hard-code execution; Pi's design supports remote backends. | Operations interface defines the contract; remote implementations must mirror local semantics (truncation, exit codes, signal handling). |
+| **TypeBox schema-first tool definition** [PI] | `parameters: TSchema` is the single source of truth — runtime validation, JSON schema for LLM, and TypeScript types via `Static<TParameters>` all derive from it. | Adding a tool requires TypeBox; not portable to non-TypeScript runtimes. |
+| **Order-preserving parallel tool execution** [PI] | Tools execute concurrently (`Promise.all`), but `tool_execution_end` events fire in completion order (live UI progress) while tool-result *messages* are emitted in assistant source order (LLM message-history correctness). Other agents (Aider, Cline) execute sequentially or don't preserve message order. | Two-tier event ordering is novel and requires careful subscriber design; an event ordering bug here would corrupt either UI or message history. |
+| **`terminate: true` early-stop hint** [PI] | If every tool result in a batch sets `terminate: true`, the agent stops without another LLM call. Runtime-only — the transcript still shows standard tool results. | Termination is an array-level AND, not OR; mixing terminating and non-terminating tools in one batch keeps the loop running. |
+| **Custom message extension via TypeScript declaration merging** [PI] | Apps can inject custom `AgentMessage` types via `declare module "@earendil-works/pi-agent-core" { interface CustomAgentMessages { artifact: {...}; notification: {...} } }`. Custom messages are filtered out by `convertToLlm()` before LLM calls, allowing UI-only message types without per-message `is_llm_visible` flags. | TypeScript declaration merging is the only extension surface; runtime-discovered message types not supported. |
 
 ## 7. Agent Attribution Table
 
 | Agent | Source-backed contribution |
 | --- | --- |
 | [CLAUDE] | `ToolSpec { name, description, input_schema, required_permission }` declaration shape; `GlobalToolRegistry` three-source composition (50 built-ins + plugins + runtime MCP); `ToolExecutor::execute` async trait; `CliToolExecutor` runtime/MCP-first dispatch order; `MessageRequest.tools` + `tool_choice: Auto` provider-native delivery; snake_case canonical names + alias resolution at `--allowedTools` boundary; `ContentBlock::ToolUse` / `ContentBlock::ToolResult` correlation via `tool_use_id`. |
+| [AUTOGPT] | **Component-based tool architecture** (`classic/forge/forge/agent/components.py`, `protocols.py`, `command/{command,decorator,parameter}.py`) — replaces the defunct legacy plugin system (the `classic/original_autogpt/plugins/` directory exists but is empty in this checkout, and `app/main.py` no longer respects `install_plugin_deps`). Tools are declared as methods on `AgentComponent` subclasses decorated with `@command(names, description, parameters={"name": JSONSchema(...)})`; the decorator builds a `Command(names, description, method, parameters)` object whose `__get__` descriptor re-binds to the instance. `_parameters_match` validates that the decorator's declared parameters exactly match the function signature minus `self` at *class-definition time*. `function_specs_from_commands(...)` (`forge/llm/providers/utils.py`) converts a `list[Command]` into the `CompletionModelFunction` JSON spec sent to the LLM. **No central tool registry** — components implement the `CommandProvider` protocol with `get_commands() -> Iterator[Command]`, and `Agent.commands = await self.run_pipeline(CommandProvider.get_commands)` collects them per cycle (so commands are state-dependent, e.g. `unload_skill` only appears once a skill is loaded). Lookup walks `self.commands` in *reverse* so later-added commands shadow earlier ones (`_get_command`). 18 components are wired in `Agent.__init__`: `SystemComponent`, `ActionHistoryComponent`, `UserInteractionComponent`, `FileManagerComponent`, `CodeExecutorComponent` (Docker container per agent), `GitOperationsComponent`, `ImageGeneratorComponent`, `WebSearchComponent`, `WebPlaywrightComponent`, `ContextComponent`, `TodoComponent`, `ArchiveHandlerComponent`, `ClipboardComponent`, `DataProcessorComponent`, `HTTPClientComponent`, `MathUtilsComponent`, `TextUtilsComponent`, `WatchdogComponent`, `PlatformBlocksComponent` (gated on `PLATFORM_API_KEY`), `SkillComponent`. Three-tier pipeline retry (`ComponentEndpointError` retries the component up to 3x; `EndpointPipelineError` restarts the whole pipeline up to 3x with original args restored; `ComponentSystemError` propagates and is used by `WatchdogComponent` to force a fresh prompt build). |
+| [PI] | `AgentTool<TParameters, TDetails>` interface (`packages/agent/src/types.ts:332-355`) extending `Tool<TParameters>` from `pi-ai`: `name`, `description`, `parameters: TSchema` (TypeBox schema-first), `label` (human-readable UI label), `prepareArguments?(args)` compat shim, `execute(toolCallId, params, signal?, onUpdate?) → Promise<AgentToolResult<TDetails>>`, `executionMode?: "sequential" | "parallel"`. `AgentToolResult<T>` shape: `content: (TextContent\|ImageContent)[]` (returned to LLM), `details: T` (arbitrary structured data for UI), `terminate?: boolean` (early-stop hint — when every tool result in a batch has `terminate: true`, the agent stops without another LLM call, runtime-only; transcript still shows standard tool results). **No central tool registry** — tools attached directly to `Agent.state.tools`; the agent loop looks up by name via reverse-walk and emits an error result on miss (`packages/agent/src/agent-loop.ts:536-542`). Two-checkpoint validation: optional `prepareArguments` shim rewrites malformed input first, then `validateToolArguments` enforces the TypeBox schema. **Pluggable operations objects**: each built-in tool accepts a `*Operations` interface (e.g. `BashOperations.exec(command, cwd, options)`) so tools can target SSH, container, or remote backends without changing tool code (`packages/coding-agent/src/core/tools/bash.ts:39-56`). 7 built-in tools in the coding agent: `read`, `bash`, `edit`, `write`, `grep`, `find`, `ls`. Two execution modes: **parallel** (default) preflights all tools, runs async-ready ones in `Promise.all`, emits `tool_execution_end` events as each tool *finishes* (completion order) but emits tool-result *messages* in **assistant source order** so UI can show progress live while LLM message ordering is preserved; **sequential** prepares-executes-finalizes one tool before the next. Per-tool hooks: `beforeToolCall(toolCall, args, assistantMessage, context) → { block?, reason? }` runs after argument validation; `afterToolCall(...)` can override `content`, `details`, `isError`, `terminate` per-field (no deep merge). Errors are caught and wrapped as `{ content: [error message], isError: true }`. |
 
-> [AIDER]'s edit-format-as-tools (whole/diff/udiff/search-replace) is documented in `code_modification.md`; [BABYAGI] has no first-class tool layer and is intentionally absent from this module. Phase 5's [OPENCODE] TUI-driven tool surface, Phase 6's [AUTOGPT] plugin pattern, and [PI]'s tool-calling runtime will extend this document.
+### Pi tool-call dispatch [PI]
+```mermaid
+flowchart TD
+    LLM[LLM streams toolcall_delta events] --> Parse[Parse tool_calls from assistant message]
+    Parse --> Mode{toolExecution mode?}
+    Mode -- parallel --> Pre[Sequential preflight:<br/>prepareArguments → schema validation → beforeToolCall]
+    Pre --> Block{beforeToolCall blocks?}
+    Block -- yes --> Imm[Immediate error result]
+    Block -- no --> Async{Async ready?}
+    Async -- yes --> Batch[Add to Promise.all batch]
+    Async -- no --> Imm
+    Batch --> Gather[Promise.all dispatch<br/>concurrent execution]
+    Gather --> Done[tool_execution_end events fire as each tool finishes]
+    Done --> Order[Emit tool-result messages in<br/>assistant source order]
+    Mode -- sequential --> Seq[For each tool:<br/>prepare → execute → finalize → next]
+    Seq --> Done2[Emit tool_execution_end + result message immediately]
+    Order --> After[afterToolCall: per-field merge of<br/>content, details, isError, terminate]
+    Done2 --> After
+    After --> Term{All results terminate=true?}
+    Term -- yes --> Stop[Stop agent without another LLM call]
+    Term -- no --> Next[Next iteration]
+    Imm --> After
+```
+
+### Component-based tool registration [AUTOGPT]
+```mermaid
+flowchart TD
+    Decorator["@command(names, description, parameters={'name': JSONSchema(...)})"] --> Build[Decorator builds Command object<br/>_parameters_match validates signature at class-definition time]
+    Build --> Comp[Method lives on AgentComponent subclass]
+    Comp --> Init[Agent.__init__ instantiates 18 components]
+    Init --> Topo[AgentMeta.__call__ calls _collect_components<br/>_topological_sort via run_after declarations]
+    Topo --> Cycle[Each cycle: Agent.commands = await run_pipeline CommandProvider.get_commands]
+    Cycle --> Reverse[_get_command walks self.commands in reverse<br/>later-added commands shadow earlier]
+    Reverse --> Specs[function_specs_from_commands → CompletionModelFunction JSON for LLM]
+    Specs --> LLM[MultiProvider sends native function/tool calls]
+    LLM --> Lookup[Match toolCall.name to Command]
+    Lookup --> Exec[Command.method invoked with kwargs from arguments]
+    Exec --> Wrap[ActionSuccessResult or ActionErrorResult.from_exception]
+    Wrap --> Pipeline[Three-tier pipeline retry on ComponentEndpointError / EndpointPipelineError]
+```
+
+> [AIDER]'s edit-format-as-tools (whole/diff/udiff/search-replace) is documented in `code_modification.md`; [BABYAGI] has no first-class tool layer and is intentionally absent from this module. Phase 5's [OPENCODE] TUI-driven tool surface is documented in `08_user_interaction/output_formatting.md`.
