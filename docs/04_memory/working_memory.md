@@ -72,3 +72,9 @@ sequenceDiagram
 | Aider | [AIDER] Active and completed chat message state, editable/read-only file scope, reflected-message retries, and per-turn validation outcomes. |
 | BabyAGI | [BABYAGI] In-memory task deque, minimal task records, append/replace/popleft queue operations, and loop continuation until the queue is empty. |
 | Zed | [ZED] **Thread entity as working memory**: in Zed, the agent's working memory is the `Thread` entity — a GPUI `Entity` that manages the current conversation's messages. Because the agent is a native editor data structure, the Thread shares memory with the editor — no IPC overhead. The Thread is analogous to `cur_messages` in Aider but with direct access to editor state (buffer content, cursor position, file paths) as additional volatile context. Updates propagate automatically to all views via `cx.notify()`. This is a different deployment model for working memory — not a separate process's message buffer but a first-class editor entity. |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Task Conversation Thread**: Working memory primarily consists of the LLM conversation thread (user inputs, assistant messages, tool invocations, and results). As this thread grows, Roo-Code trims the working memory down by running `compact_session`, summarizing old segments while keeping recent ones intact.
+- **Task Todo List**: A major addition to working memory is the explicit `todoList` state. Maintained via the `update_todo_list` tool, it remains active in the working memory throughout the task execution as a checklist of open objectives.

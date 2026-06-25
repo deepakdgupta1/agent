@@ -85,3 +85,9 @@ sequenceDiagram
 | [AIDER] | Planning via repo-map ranking, file scope, edit-format selection, conversation context, and optional architect/editor delegation. |
 | [BABYAGI] | Planning via execution-result-driven task creation, objective-based prioritization, queue replacement, and vector recall of completed work. |
 | [HERMES] | Planning via skill-driven composition; automates procedural memory creation via `agent/curator.py` and YAML-based skill storage for reusable, standard-compliant task execution. |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Architect Mode**: Roo-Code separates high-level planning from low-level coding through its built-in `architect` mode. The `architect` is restricted from writing code directly (it has markdown-only edit capabilities or read-only tools) and is responsible for researching, formulating a plan, and passing that plan to the `code` mode via a mode switch.
+- **Boomerang Delegation**: The agent can spawn sub-tasks using the `new_task` tool, passing a `message` and an initial `todos` list. The parent agent waits for the child's completion, allowing recursive, structured planning and execution.

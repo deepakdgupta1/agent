@@ -120,3 +120,9 @@ sequenceDiagram
 | :--- | :--- | :--- |
 | [AIDER] | Edit-format routing, prompt/parser coupling, guarded file application, git checkpointing, and validation feedback. | Primary source for the code modification blueprint. |
 | [BABYAGI] | Demonstrates the minimal loop without tools, files, edit formats, or verification. | Contrast case defining what is absent below the action-capable layer. |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Pluggable Edit Strategies**: Roo-Code exposes multiple code modification tools (`write_to_file` for complete rewrites, `search_replace` for targeted block edits, `apply_diff` for unified diffs, and `apply_patch` for semantic patching).
+- **Edit format evaluation**: Unlike Aider which binds a single coder format to a session, Roo-Code provides all these tools and allows the LLM to select the most appropriate modification strategy dynamically based on the edit size and complexity.

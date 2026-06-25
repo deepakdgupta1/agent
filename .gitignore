@@ -1,17 +1,4 @@
 # Coding Agent Repositories
 .DS_Store
 .claude/
-Roo-Code/
-aider/
-autogpt/
-babyagi/
-claude-code/
-claw-code/
-cline/
-codex/
-continue/
-hermes-agent/
-kilocode/
-open-interpreter/
-openclaw/
-zed/
+popular-agents/

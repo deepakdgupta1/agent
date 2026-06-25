@@ -67,3 +67,13 @@ sequenceDiagram
 |---|---|
 | Aider | [AIDER] Full-message token checks, repo-map token budgeting, history summarization, prompt-cache chunking, and user-visible token/cost feedback. |
 | BabyAGI | [BABYAGI] Compact prompt templates, small default generation limits, prompt slicing for chat models, and top-k task-name recall to minimize prompt size. |
+| AutoGPT | [AUTOGPT] Automatic truncation of oversized tool results and episodic compression of history into summarized progress blocks. |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Session Compaction**: Roo-Code actively monitors token usage throughout the turn lifecycle. When the conversational payload grows near the context window limit of the active provider, it automatically invokes a `compact_session` phase to summarize previous turns and trim tool interaction history, keeping the ongoing loop within budget without losing the overarching narrative context.
+
+### AutoGPT
+- **Tool Result Output Caps**: AutoGPT replaces any tool result that exceeds `send_token_limit // 3` with a deterministic error string (e.g. `Error: Output too large...`). It drops the actual result entirely, forcing the agent to retry with a narrower scope (like reading a subset of lines).
+- **Episodic Compression**: It relies on the `ActionHistoryComponent` to lazily compress older episodes when the context window nears its limit. For example, by default, it keeps the last 4 verbatim episodes and summarizes the rest into a "Progress so far" summary section capped at 1024 tokens.

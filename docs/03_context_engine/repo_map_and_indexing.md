@@ -69,3 +69,9 @@ sequenceDiagram
 |---|---|
 | Aider | [AIDER] Tree-sitter tag extraction, cached repo-map indexing, identifier-labelled file graph, PageRank ranking, and token-bounded snippet rendering. |
 | BabyAGI | [BABYAGI] Vector indexing of completed task results and objective-based recall of prior task names. |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Embedded Codebase Index**: Roo-Code ships with a built-in vector search engine powered by an embedded Qdrant instance.
+- **Extensible Embedders**: The indexing pipeline supports up to 8 different embedder backends, parsing local repository code to build a semantic map of the workspace natively without relying on external SaaS retrieval solutions.

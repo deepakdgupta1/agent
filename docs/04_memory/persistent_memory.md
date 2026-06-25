@@ -148,3 +148,9 @@ sequenceDiagram
 | [HERMES] | **Closed-loop persistent memory**: `~/.hermes/MEMORY.md` stores general agent memory (user preferences, learned facts, project knowledge); `~/.hermes/USER.md` stores user-specific context; `~/.hermes/skills/` stores agent-created procedural memory as markdown files with YAML metadata (compatible with the [agentskills.io](https://agentskills.io) open standard). The `agent/curator.py` closed learning loop monitors successful task completions, auto-creates or refines skills based on patterns, and writes them for reuse. `agent/memory_*.py` and `agent/skill_*.py` manage the skill lifecycle (creation, editing, patching, deletion via `tools/skill_manager_tool.py`). This is **autonomous procedural memory creation** — the agent's learned workflows are first-class, reusable, cross-session assets that evolve over time. Not seen in prior agents: BabyAGI has episodic memory, Claude Code has CLAUDE.md, AutoGPT has vector stores, but none implement autonomous skill creation + self-improvement + open standard compatibility. |
 
 > [BABYAGI] and [AIDER] do not contribute filesystem-backed persistent memory in their Phase 1 evidence; see `04_memory/working_memory.md` and `04_memory/semantic_memory.md` for those agents' state-persistence patterns.
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Workspace Rules**: Persistent memory is primarily modeled through the `.clinerules` and `.roomodes` configuration files, which are loaded automatically from the workspace to guide the agent on established patterns.
+- **Global Memory**: In addition to workspace files, it supports global custom instructions and a `.roo/` scoped rule directory that the user can persist across all projects.

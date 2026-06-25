@@ -71,3 +71,9 @@ sequenceDiagram
 | Aider | [AIDER] File-scope retrieval, mention scanning, read-only context, repo-map graph ranking, and reflected file-addition passes. |
 | BabyAGI | [BABYAGI] Objective-based semantic retrieval from completed task results and insertion of recalled task names into execution prompts. |
 | Continue | [CONTINUE] **Context providers as pluggable retrieval**: `core/context/` defines a `ContextProvider` interface (`getContextItems(query: string): Promise<ContextItem[]>`). Built-in providers include codebase search, terminal output, git history, web search, docs, and filesystem. Providers are loaded on-demand by rules and can be mixed in a rule without code changes — just configure in `continue.json`. More granular than MCP's tool/resource abstraction and simpler than per-agent custom loaders. Agnostic to execution context (IDE vs. CLI). |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Semantic File Search**: The agent defaults to `codebase_search` (powered by the embedded Qdrant index) for discovering semantic meaning in code before falling back to regex or AST-based searches.
+- **Tiered Retrieval Tools**: Retrieval is grouped into the "read" tool group, giving the agent a hierarchy of exploration (`read_file`, `search_files`, `list_files`, `codebase_search`) that it can use depending on whether the query is structural, path-based, or semantic.

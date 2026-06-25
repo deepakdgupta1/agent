@@ -237,3 +237,9 @@ flowchart TD
     Cur -- no --> Next[Return result to agent loop]
     SK --> Next
 ```
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Mode-Gated Tool Surface**: Tool definitions are dynamically filtered per turn based on the active mode (e.g., `code`, `architect`, `ask`). The `filterToolsForMode` function computes the intersection of available native tools and the current mode's allowed tool groups (e.g., `read`, `edit`, `command`, `mcp`), meaning the model's schema shrinks or expands depending on its persona.
+- **Boomerang Delegation**: The `new_task` tool allows the current mode to spawn a sub-task, delegating work to another mode (e.g., Architect delegating to Code) and returning the result back.

@@ -71,3 +71,9 @@ sequenceDiagram
 | AutoGPT | [AUTOGPT] **No vector store in current `classic/` checkout** — the 2023 Pinecone/FAISS pattern has been retired in favor of sequential `EpisodicActionHistory` (see `episodic_memory.md`) and the `SkillComponent` filesystem-driven `SKILL.md` discovery (YAML-frontmatter, not similarity-based; see `extensibility.md`). Worth recording as a **negative result** for the blueprint: AutoGPT explicitly chose not to keep its semantic memory subsystem as it modernized. |
 | Roo Code (cross-link) | [ROO] `codebase_search` via Qdrant + 8 embedder backends, indexed at workspace level — see `03_context_engine/retrieval_strategies.md`. |
 | Kilo Code (cross-link) | [KILO] `semantic_search` via LanceDB and `recall` tool — see `03_context_engine/retrieval_strategies.md`. |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Embedded Qdrant**: Roo-Code implements semantic memory through an embedded Qdrant vector database used specifically for the `codebase_search` tool.
+- **Scope limitation**: The semantic memory in Roo-Code is restricted to code semantics. It is not used for generalized memory, past action recall, or factual reflection unlike BabyAGI's completed task vector store.

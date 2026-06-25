@@ -232,4 +232,9 @@ sequenceDiagram
 | [OPENCLAW] | **22+ channel adapter abstraction**: OpenClaw abstracts messaging channels behind a unified adapter interface. Each adapter (Telegram, Discord, Slack, WhatsApp, LINE, Messenger, Teams, etc.) implements `send(message)`, `receive()`, and `formatForChannel(content)`. The **Canvas renderer** provides a live interactive rendering surface — rendering structured agent output (code blocks, tables, progress indicators) into a platform-specific rich format. This is the widest multi-channel surface in the blueprint. |
 | [CLINE] | `new_task { context }` creating a new task with preloaded continuation context (no parent linkage, no return path, no auto-resume — user manually returns); `use_subagents { prompt_1..prompt_5 }` running up to five in-process parallel subagents in a single turn when subagents are enabled; configured subagent tools surfaced as dedicated native tool names via `SharedToolHandler`. |
 
-> Phase 6 [AUTOGPT]’s self-spawning autonomous loop will provide a fourth pattern.
+## 8. Repository Implementations
+
+### AutoGPT
+- **Strategy-Spawned Sub-Agents**: In strategies like `tree_of_thoughts`, `lats`, and `multi_agent_debate`, AutoGPT spawns isolated sub-agents using `BaseMultiStepPromptStrategy.spawn_and_run(agent_id)`.
+- **Hierarchical Budgets**: AutoGPT uses a `ResourceBudget` tree to enforce limits on sub-agents. A child budget decrements `max_depth` and zero's out `explicit_allow_rules`. This forces sub-agents to explicitly request permissions, and strictly limits unbounded recursion.
+- **Sub-root Sandboxing**: File operations for sub-agents are sandboxed in `.sub_agents/{child_agent_id}` via `clone_with_subroot`, heavily restricting what sub-agents can read or write in the parent workspace.

@@ -73,3 +73,9 @@ sequenceDiagram
 | BabyAGI | [BABYAGI] Minimal objective/task prompt assembly, top-k vector recall of completed task names, and simple prompt templates for execution, task creation, and prioritization. |
 | Continue | [CONTINUE] **Context providers as pluggable, composable seams**: `core/context/` defines a `ContextProvider` interface (`getContextItems(query: string): Promise<ContextItem[]>`). Each provider (web search, terminal output, git history, docs, codebase, filesystem) implements this and is loaded on-demand by rules. Providers are configured in `continue.json` and can be mixed without code changes. More granular than MCP (which requires the full tool/resource abstraction) and simpler than Pi's extension system (which requires SDK coupling). Providers are agnostic to execution context (IDE vs. CLI) and stackable. |
 | Zed | [ZED] **Project-level agent context integration**: agents are bound to projects via `crates/project/src/agent_registry_store.rs` and can read project-level rules (rules library in Zed's settings), project file structure and worktrees, git state, and language registry — all **without filesystem I/O**, cached in Zed's project model. The agent shares memory with the editor, so context access is synchronous. Similar to Continue's `.continuerules` but integrated into a first-party editor's settings system. |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Dynamic Context Assembly**: Context is assembled per mode via `src/core/prompts/system.ts`. The engine injects the current mode's `roleDefinition`, custom rule directories (`.clinerules-${mode}`), global rules, and automatically checks for available MCP servers if the mode permits them, ensuring context is heavily scoped to the active persona.
+- **Todo Tracking Context**: An active `todoList` is serialized into the context if tasks are delegated or tracked, giving the model continuous grounding on execution state.

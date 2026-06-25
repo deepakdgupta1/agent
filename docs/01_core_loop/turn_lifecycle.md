@@ -184,3 +184,10 @@ sequenceDiagram
 | [AIDER] | User-input preprocessing, `run_one()` turn handling, chat chunk assembly, response accumulation, edit application, reflection, and validation gates. |
 | [BABYAGI] | One-task iteration with queue pop, execution prompt, result storage, follow-up task creation, prioritization, and queue replacement. |
 | [CLAUDE] | `ConversationRuntime::run_turn` as a single canonical turn entry; pre-turn health probe; once-per-turn `SystemPromptBuilder::build`; multi-iteration tool-use loop with `tool_use_id` ↔ `tool_result` correlation; sequential per-iteration tool dispatch; `record_turn_started/completed/failed` telemetry hooks; post-loop `maybe_auto_compact` driven by `cumulative input_tokens >= 100_000` (default). |
+
+## 8. Repository Implementations
+
+### Roo-Code
+- **Turn Lifecycle Base**: Inherits the core loop behavior from Cline (via `Task.ts` using `recursivelyMakeClineRequests`), processing user input, calling the LLM, waiting for tool usage blocks, gating tool usage via `ask()`, and recursively calling the API until task completion.
+- **Mode Switching Hooks**: Unique to Roo-Code is the `switch_mode` tool which allows the agent to switch modes mid-turn. This executes a state flush and optionally passes a reason string, requiring the loop to settle (500ms delay) and re-initialize context under the new persona before resuming the lifecycle.
+- **Task Delegation**: The turn lifecycle can spawn child workflows via the `new_task` tool, pushing the parent turn to wait for sub-task completion.
