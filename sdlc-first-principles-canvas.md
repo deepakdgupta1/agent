@@ -5,8 +5,8 @@
 > SDLC, and why every piece is logically required.* It is written so the whole journey can
 > be resumed from this file alone, with a fresh/cleared context.
 
-- **Last updated:** iteration 16 (7th stone flushed — knowledge is distributed & perishable; artifact root derived)
-- **Status:** bedrock now complete (7 stones); artifact root derived, per-beat artifact list in progress; then map onto the real setup.
+- **Last updated:** iteration 17 (artifacts rendered as interactive diagrams; living website `index.html` built)
+- **Status:** bedrock complete (7 stones); artifacts derivation done (root + per-beat carriers as diagrams); living website built. Next: map onto the real setup.
 
 ---
 
@@ -302,3 +302,100 @@ fast").
     the *agent* boundary (distributed → needs an explicit/external form) and the *time* boundary
     (perishable → needs persistence). Root derived: artifact = persistent, explicit carrier of
     a loop's info across boundaries.
+17. Enumerated the per-beat artifacts (spec/target · code · tests + telemetry · postmortem /
+    ADR · version history · runbooks) and captured them as the two interactive `pipeline-graph`
+    diagrams below. Built the **living website** (`index.html`) — dark, hot-linked to this file
+    (live fetch + auto-sync), diagrams interactive/editable with an embedded↔fullscreen toggle.
+
+---
+
+## Interactive diagrams
+
+> These fenced `pipeline-graph` blocks are the **machine-readable snapshot** of the model.
+> `index.html` renders each as a live, editable canvas (drag · rename · add/remove nodes &
+> edges · pop out to full-screen). Edit here, or edit on the site and use **Export** to copy
+> the JSON back over the matching block — the visuals stay regenerable from this file.
+
+```pipeline-graph
+{
+  "title": "The unit loop",
+  "nodes": [
+    {"id":"define","label":"define","group":"beat","x":0,"y":0},
+    {"id":"do","label":"do","group":"beat","x":210,"y":0},
+    {"id":"check","label":"check","group":"beat","x":420,"y":0},
+    {"id":"reflect","label":"reflect","group":"beat","x":630,"y":0},
+    {"id":"specify","label":"specify","group":"element","x":0,"y":95},
+    {"id":"scope","label":"scope","group":"element","x":0,"y":165},
+    {"id":"design","label":"design","group":"element","x":0,"y":235},
+    {"id":"implement","label":"implement","group":"element","x":210,"y":95},
+    {"id":"decompose","label":"decompose","group":"element","x":210,"y":165},
+    {"id":"verify","label":"verify (build)","group":"element","x":420,"y":95},
+    {"id":"observe","label":"observe (run)","group":"element","x":420,"y":165},
+    {"id":"analyze","label":"analyze","group":"element","x":630,"y":95},
+    {"id":"decide","label":"decide","group":"element","x":630,"y":165},
+    {"id":"accept","label":"accept · known issue","group":"terminal","x":630,"y":240},
+    {"id":"escalate","label":"escalate","group":"repertoire","x":0,"y":350},
+    {"id":"degrade","label":"degrade","group":"repertoire","x":210,"y":350},
+    {"id":"recover","label":"recover","group":"repertoire","x":420,"y":350},
+    {"id":"rollback","label":"roll back","group":"repertoire","x":630,"y":350}
+  ],
+  "edges": [
+    {"source":"define","target":"do"},
+    {"source":"do","target":"check"},
+    {"source":"check","target":"reflect"},
+    {"source":"reflect","target":"define","dashed":true,"label":"re-target ↺"},
+    {"source":"decide","target":"accept","label":"accept"},
+    {"source":"define","target":"specify","member":true},
+    {"source":"define","target":"scope","member":true},
+    {"source":"define","target":"design","member":true},
+    {"source":"do","target":"implement","member":true},
+    {"source":"do","target":"decompose","member":true},
+    {"source":"check","target":"verify","member":true},
+    {"source":"check","target":"observe","member":true},
+    {"source":"reflect","target":"analyze","member":true},
+    {"source":"reflect","target":"decide","member":true}
+  ]
+}
+```
+
+```pipeline-graph
+{
+  "title": "The complete circuit",
+  "nodes": [
+    {"id":"evolve","label":"evolve (Ouroboros)","group":"terminal","x":360,"y":0},
+    {"id":"reliable","label":"reliable","group":"property","x":100,"y":100},
+    {"id":"predictable","label":"predictable","group":"property","x":360,"y":100},
+    {"id":"resilient","label":"resilient","group":"property","x":620,"y":100},
+    {"id":"converges","label":"converges","group":"beat","x":100,"y":215},
+    {"id":"bounded","label":"bounded","group":"beat","x":360,"y":215},
+    {"id":"nests","label":"nests & escalate","group":"beat","x":620,"y":215},
+    {"id":"loop","label":"the loop","group":"beat","x":360,"y":320},
+    {"id":"intent","label":"intent hidden","group":"stone","x":-40,"y":440},
+    {"id":"finite","label":"finite","group":"stone","x":120,"y":440},
+    {"id":"complex","label":"complex","group":"stone","x":270,"y":440},
+    {"id":"err","label":"we err","group":"stone","x":420,"y":440},
+    {"id":"change","label":"change","group":"stone","x":560,"y":440},
+    {"id":"uncertain","label":"uncertain","group":"stone","x":710,"y":440},
+    {"id":"distributed","label":"distributed & perishable","group":"stone","x":880,"y":440}
+  ],
+  "edges": [
+    {"source":"intent","target":"loop","member":true},
+    {"source":"finite","target":"loop","member":true},
+    {"source":"complex","target":"loop","member":true},
+    {"source":"err","target":"loop","member":true},
+    {"source":"change","target":"loop","member":true},
+    {"source":"uncertain","target":"loop","member":true},
+    {"source":"distributed","target":"loop","member":true},
+    {"source":"loop","target":"converges"},
+    {"source":"loop","target":"bounded"},
+    {"source":"loop","target":"nests"},
+    {"source":"converges","target":"reliable"},
+    {"source":"bounded","target":"predictable"},
+    {"source":"nests","target":"resilient"},
+    {"source":"reliable","target":"evolve"},
+    {"source":"predictable","target":"evolve"},
+    {"source":"resilient","target":"evolve"},
+    {"source":"evolve","target":"loop","dashed":true,"label":"re-target"}
+  ]
+}
+```
