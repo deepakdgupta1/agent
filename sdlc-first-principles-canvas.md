@@ -5,8 +5,8 @@
 > SDLC, and why every piece is logically required.* It is written so the whole journey can
 > be resumed from this file alone, with a fresh/cleared context.
 
-- **Last updated:** iteration 31 (**T5 closed — admitted a conditional second-order 9th stone: reflexivity (§3 #9)**). A check is only worth the **information** it adds beyond the doer's own belief, so a checker whose errors are **correlated** with the doer's is an **echo-chamber** (zero bits; `verify` collapses into *declare*). The property at stake is **independence** — what lets stacked checks drive error → 0 (→ `reliable`); reflexivity is the brute fact that independence is **never total** (a common-mode floor; even formal proof only relocates the blind spot to the spec). **Irreducible to #4** (marginal error vs the *joint* correlated-error fact). Flagged **second-order** (a fact about the *solver*, not the task) and **conditional** — it bites only in the **automated autonomous multi-agent** pipeline: with a human escape-hatch (§4/§5) reflexivity is bounded; remove the human and independence at the terminal → 0, so **an autonomous loop cannot be its own ground truth.** Forces independence-seeking (non-removable external/human terminal · adversarial review — §6 `red-team`, double-duty with #8). Rippled through §2/§3/§4/§5/§6/§8 (+ circuit diagram)/§12. **Partly closes T6.** Frontier: **between tracks** — user picks next. *(Prior: iter 30 closed T4 §10.6; iter 29 closed T1 §10.5.)*
-- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 stones + a conditional 2nd-order 9th (reflexivity, autonomous case — §3 #9)**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **between tracks — T1/T4/T5 closed**; next is the user's pick from T2 proxy-vs-gate · T3 change/rollback · T6 bedrock · **T11 observability graded-vs-gated (deferred)** · T7–T10 structural.
+- **Last updated:** iteration 32 (**backported design-doc Ch 6.4 → the inward base case / reducibility law, §10.7**): a beat responds to a stone (§3), so where the stone is absent for a node it adds **zero information** and the inner loop **collapses toward bare `do`** — the inward dual of §10's outward termination; the collapse is itself a `decide` (ceremony = insurance, premium ∝ `P(error)×cost(error)`, §10.2/§10.7), with two overrides that delete `accept` — **hard gate** (§10.4) and **non-convergence** (§4). Advances **T2** (graded ⇒ collapsible · gated ⇒ non-waivable). Frontier: **between tracks** — T2 advanced; next is the user's pick (T3 · T6 · T11). **Prior — iteration 31 (T5 closed → conditional second-order 9th stone: reflexivity, §3 #9):** A check is only worth the **information** it adds beyond the doer's own belief, so a checker whose errors are **correlated** with the doer's is an **echo-chamber** (zero bits; `verify` collapses into *declare*). The property at stake is **independence** — what lets stacked checks drive error → 0 (→ `reliable`); reflexivity is the brute fact that independence is **never total** (a common-mode floor; even formal proof only relocates the blind spot to the spec). **Irreducible to #4** (marginal error vs the *joint* correlated-error fact). Flagged **second-order** (a fact about the *solver*, not the task) and **conditional** — it bites only in the **automated autonomous multi-agent** pipeline: with a human escape-hatch (§4/§5) reflexivity is bounded; remove the human and independence at the terminal → 0, so **an autonomous loop cannot be its own ground truth.** Forces independence-seeking (non-removable external/human terminal · adversarial review — §6 `red-team`, double-duty with #8). Rippled through §2/§3/§4/§5/§6/§8 (+ circuit diagram)/§12. **Partly closes T6.** Frontier: **between tracks** — user picks next. *(Prior: iter 30 closed T4 §10.6; iter 29 closed T1 §10.5.)*
+- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 stones + a conditional 2nd-order 9th (reflexivity, autonomous case — §3 #9)**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **between tracks — T1/T4/T5 closed; T2 advanced by §10.7 (inward base case / reducibility law, iter 32)**; next is the user's pick from **T3 change/rollback · T6 bedrock · T11 observability graded-vs-gated** · T7–T10 structural.
 
 ---
 
@@ -173,6 +173,13 @@ outermost escape hatch is a human. *(Under full autonomy that independent termin
 action ⊂ feature ⊂ stage ⊂ release ⊂ product       ← outward (scope)
 every beat ⊃ its own define → do → check → reflect → inward (each element)
 ```
+
+**The inward nesting has a base case (§10.7).** A node whose forcing stone (§3) is absent collapses to
+bare `do` — no `check`, no `reflect` (a keystroke can't be *wrong* in a way worth a loop). So the fractal
+bottoms out on **both** axes: *outward* at a leaf `check` can judge without splitting (§10), *inward* at a
+stone-free node. The only overrides that forbid the inward collapse are the **hard gates** (§10.4 — a
+non-local violation) and **non-convergence** (a step judged trivial that keeps failing reveals a hidden
+stone → re-expand).
 
 ## 6. The elements — the loop, fully staffed
 
@@ -620,6 +627,49 @@ nothing"). T1 forced the *intended* operand (the ADR/bet, §10.5); T4 forces the
   wholesale-hard like `secure` (§10.3): the *existence* of the sensor is the forced floor; its *coverage*
   is graded, gated only where blindness is non-local. [Deferred deep-dive: **T11**, §11.]
 
+### 10.7 The inward base case — ceremony is reducible where the stone is absent (iteration 32)
+
+**Backported from the design doc's Ch 6.4.** The fractal (§5) nests *inward* — each element is its own
+`define → do → check → reflect`. Ch 6.4 forced the cost question: *is that full ceremony always
+MUST-HAVE?* Derived answer: **no.** A beat is a **response to a stone** (§3); where the stone is absent
+for a node, the beat it forces adds **zero information**, and running it is pure cost — so the inner loop
+**collapses toward bare `do`.** This *generalizes* the loop's known collapse (§11/§12: "degrades toward a
+single forward pass") from the `reflect`/`observe` pair to **all four beats**:
+
+- `specify` collapses when the target is already unambiguous & singular (no #1) · `scope` when the whole
+  fits budget uncut (no #2) · `design` when the work is atomic — one step, no parts (no #3).
+- `verify` collapses when the step is provably correct / cheap-to-redo (no #4) · `observe` when reality is
+  fully modelled — no residue (no #6).
+- `analyze` collapses when it converges first-try — no gap (no #4) · `decide` when exactly one exit is
+  possible (no #2).
+- The residue is **bare `do` = `implement`**, the base act that defends no stone (T7) — the **inward leaf**.
+
+**Two base cases, one per fractal axis (duals).** *Outward* depth already terminates in §10 (split stops
+at a leaf `check` can judge without splitting). *Inward* ceremony stops here (run a beat only while its
+stone bites). The fractal hits bedrock on both.
+
+**The collapse is itself a `decide`.** Ceremony is **insurance**: weigh its cost against
+`P(undetected error) × cost(error)`, and skip the premium when the covered loss is small or improbable —
+the same *tightest-sufficient* move as §10.2 (pay just enough to admit the required realities → *run just
+enough loop to cover the residual risk*). A **graded** target (§10.4) is precisely one whose premium is
+negotiable.
+
+**Two overrides delete `accept` / forbid collapse** (both already derived):
+
+1. **Hard gate (§10.4)** — a *non-local* violation (adversary-amplified · irreversible ·
+   machinery-degrading). The adversary removes the "low-stakes / cheap-to-redo" premise, so `secure` work
+   (§10.3) can't be reduced. Self-referential gates: skipping `observe` (§10.6) or the written
+   `reflect`-artifact (§10.5) is *itself* machinery-degrading — beats about the loop's **own machinery**,
+   non-waivable at any cost.
+2. **Non-convergence (§4).** A step judged trivial that keeps failing falsifies the judgement "no stone
+   bites here" → a hidden stone is present → **re-expand**. Non-convergence-as-signal now also polices the
+   reducibility bet.
+
+**Net — ceremony is proportional, not fixed:** pay it where a stone bites, buy it down where none does,
+*except at the gates,* where a single miss is uncompensable and the premium is not yours to negotiate.
+This supplies **T2** its general frame (**graded ⇒ collapsible ceremony · gated ⇒ non-waivable**); the
+fine-grained *which-seam-is-gated* classification stays the open residue (T2 / T11).
+
 ## 11. Current frontier & next steps
 
 **Recent arc (historical; through iteration 22 — newer work 23–28 is in the §13 log):** the **premise-B lever & design's two quality bars** (§10.2)
@@ -688,7 +738,9 @@ _Active frontier_
   `verify` → *declare*); **independence** is what lets stacked checks drive error → 0, and reflexivity is
   the brute fact that it is never total — irreducible to #4 (joint vs marginal). Rippled through
   §2/§3/§4/§5/§6/§8/§12. **Pending question for the user: which track is next?** Candidates below (T2 · T3 ·
-  T6 · T11), plus structural T7–T10.
+  T6 · T11), plus structural T7–T10. **· Iteration 32 (backport of design-doc Ch 6.4):** added **§10.7 — the inward
+  base case / reducibility law** (advances **T2** — general frame closed, specific-seam residue → T11);
+  next-track question stands (**T3 · T6 · T11**).
 
 _Open derivation frontiers_
 - **T2 · Proxy-leaves: graded by default, gated only at non-compensatory seams** *(open; ex-G1,
@@ -698,7 +750,8 @@ _Open derivation frontiers_
   confirmed this exact shape for observability** (instrument-coverage graded, gated only at
   non-compensatory seams). Still to pin down in general: the precise seam between a deterministic-leaf gate
   and a must-stay-graded proxy. [§10 leaf-kinds; §10.4 amplifiers; §12 proxy thread. Observability
-  instance: **T11**.]
+  instance: **T11**.] **Iteration 32 (§10.7) supplied the general frame** — graded ⇒ ceremony collapsible ·
+  gated ⇒ non-waivable; the residual *which-seam-is-gated* classification stays open (→ T11).
 - **T3 · Stone #5 (change): the regression + rollback machinery** *(open; ex-G3, generalized)*. Does the
   ideal **over-time** loop MUST-HAVE an explicit **regression-suite** (catch re-introduced defects) and
   **rollback** (revert to known-good), and are they **hard gates** (via the irreversibility amplifier?)
@@ -898,6 +951,12 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
   independent terminal, so **an autonomous loop cannot be its own ground truth** — forcing independence-
   seeking (external/human terminal · adversarial/independent review, the §6 `red-team` doing double duty
   with #8). *First **second-order** stone: a fact about the solver, not the task.*
+- **Ceremony is proportional insurance — the inward base case (§10.7):** each beat is forced by a stone
+  (§3); absent that stone it adds no information, so the inner loop **collapses toward bare `do`**
+  (generalizing "degrades toward a single forward pass" from `reflect`/`observe` to all four beats). Run
+  loop-ceremony ∝ residual risk `P(error)×cost(error)` — *tightest-sufficient* again (§10.2). The fractal
+  bottoms out on **both** axes: outward at a checkable leaf (§10), inward at a stone-free node. **Overrides
+  that forbid the collapse:** hard gates (§10.4) and non-convergence (§4) delete the *skip/accept* exit.
 
 ## 13. Iteration log (compressed)
 
@@ -1100,6 +1159,20 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     duty with #8). Rippled: §3 (stone #9 + self-test), header, §2 caveat, §4/§5 escape-hatch, §6 red-team
     note, §8 (bedrock line + circuit-diagram node/edge), §12 law. **Partly closes T6** (the "is there a 9th?"
     sub-question). T5 → Closed. Frontier: between tracks.
+32. **Backported design-doc Ch 6.4 → the inward base case / reducibility law (new §10.7).** The user
+    directed the two-worked-example expansion of the fractal in the *design doc* (rate-limiting = graded ·
+    password-reset = hard-gated); its §6.4 asked whether the full four-beat ceremony is always MUST-HAVE.
+    Derived: **no** — a beat responds to a stone (§3), so where the stone is absent for a node the beat adds
+    **zero information** and the inner loop **collapses toward bare `do`** (`implement`, the base act, T7).
+    This **generalizes** the loop's known collapse ("single forward pass," §11/§12) from `reflect`/`observe`
+    to **all four beats**, and pairs the **inward** base case with §10's **outward** termination (the fractal
+    bottoms out on both axes). The collapse is itself a `decide` — ceremony = **insurance**, premium ∝
+    `P(error)×cost(error)`, the *tightest-sufficient* move of §10.2. Two overrides delete `accept`: **hard
+    gate** (§10.4 — non-local violation; the `observe`/`reflect`-artifact self-gates included) and
+    **non-convergence** (§4 — a trivial-looking step that keeps failing reveals a hidden stone → re-expand).
+    Gives **T2** its general frame (graded ⇒ collapsible · gated ⇒ non-waivable). Edits: new **§10.7**, §5
+    base-case pointer, §11 (T2 advanced + active-frontier note), one §12 law, header sync. Frontier: between
+    tracks (T2 advanced; next T3 · T6 · T11).
 
 ---
 
