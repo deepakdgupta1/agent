@@ -6,7 +6,7 @@
 > be resumed from this file alone, with a fresh/cleared context.
 
 - **Last updated:** iteration 32 (**backported design-doc Ch 6.4 → the inward base case / reducibility law, §10.7**): a beat responds to a stone (§3), so where the stone is absent for a node it adds **zero information** and the inner loop **collapses toward bare `do`** — the inward dual of §10's outward termination; the collapse is itself a `decide` (ceremony = insurance, premium ∝ `P(error)×cost(error)`, §10.2/§10.7), with two overrides that delete `accept` — **hard gate** (§10.4) and **non-convergence** (§4). Advances **T2** (graded ⇒ collapsible · gated ⇒ non-waivable). Frontier: **between tracks** — T2 advanced; next is the user's pick (T3 · T6 · T11). **Prior — iteration 31 (T5 closed → conditional second-order 9th stone: reflexivity, §3 #9):** A check is only worth the **information** it adds beyond the doer's own belief, so a checker whose errors are **correlated** with the doer's is an **echo-chamber** (zero bits; `verify` collapses into *declare*). The property at stake is **independence** — what lets stacked checks drive error → 0 (→ `reliable`); reflexivity is the brute fact that independence is **never total** (a common-mode floor; even formal proof only relocates the blind spot to the spec). **Irreducible to #4** (marginal error vs the *joint* correlated-error fact). Flagged **second-order** (a fact about the *solver*, not the task) and **conditional** — it bites only in the **automated autonomous multi-agent** pipeline: with a human escape-hatch (§4/§5) reflexivity is bounded; remove the human and independence at the terminal → 0, so **an autonomous loop cannot be its own ground truth.** Forces independence-seeking (non-removable external/human terminal · adversarial review — §6 `red-team`, double-duty with #8). Rippled through §2/§3/§4/§5/§6/§8 (+ circuit diagram)/§12. **Partly closes T6.** Frontier: **between tracks** — user picks next. *(Prior: iter 30 closed T4 §10.6; iter 29 closed T1 §10.5.)*
-- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 stones + a conditional 2nd-order 9th (reflexivity, autonomous case — §3 #9)**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **between tracks — T1/T4/T5 closed; T2 advanced by §10.7 (inward base case / reducibility law, iter 32)**; next is the user's pick from **T3 change/rollback · T6 bedrock · T11 observability graded-vs-gated** · T7–T10 structural.
+- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 stones + a conditional 2nd-order 9th (reflexivity, autonomous case — §3 #9)**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **T3/T7/T8/T11 closed (iter 33 → §10.8/§10.9/§10.10) + the *existence-hard / fidelity-graded* convergent law (§12); T9 folded.** Next: **T6 (bedrock pressure-test) — a sub-agent derivation draft is ready, held for the user's decision**; janitorial T10 (artifacts / rollback-node diagram).
 
 ---
 
@@ -73,6 +73,13 @@ but no redundancy, so a random outage kills it). Both exist → a fourth indepen
 > a **confident wrong fixed point** — a green check over a real defect — so `reliable` is the property
 > reflexivity most directly erodes.
 
+> **Schedule caveat (stone #5, §10.10 — the time axis).** Boundedness (§4) buys `predictable` only its
+> *cost* face (the loop terminates within a bound); *outcome* is bought by tight contracts (§10.2); but
+> *schedule/timing* — "call *when* it ships" — is an **aggregate over the time axis**, not this
+> point-property. It is manufactured by a **schedule bet** (`plan` = `scope`+`specify` projected onto time —
+> estimate = the stub of a task; critical-path = stub-composition on time, §10.10), whose written baseline is
+> existence-hard / content-graded (**plan : predictable :: ADR : reliable**).
+
 ## 3. The bedrock — brute facts that force everything
 
 First principles = the unavoidable truths about reality that make the work hard. Stages and
@@ -117,6 +124,12 @@ responses (finiteness → scope *and* decide; "we err" → verify *and* analyze)
 > terminal · adversarial review — §6 `red-team`, doing double duty with #8). **The second direction has
 > fired twice:** the security gates rested on *no* stone → they exposed #8; and the loop's own checker
 > rested on an *unguaranteed* independence → it exposed #9.
+>
+> **Licensed exception — the base act (§10.10).** The first direction exempts **`implement`** (and its
+> seam-analogue **`release`**): it is not a *response* to a stone but the **operand the loop controls** — the
+> plant, not the controller. A control loop must have something to control, and that something rests on no
+> difficulty (it *is* the thing made difficult, §10.7's inward leaf). The exception makes the self-test
+> *sound* rather than flag a false positive.
 
 ## 4. The atom — the unit control loop
 
@@ -219,6 +232,13 @@ together they manufacture the **resilient** property:
 | **recover** | spares · replicas · retries so the function survives a failure (redundancy) | second email provider takes over when the primary fails | reality is uncertain |
 | **roll back** | revert to the last known-good state | new reset-email template spikes bounces → redeploy the previous one | reality keeps changing |
 
+> **Compact form (T9, §10.8).** One **structural up-exit** — `escalate` (leaves the loop → parent / human
+> terminal) — versus three **in-place** trades for liveness: `degrade` (completeness), `recover`
+> (spares/redundancy), `roll back` (newness). `degrade`/`recover` are the **#6 context pair**; **`roll back`
+> + `regression`** (build-time) are the **#5 time pair** (§10.8). And `regression-test` (elements table
+> above) is the forced **`reflect → verify` bridge** — the *executable* time-face of the §10.5
+> reflect-artifact — not a standalone element.
+
 **Cross-cutting — the security repertoire (not beats), forced by stone #8 (adversarial actors).**
 Where the resilience repertoire withstands *random* adverse reality (#5/#6), the security repertoire
 withstands a *directed* adversary who hunts the worst case. Also invoked at every element and scale,
@@ -248,11 +268,18 @@ discover → define → design → plan
    → BUILD     [feature loop:  do  ⇄  check vs graded 'done'  →  reflect  ↺ re-target ]
    → verify    (stage gate against 'done')
    → release
-   → OPERATE   [runtime loop:  observe  ⇄  recover / degrade / escalate   ↺ watch ]
+   → OPERATE   [runtime loop:  observe  ⇄  recover / degrade / roll back / escalate   ↺ watch ]
    ⟲ PRODUCT LOOP:  operate → learn → evolve target → back to discover   (the Ouroboros)
 
 solid = forward flow (the lifecycle)   ·   dashed = loops / feedback (at every scale)
 ```
+
+> **§7 is a *projection* (§10.10), not new primitives.** These stages are the §6 elements laid on wall-clock
+> at product scale — a *view*. `plan` = `scope`+`specify` on the time axis (a **schedule bet**, §10.10);
+> `implement`/BUILD = the **base act**; `release` = the build→operate **seam** (its #5 governance = §10.8 /
+> T3); OPERATE = a **phase-loop** (observe + repertoire, now incl. `roll back`); evolve = the **Ouroboros**.
+> Only the control-elements are stone-defended primitives — reading nine stages as nine primitives
+> double-counts.
 
 ## 8. The complete circuit (synthesis)
 
@@ -881,9 +908,14 @@ _Active frontier_
   `verify` → *declare*); **independence** is what lets stacked checks drive error → 0, and reflexivity is
   the brute fact that it is never total — irreducible to #4 (joint vs marginal). Rippled through
   §2/§3/§4/§5/§6/§8/§12. **Pending question for the user: which track is next?** Candidates below (T2 · T3 ·
-  T6 · T11), plus structural T7–T10. **· Iteration 32 (backport of design-doc Ch 6.4):** added **§10.7 — the inward
-  base case / reducibility law** (advances **T2** — general frame closed, specific-seam residue → T11);
-  next-track question stands (**T3 · T6 · T11**).
+  T6 · T11), plus structural T7–T10. **· Iteration 32:** added **§10.7 — the inward base case / reducibility
+  law** (advanced **T2**). **· Iteration 33 (parallel sub-agent fold-in):** closed **T3** (§10.8 change-axis —
+  regression + rollback), **T11** (§10.9 observability silent-failure gate) and **T7/T8** (§10.10
+  lifecycle-projection + plan-as-schedule-bet); folded **T9**; surfaced the **existence-hard / fidelity-graded**
+  convergent law (§12). **Active frontier now → T6 (bedrock pressure-test):** a full derivation draft is ready
+  (sub-agent, iteration 33) and is **held for the user's decision** — the one track deliberately *not* folded
+  in, because it would renumber the bedrock and formalize a 'second-order' stone class. Remaining janitorial:
+  **T10** (artifacts / rollback-node diagram).
 
 _Open derivation frontiers_
 - **T2 · Proxy-leaves: graded by default, gated only at non-compensatory seams** *(open; ex-G1,
@@ -894,8 +926,13 @@ _Open derivation frontiers_
   non-compensatory seams). Still to pin down in general: the precise seam between a deterministic-leaf gate
   and a must-stay-graded proxy. [§10 leaf-kinds; §10.4 amplifiers; §12 proxy thread. Observability
   instance: **T11**.] **Iteration 32 (§10.7) supplied the general frame** — graded ⇒ ceremony collapsible ·
-  gated ⇒ non-waivable; the residual *which-seam-is-gated* classification stays open (→ T11).
-- **T3 · Stone #5 (change): the regression + rollback machinery** *(open; ex-G3, generalized)*. Does the
+  gated ⇒ non-waivable; the residual *which-seam-is-gated* classification was **resolved for observability by
+§10.9** (iter 33 — gate the per-seam binary, grade the aggregate); the fully-general cross-domain seam
+classification remains the light residue.
+- **T3 · Stone #5 (change): the regression + rollback machinery** *(**closed — iter 33 → §10.8**; ex-G3)*.
+  **Answered — yes, both: the #5 time-axis pair.** Regression = the executable §10.5 artifact
+  (existence-hard / coverage-graded); rollback = the reversibility net (graded, hard gate at its irreversible
+  *limit*); the two halves gate by *different* amplifiers. Original question: does the
   ideal **over-time** loop MUST-HAVE an explicit **regression-suite** (catch re-introduced defects) and
   **rollback** (revert to known-good), and are they **hard gates** (via the irreversibility amplifier?)
   or graded? [§6 resilience repertoire; §7 OPERATE; folds in janitorial T9.]
@@ -907,8 +944,12 @@ _Open derivation frontiers_
   second-order* stone #9 (T5, §3, iter-31). Still open: is any stone reducible; are there **further**
   candidates (*incentives*, *cost-asymmetry*); and is "second-order" a distinct **class** of stone worth
   formalizing? (#8 adversarial was the 8th, iter-23; #9 reflexivity the 9th, iter-31.)
-- **T11 · Observability: graded coverage vs non-compensatory gates** *(open — deferred deep-dive, spun out
-  of T4, iteration 30)*. §10.6 fixed the *shape* — `observe`-instrumentation is a **graded target** (how
+- **T11 · Observability: graded coverage vs non-compensatory gates** *(**closed — iter 33 → §10.9**)*.
+  **Open forks (candidate promotions, for the user):** (1) does the sensor-as-adversarial-target force a
+  distinct **tamper-evidence / append-only** MUST-HAVE, or just inherit §10.3? (2) is *emission-character =
+  the §2 property-family of the carried fact* a forced law or an analogy? (3) is the graded/gated frame
+  stable, or does observability tilt wholesale if '#6-absent' is not knowable a-priori? §10.6 fixed the
+  *shape* — `observe`-instrumentation is a **graded target** (how
   much to instrument) with **hard gates only at non-compensatory seams**. Still to derive in depth: (a) the
   **decision rule** for *which* seams are gated (whose silent failure is irreversible / adversary-amplified
   / machinery-degrading, §10.4); (b) telemetry's **emission character** — the ADR is one-shot (design-time)
@@ -917,14 +958,16 @@ _Open derivation frontiers_
   tying back to **T2**. The concrete observability instance of T2.
 
 _Structural backlog (external-review R-series; resolved ones dropped)_
-- **T7 · R1 · `implement` + lifecycle stages under-derived** *(open — accept core)*. Carve `implement`
+- **T7 · R1 · `implement` + lifecycle stages under-derived** *(**closed — iter 33 → §10.10**: base act +
+  projection; `release` = the build→operate seam → T3)*. Carve `implement`
   out of the §3 self-test (it is the **base act**, defends no stone); annotate §7 as the lifecycle
   **projection** of the derived elements; derive the genuinely-orphaned `plan` / `release`.
-- **T8 · R6 · planning / predictability under-derived — the orphaned `plan`** *(open — contentious)*.
+- **T8 · R6 · planning / predictability under-derived — the orphaned `plan`** *(**closed — iter 33 → §10.10**:
+  a plan is a *schedule bet* — a time-axis projection of scope+specify, not a new element)*.
   Boundedness buys only *cost*-predictability; outcome / timing needs a **forecast / commitment**
   mechanism. New element, or scope+specify over the time axis? Reshaped by design-as-a-bet: **a plan is a
   schedule bet.** [Pairs with T7.]
-- **T9 · R3 · resilience-repertoire formula cleanup** *(janitorial)*. Compact form — escalate = the
+- **T9 · R3 · resilience-repertoire formula cleanup** *(**done — iter 33, folded into §10.8**)*. Compact form — escalate = the
   structural up-exit; degrade / recover / roll back = in-place; add rollback to §7 OPERATE. [Folds into T3.]
 - **T10 · R7 · artifacts diagram under-draws crossings** *(janitorial → upgraded, iteration 29)*. No
   longer just "draw both crossings" — there is now a **law to show**: an artifact's *forced* durability
@@ -940,7 +983,10 @@ _Descoped (iteration 28)_
   kept out so the ideal is not entangled with what a given setup already has or lacks. Its still-useful
   *general* residue survives as **T2 / T3 / T4**.
 
-_Closed (for the record)_ — **T5 (reflexivity → conditional 2nd-order stone #9, §3, iter 31)** · **T4
+_Closed (for the record)_ — **T3 (change-axis regression+rollback → §10.8, iter 33)** · **T7/T8
+(lifecycle-projection + plan-as-schedule-bet → §10.10, iter 33)** · **T9 (repertoire compact form → folded
+into §10.8, iter 33)** · **T11 (observability silent-failure gate → §10.9, iter 33; promotion-forks open)** ·
+**T5 (reflexivity → conditional 2nd-order stone #9, §3, iter 31)** · **T4
 (`observe` is the forced sensor — §10.6, iter 30)** · **T1 (`reflect` is a forced MUST-HAVE — §10.5, iter
 29)** · R2 (design's artifact, §10.1) · R4 (§8 bedrock line, iter 23) ·
 R5 (hard gates, §10.4) · "does #8 force a 4th property" (§2, iter 24–25) · "does secure recurse every
