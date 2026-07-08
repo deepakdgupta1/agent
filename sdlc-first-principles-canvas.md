@@ -670,6 +670,149 @@ negotiable.
 This supplies **T2** its general frame (**graded ⇒ collapsible ceremony · gated ⇒ non-waivable**); the
 fine-grained *which-seam-is-gated* classification stays the open residue (T2 / T11).
 
+### 10.8 The change-axis machinery — regression (memory-ratchet) & rollback (reversibility net) (iteration 33)
+
+**T3, closed.** Stone #5 (change) bites the over-time loop in **two** time-faces, forcing two dual organs —
+the #5 counterpart of the #6 pair `degrade`/`recover` (§6).
+
+- **Face 1 — change re-opens closed holes.** Every later `do` (#4) can silently re-introduce a fixed
+  failure-class *F*. Run §10.5 on this face: the fix's lesson perishes (#7) unless persisted, and a *prose*
+  post-mortem is a **passive** memory that degrades to "re-derive, not remember" under continuous change. To
+  fire **automatically on every future iteration** it must be persisted not as prose but as a **re-runnable
+  check** — the post-mortem's WHY compiled into `verify`. That is a **regression test**: *the executable
+  time-face of the §10.5 reflect-artifact* — the forced **`reflect → verify` bridge**, not a new element (cf.
+  the `decompose → design` fold). It **accumulates monotonically** (each *F* adds a guard, none dropped): the
+  ratchet that makes fixes *stick*, turning the Ouroboros from a **circle into a spiral** (§10.5). **Gate:**
+  the ratchet's *existence* is a **hard gate** — deleting the loop's memory-of-fixes is **machinery-degrading**
+  (§10.4), inheriting §10.5's gate exactly (**not** irreversibility); its *coverage* is a **graded** proxy
+  (Goodhartable → T2), hard only at non-compensatory seams (the §10.6 shape).
+- **Face 2 — change lands on a live system.** A bad deploy/migration degrades a *currently-working* system,
+  and the fault is *in the new artifact itself*, so the #6 in-place responses miss (redundancy just runs more
+  copies of the bad version; degrade just serves less of the broken thing). The only restoring move is
+  **backward in version-space — rollback**: forced by #5 (change lands live) + #6/#4 (harm is a-posteriori,
+  §10.6) + #7 (a live system's value is *perishable* — breakage accrues cost every moment, and the
+  forward-fix is too slow to stop the bleed).
+
+**Rollback ⟺ the irreversibility amplifier are dual.** §10.4 *defines* that amplifier as "damage escapes
+recover/**rollback**," so **irreversibility ≡ the region beyond rollback's reach.** Hence:
+- **Reversible** (rollback reaches it) ⇒ a bad outcome is recoverable ⇒ `decide` keeps its **accept**
+  discretion ⇒ **graded** (the §10.7 insurance: rollback makes `cost(error)` small ⇒ negotiable premium).
+- **Irreversible** (rollback's reach ends — destructive migration · secret exposure · sent message ·
+  irreversible payment) ⇒ the insurance has lapsed ⇒ **accept** deleted ⇒ **hard gate**, discharged as a
+  *pre-execution* control (backup · reversible-migration check · staged rollout · confirmation).
+
+So **rollback itself is a *graded* repertoire response; the hard gate falls at rollback's *limit*.** The
+§10.4 irreversibility amplifier gets its concrete home here.
+
+**The inversion (the sharpest result).** The two organs point opposite ways along the same time axis and
+gate via *different* amplifiers: **rollback keeps *code changes* reversible** (gate at its irreversible
+*limit*); **regression keeps *lessons* irreversible** (gate on the ratchet's *existence*,
+machinery-degrading). You want bad changes not to stick and good fixes not to un-stick — which **corrects
+T3's own guess** that both halves gate "via irreversibility": only rollback's does.
+
+**They manufacture `resilient`'s "over time" clause (§2).** The 2×2: contexts/#6 → withstand `degrade`,
+recover `recover`; over-time/#5 → recover **rollback**, stays-recovered **regression**. Without regression
+the envelope is *momentary* — it leaks every time change re-opens an old hole; regression is what makes it
+*hold over time*. **Stations:** regression fires in **BUILD/verify** (the integrate gate); rollback fires in
+**OPERATE** (run-time). *(Optional corollary — reversibility-as-design-investment: since rollback's reach
+**is** the graded region, the ideal loop **widens the reversible envelope** — expand-contract migrations ·
+flags · immutable deploys — to shrink the irreversible-gate residue: the change-axis "tightest-sufficient"
+(§10.2) / "fails cheap" (§10.1).)*
+
+**T9 (resilience-repertoire compact form), folded in.** The four responses have a 2-part structure:
+**escalate = the one *structural up-exit*** (it leaves the loop → parent / §4 human terminal; forced by
+"loop can't converge"), while **degrade · recover · roll back = *in-place*** — three axes of graceful
+degradation distinguished by *what they trade for liveness*: degrade trades *completeness* (#6), recover
+trades *spares/redundancy* (#6), roll back trades *newness* (#5). degrade/recover are the **#6 context
+pair**; rollback (+ regression, at build-time) the **#5 time pair**.
+
+### 10.9 Observability coverage — the silent-failure gate & telemetry's every-seam emission (iteration 33)
+
+**T11, closed** (§10.6 deferred this deep-dive to here; three candidate promotions are parked as forks in
+§11). §10.6 fixed the *shape* — `observe` must own a sensor (existence forced, machinery-degrading), while
+*how much* to instrument is graded, gated only at non-compensatory seams. The depth, in three parts:
+
+- **(a) The gate rule is §10.4 with one substitution — "silent failure" for "violation."** The object
+  classified is not "the path fails" but "the path fails *and emits no telemetry*." A seam's instrumentation
+  is a **hard gate iff its silent (un-observed) failure is non-local**, via the three amplifiers under that
+  substitution: **irreversible-seam** (the unseen loss *compounds while unseen* — detection-latency *bounds*
+  it; the sensor is the only lever between the first unit of loss and an unbounded one), **adversarial-seam**
+  (a security-relevant signal — auth · privileged action · trust-boundary — **inherits** `secure`'s wholesale
+  every-seam wall (§10.3): the blind spot *is* the attack surface), **machinery-seam** (a path carrying the
+  loop's *own* control signal — sensor health · gate-firing · escalation trigger — whose silent failure
+  **blinds the loop to its own blindness**). *Test:* "failed + emitted nothing → irreversible /
+  adversary-amplified / self-blinding?" **Else graded** — coverage ∝ `P(silent failure) × cost`, collapsible
+  to zero where #6 is absent (§10.7: nothing to detect on a fully-modelled, reversible, local path).
+- **(b) Emission character is forced by the carried fact's temporal type.** The ADR (§10.5) carries a
+  **static point-fact** (the design bet, true/false at *one* moment; #7 forces capture *then*, but **one
+  write suffices permanently**) → **one-shot, single-locus**. Telemetry carries a **dynamic envelope-fact** —
+  "does reality keep matching the model?" — which #5/#6 **regenerate on every execution** and whose location
+  is **unknown a-priori** (that is what "a-posteriori" means) → **continuous, every-seam**. So each
+  un-instrumented path is a *standing* blind spot, re-exposed every run — giving observe-coverage `secure`'s
+  **every-seam form** (§10.3), but for a *different reason*: not a directed optimiser *hunting* the hole, but
+  the residue *landing* on the path you didn't model. The **opponent** splits the verdict — across the
+  majority it is a **blind sampler** (#5/#6 → `resilient`-shaped → **graded**, point-gated only where rule (a)
+  makes it non-local); at the security seams of (a) it is **directed** (#8) and collapses to `secure`'s
+  **wholesale** wall. "Instrument once" is *category-incoherent*: the fact to be sensed did not exist at
+  instrument-time.
+- **(c) Coverage-% is a Goodhartable statistical-leaf proxy** for the true target — "can we actually *detect
+  the residue* when it surfaces?" The two come apart: 100 % "coverage," still blind — the signal is *wrong* (a
+  log that says "entered function," not "output correct-for-intent"), *unmonitored* (emitted, but nothing
+  alerts on it — a log no one reads is #7 again), or *drowned* (alert fatigue). So **gate the *per-seam
+  binary* signal** ("does named seam *S* emit detector-grade signal σ?" — a deterministic, binary fact about
+  a named path, from rule (a)) and **grade the *aggregate* — never gate the roll-up** (gating "≥ 90 %
+  coverage" diverts effort to the *cheap* paths and starves the residue-bearing ones rule (a) says to gate).
+  This is the concrete resolution of **T2**'s long-open "deterministic-gate vs must-stay-graded-proxy" seam,
+  for observability: **gate the per-seam binary, grade the aggregate.**
+
+### 10.10 The lifecycle is a projection; a plan is a schedule bet (iteration 33)
+
+**T7 + T8, closed.** Two results — what §7 *is*, and what `plan` *is*.
+
+- **`implement` is the base act; §7 is a projection (T7).** Every §6 element earns its seat by neutralising
+  one stone (specify←#1 · scope←#2 · design←#3 · verify/analyze←#4 · observe←#6 · decide←#2 · version←#5).
+  `implement` is the **sole exception** — its "forced by" column reads *"(the build itself)."* This is **not**
+  a self-test violation: the stones make *governing* an act hard and force the scaffolding beats built
+  *around* it; `implement` **is that act** — the **operand the loop controls** (the plant, not the
+  controller), which rests on no difficulty because it *is* the thing made difficult (§10.7's inward leaf).
+  So the §3 self-test's first direction (*element on no stone ⇒ a missing stone*) gets **one licensed
+  exception — the base act** — which makes the test *sound* rather than flag a false positive. The §7
+  lifecycle is then the §6 elements **projected onto wall-clock at product scale**, in execution order — a
+  *view*, not new primitives, with **four node-kinds**: *control-elements* (discover/define/design/verify →
+  §6), the *base act* (BUILD → `implement`), a *seam* (`release`, the build→operate hand-off — the base
+  **transition**, whose governance is the derived #5 machinery of §10.8, → T3), a *phase-loop* (OPERATE →
+  observe + repertoire), and the *Ouroboros* (evolve → reflect@product). Only control-elements are
+  stone-defended primitives; reading nine stages as nine primitives double-counts.
+- **A plan is a schedule bet (T8).** §2's `predictable` conflates three things. Boundedness (§4) buys only
+  **cost-predictability** (the loop terminates within a bound); **outcome**-predictability is bought by tight
+  contracts (§10.2); **schedule/timing** — "call *when* it ships" — is an **aggregate over the time axis**
+  (the *envelope* family's axis), **not** the §2 *point*-property, so it needs its own mechanism. That
+  mechanism is a **schedule bet**, the time-axis twin of the design bet (§10.1): `plan` decomposes the
+  deliverable *over time* into time-boxed tasks + milestone contracts and asserts **`(∧ task i lands in slot
+  tᵢ) ⟹ ship S by D`** — the `(∧Lᵢ) ⟹ P` shape, new axis. Two identities fall out: **an estimate is the stub
+  of a task** (shape/duration kept, work deleted), and **critical-path / capacity feasibility is
+  stub-composition on the time axis** — a-priori, one-sided (infeasible → re-plan · or internally-consistent,
+  never confirming delivery). It factors risk into **premise A** (each estimate real → checked per-task at
+  completion, verify-like; #4) and **premise B** (the schedule holds across the whole space of futures →
+  residue at OPERATE velocity/slip, observe-like; #5/#6); failure ⇒ **re-plan** (re-target). So `plan` is
+  **`scope`+`specify` projected onto the time axis** — no new stone ⇒ **no new element** (exactly as
+  design-as-a-bet revealed the *character* of #3's `design` without minting a primitive). The **forecast** is
+  this bet's premise B (`predictable`'s a-priori face, the twin of `specify` for `reliable`); the
+  **commitment** is the written schedule bet as a #7 artifact crossing the agent boundary so others can plan
+  around it. **Gate:** its *existence as a written baseline* is a **hard gate** (no baseline ⇒ a slip is
+  *undetectable* — "on-time" was never recorded — blinding the loop's own schedule-check ⇒
+  machinery-degrading, the §10.5 argument); its *content* (the dates) is a **graded** statistical-leaf proxy
+  (hard-gating a forecast invites Goodhart — cut scope/quality to "hit the date"; T2). **plan : predictable
+  :: ADR : reliable.**
+
+**The convergent law (found independently by tracks T3, T11, T7/T8).** Across the **ADR** (`reliable`,
+§10.5), **telemetry** (`observe`, §10.6/§10.9), the **regression ratchet** (`resilient`, §10.8), and the
+**plan** (`predictable`, above), the *same* shape recurs: the forced artifact's **existence is a hard gate**
+(its absence is machinery-degrading — it blinds the loop's own `analyze`/`check`), while its **fidelity /
+coverage / content is a graded, Goodhartable proxy**. The intended-operand that `analyze` compares against
+must **exist** (non-waivable) but need only be **as accurate as the residual risk warrants** (negotiable).
+**plan : predictable :: ADR : reliable :: regression : resilient :: telemetry : observe.** (Promoted to §12.)
+
 ## 11. Current frontier & next steps
 
 **Recent arc (historical; through iteration 22 — newer work 23–28 is in the §13 log):** the **premise-B lever & design's two quality bars** (§10.2)
@@ -957,6 +1100,40 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
   loop-ceremony ∝ residual risk `P(error)×cost(error)` — *tightest-sufficient* again (§10.2). The fractal
   bottoms out on **both** axes: outward at a checkable leaf (§10), inward at a stone-free node. **Overrides
   that forbid the collapse:** hard gates (§10.4) and non-convergence (§4) delete the *skip/accept* exit.
+- **The change-axis machinery — regression & rollback (§10.8):** stone #5 forces two dual organs.
+  **Regression** = the §10.5 reflect-artifact made *executable* — a fixed failure-class persisted as an
+  auto-firing, monotonically-accumulating `verify` check (the ratchet that makes fixes stick: circle →
+  spiral); *existence* is a **hard gate** (machinery-degrading), *coverage* is **graded** (T2). **Rollback ⟺
+  irreversibility are dual:** the §10.4 irreversibility amplifier is *exactly the region beyond rollback's
+  reach*, so rollback is a **graded** response and the **hard gate falls at its limit** (reversible ⇒
+  graded/insured bet; irreversible seam ⇒ pre-execution gate). Keep *code reversible* (rollback), keep
+  *lessons irreversible* (regression) — together they manufacture `resilient`'s **over-time** clause.
+- **Observability's silent-failure gate & emission character (§10.9):** instrument-coverage is graded, but a
+  seam is **hard-gated iff its *silent* (un-observed) failure is non-local** — the §10.4 test with "silent
+  failure" for "violation": irreversible-seam · adversarial-seam (inherits §10.3 wholesale) · machinery-seam
+  (blinds the loop to its own blindness). **Gate the per-seam binary signal; never the aggregate coverage %**
+  (a Goodhartable proxy) — the concrete resolution of T2. And **emission character follows the fact's
+  temporal type:** a *static point-fact* → **one-shot / single-locus** artifact (the ADR); a *dynamic
+  envelope-fact*, regenerated every run and location-unknown a-priori → **continuous / every-seam** sensor
+  (telemetry). So observe-coverage wears `secure`'s every-seam *form* but a *blind-sampler* (#5/#6) opponent
+  — `resilient`-shaped and graded — tipping to `secure`'s wholesale wall only at security seams.
+- **The lifecycle is a projection; `implement`/`release` are base act & seam (§10.10):** §7 is the §6
+  elements projected onto wall-clock at product scale — a *view*, not new primitives (four node-kinds:
+  control-element · base act · seam · phase-loop · Ouroboros). `implement` (the operand the loop controls)
+  and `release` (the build→operate seam) are stone-free in their own right, so **exempt from the §3
+  self-test** (one licensed exception, which makes the test *sound*).
+- **A plan is a schedule bet (§10.10):** `scope`+`specify` projected onto the time axis — **an estimate is
+  the stub of a task; critical-path feasibility is stub-composition on time**; premise A per-task
+  (verify-like), premise B whole-future (observe-like → re-plan). So **`predictable` = cost (bounded, §4) +
+  schedule (the bet)**, the schedule half a time-axis projection, *not* the point-property. The **forecast**
+  is the bet's premise B; the **commitment** is its #7 artifact.
+- **Every forced artifact is existence-hard, fidelity-graded (§10.5/§10.6/§10.8/§10.10):** across the ADR
+  (`reliable`), telemetry (`observe`), the regression ratchet (`resilient`), and the plan (`predictable`),
+  the *same* shape recurs — the intended-operand `analyze` compares against must **exist** (its absence is
+  machinery-degrading, blinding the loop's own `analyze`/`check` → **hard gate**), but need only be **as
+  accurate as the residual risk warrants** (its fidelity/coverage/content is a Goodhartable proxy →
+  **graded**). **plan : predictable :: ADR : reliable :: regression : resilient :: telemetry : observe.** A
+  convergent law found independently by tracks T3, T11, and T7/T8 (iteration 33).
 
 ## 13. Iteration log (compressed)
 
@@ -1173,6 +1350,25 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     Gives **T2** its general frame (graded ⇒ collapsible · gated ⇒ non-waivable). Edits: new **§10.7**, §5
     base-case pointer, §11 (T2 advanced + active-frontier note), one §12 law, header sync. Frontier: between
     tracks (T2 advanced; next T3 · T6 · T11).
+33. **Parallel sub-agent fold-in — closed T3, T11, T7/T8 (+ T9); surfaced the existence/fidelity law.** Ran
+    four tracks concurrently (one sub-agent each; T6 held for the user). Folded in three: **T3** (new
+    **§10.8**) — stone #5 has *two* time-faces forcing dual organs: **regression** = the §10.5 reflect-artifact
+    made *executable* (the `reflect → verify` ratchet; *existence* hard/machinery-degrading, *coverage* graded),
+    **rollback** = the reversibility net, *dual to* the §10.4 irreversibility amplifier (**irreversibility ≡
+    beyond rollback's reach**) so rollback is graded and the hard gate falls at its *limit*. Corrected T3's own
+    guess (the two halves gate by *different* amplifiers). Folded **T9** (repertoire compact form: escalate =
+    up-exit · degrade/recover/roll back = in-place). **T11** (new **§10.9**) — the gate rule is §10.4 with
+    "silent failure" for "violation" (irreversible/adversarial/machinery seams); telemetry is
+    continuous/every-seam (a *dynamic envelope-fact*) vs the ADR's one-shot *point-fact*; gate the per-seam
+    binary, grade the aggregate (resolves T2 for observability). **T7/T8** (new **§10.10**) — `implement` is the
+    base act & `release` the base seam (exempt from the §3 self-test); §7 is a *projection* of §6 onto
+    wall-clock; **a plan is a schedule bet** (`scope`+`specify` on the time axis — estimate = stub of a task,
+    critical-path = stub-composition on time; existence-hard/content-graded). **Convergent law** (found by all
+    three): *every forced artifact is existence-hard, fidelity-graded* — **plan : predictable :: ADR : reliable
+    :: regression : resilient :: telemetry : observe**. Edits: **§10.8/§10.9/§10.10**, six §12 laws, §7 OPERATE
+    +rollback & projection note, §3 base-act exception, §2 predictable caveat, §6 repertoire note, §11
+    (T3/T7/T8/T9 → Closed, T11 → Closed w/ forks, T2 sharpened, frontier → **T6 held** + janitorial T10),
+    header. Frontier: **T6 (bedrock pressure-test) — derived draft ready, awaiting the user's call.**
 
 ---
 
