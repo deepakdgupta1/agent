@@ -132,39 +132,47 @@ current setup — auditing a concrete stack against the ideal was **descoped** o
 stays uncontaminated by what a given setup already has or lacks. (The general residue of that dropped
 thread survives as open tracks T2/T3/T4.)
 
-**State (iteration 34, 2026-07-10) — the ideal MUST-HAVE derivation is substantively complete.**
+**State (iteration 35, 2026-07-10) — the ideal MUST-HAVE derivation is substantively complete; the
+bedrock pressure-test (T6) is now closed.**
 
 - **Apex:** four properties in two families (reliable · predictable · resilient · secure);
   behaviour→property map complete (converges · bounded · nests-&-escalates · preempts).
-- **Bedrock:** 8 first-order stones + a conditional second-order **#9 reflexivity** (autonomous case);
-  the §3 self-test is sound, with one licensed exception (`implement`/`release` — base act & seam).
+- **Bedrock (iter 35):** **8 first-order stones + 2 conditional second-order** — **#9 reflexivity**
+  (autonomous case) and **#10 incentive-divergence** (delegated case), on a **formalized second-order
+  tier** (*order = arity of the stone's referent*: first-order = solver×world, monadic — so #4 "we err"
+  stays first-order; second-order = solver×solver/self, relational — #9, #10). The tier has exactly two
+  seats — independence (#9) · alignment (#10). The §3 self-test now has **three directions** (add: two
+  faces bundle iff they share one forced response, else split — the *bundling rule*), with one licensed
+  exception (`implement`/`release` — base act & seam). The 8 first-order stones are pairwise-irreducible.
 - **Mechanism layer, all derived (canvas §10.1–§10.10):** design-as-a-bet · premise-B lever ·
   secure-at-every-seam · hard-gate calculus (3 amplifiers) · `reflect` forced (§10.5) · `observe`
   forced (§10.6) · inward base case (§10.7) · change-axis regression + rollback (§10.8) ·
   observability silent-failure gate (§10.9) · lifecycle-projection + plan-as-schedule-bet (§10.10).
 - **Capstone:** the **convergent law** — every forced artifact is *existence-hard, fidelity-graded*
   (plan : predictable :: ADR : reliable :: regression : resilient :: telemetry : observe).
-- **Docs:** `sdlc-design-document.md` and this file are at **iteration-33 parity** (synced iter 34);
-  janitorial **T10** (diagram fixes) is closed. Track history T1–T11: eight closed, one held, two
-  residues — details in canvas §11/§13.
+- **Docs:** `sdlc-design-document.md` was synced to **iteration-33 parity** (at iter 34); it now **lags
+  the iter-35 bedrock change** — its bedrock chapter + Appendix C still need the stone-#10 / second-order-
+  tier fold-in (the next documentation-parity pass). This file (`HANDOFF.md`) is current to iter 35.
+  Janitorial **T10** (diagram fixes) is closed. Track history T1–T11: **nine closed, two residues** (T2
+  general-seam · the descoped audit) — details in canvas §11/§13.
 
-**Roadmap (canvas §11 is the authoritative register — this is the ordered headline):**
+**Roadmap (canvas §11 is the authoritative register — this is the ordered headline). T6 closed at iter 35
+(→ canvas §3 stone #10 + the second-order tier); the frontier is now T11's forks:**
 
-1. **T6 — bedrock pressure-test. HELD FOR THE USER'S DECISION.** A full derivation draft exists
-   (sub-agent, iter 33) and was deliberately **not** folded in: doing so would renumber the bedrock and
-   formalize a "second-order" stone class. Sub-questions: is any stone reducible to another? further
-   candidates (*incentives* · *cost-asymmetry*)? The resume move is to put this decision to the user.
-2. **T11's three promotion forks** — (a) tamper-evident / append-only sensor: forced, or inherited from
+1. **T11's three promotion forks** — (a) tamper-evident / append-only sensor: forced, or inherited from
    `secure`? (b) emission-character ≙ temporal-type: law or analogy? (c) is graded/gated stable if
    "#6-absent" is unknowable a-priori?
-3. **T2's light residue** — the fully-general, cross-domain gate-vs-graded seam rule (the observability
+2. **T2's light residue** — the fully-general, cross-domain gate-vs-graded seam rule (the observability
    instance was settled by §10.9: *gate the per-seam binary, grade the aggregate*).
-4. **Beyond the ideal** — the **concrete-setup audit** (map a real stack against the ideal: mis-typed
+3. **Beyond the ideal** — the **concrete-setup audit** (map a real stack against the ideal: mis-typed
    gates, undefended stones, collapsible ceremony). Descoped by design; the natural follow-on project
-   once 1–3 close.
+   once 1–2 close.
 
-**Resume move:** read canvas §11, put the **T6 decision** to the user (fold in / rework / drop the held
-draft), and continue Socratically from their pick. Do not fold T6 in unilaterally.
+*(Also open, non-blocking: a **documentation-parity pass** to carry the iter-35 bedrock change into the
+design doc — the same kind of pass as iter 34.)*
+
+**Resume move:** read canvas §11, then open **T11's three promotion forks** (the new frontier) with the
+user and continue Socratically. T6 is settled — do not re-litigate the fold-in.
 
 ## 9. Notes & caveats
 

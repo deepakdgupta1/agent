@@ -5,8 +5,8 @@
 > SDLC, and why every piece is logically required.* It is written so the whole journey can
 > be resumed from this file alone, with a fresh/cleared context.
 
-- **Last updated:** iteration 34 (**documentation-parity pass — no derivation advanced**): synced the **design doc** to iteration 33 — new Ch 7 four node-kinds + **§7.1 a plan is a schedule bet**, **§10.1 the change axis** (regression ratchet + rollback net), **§11.1 the silent-failure gate**, **§11.2 the convergent law**, Ch 8 repertoire compact form, three new charts, glossary/matrix refreshed, and its Appendix C now carries the explicit **road ahead**. Refreshed `HANDOFF.md` (was stale at iter 31). **Closed janitorial T10**: the process-flow chart gains the `roll back` node (matching §7 prose) and the artifacts chart now draws `reflect`'s two backward sole-channel edges (ADR → a later root-causer · post-mortem → the next `define`) crossing both #7 boundaries — the §9 boundary-distance law made visible. Frontier **unchanged**: **T6 (bedrock pressure-test) held for the user's decision**, then the T11 forks · T2 residue — the ordered roadmap now heads §11. *(Prior: iter 33 — parallel sub-agent fold-in closed **T3/T7/T8/T11** + folded T9, adding §10.8/§10.9/§10.10 and the **existence-hard / fidelity-graded** convergent law; iter 32 — §10.7 inward base case; iter 31 — stone #9 reflexivity, §3. Full trail: §13.)*
-- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 stones + a conditional 2nd-order 9th (reflexivity, autonomous case — §3 #9)**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **T3/T7/T8/T11 closed (iter 33 → §10.8/§10.9/§10.10) + the *existence-hard / fidelity-graded* convergent law (§12); T9 folded.** Next: **T6 (bedrock pressure-test) — a sub-agent derivation draft is ready, held for the user's decision**; then the T11 promotion-forks · T2's general-seam residue. **T10 closed (iter 34).** Docs: design doc + `HANDOFF.md` at **iteration-33 parity** (iter 34).
+- **Last updated:** iteration 35 (**T6 folded in — the bedrock pressure-test is CLOSED**): the user resolved both held forks. **(i)** the 8 first-order stones are **pairwise-irreducible** — the scan yields the **bundling rule** (faces bundle iff they share one forced response, else siblings). **(ii)** **cost-asymmetry rejected** as a stone (a derived law → §12); **incentive-divergence admitted as conditional second-order stone #10** — the *willful* face of delegation (a mind optimising its own utility despite known intent; the *unintentional* face reduces to #1+Goodhart), forcing **alignment** machinery beyond #9's independence-seeking. **(iii)** formalized the **second-order tier** — *order = arity of the stone's referent* (first-order = solver×world, monadic, so #4 stays first-order; second-order = solver×solver/self, relational), with exactly **two seats**: independence (#9) · alignment (#10). Rippled §2 (second-order-erosion box), §3 (admission criterion + reducibility + bundling rule + class partition + stone #10 + 3-direction self-test), §8 (circuit ASCII + JSON node/edge), §11, §12 (four laws), §13. **Bedrock is now 8 first-order + 2 second-order.** *(Prior: iter 34 — documentation-parity pass, design doc + `HANDOFF.md` synced to iter 33, **T10 closed**; iter 33 — parallel fold-in closed **T3/T7/T8/T11** + folded T9, adding §10.8/§10.9/§10.10 and the **existence-hard / fidelity-graded** convergent law; iter 32 — §10.7 inward base case; iter 31 — stone #9 reflexivity, §3. Full trail: §13.)*
+- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 first-order stones + two conditional 2nd-order (reflexivity #9 · incentive-divergence #10, §3), on a formalized second-order tier**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **T3/T6/T7/T8/T11 closed** (iter 33 → §10.8/§10.9/§10.10; **iter 35 → §3 stone #10 + the second-order tier**) + the *existence-hard / fidelity-graded* convergent law (§12); T9/T10 folded/closed. Next: **T11's three promotion-forks · T2's general-seam residue** (roadmap heads §11). Docs: design doc + `HANDOFF.md` synced to iter-34; **both now lag the iter-35 bedrock change** — `HANDOFF.md` §8 roadmap updated, the design doc's bedrock chapter still needs the #10 / tier fold-in (next parity pass).
 
 ---
 
@@ -67,11 +67,13 @@ but no redundancy, so a random outage kills it). Both exist → a fourth indepen
 | **resilient** | envelope · vs **random** | withstands **and recovers** across the range of contexts and over time; the envelope against *natural* hardness (#5 change, #6 uncertain) | "it collapsed on a hard context and couldn't recover" | along the context-hardness / time axis | loops that **nest & escalate** — the **resilience repertoire** |
 | **secure** | envelope · vs **directed** | withstands a *directed* adversary hunting the worst case; the envelope against *adversarial* hardness (#8) | an attacker drove it to emit an output **outside its allowed set** — leaked secret · downtime (DoS) · forged / intercepted message | along the context-hardness axis, the **adversarial slice** | a loop that **preempts** — red-teams its own inputs for forbidden outputs, then forecloses them (the **security repertoire**, §6) |
 
-> **Reflexivity caveat (stone #9, §3 — autonomous case).** `reliable` is manufactured by a loop that
-> **converges**, which silently assumes the checker is *independent* of the doer. In the automated
-> autonomous multi-agent regime that assumption fails (the second-order stone #9): the loop can converge to
-> a **confident wrong fixed point** — a green check over a real defect — so `reliable` is the property
-> reflexivity most directly erodes.
+> **Second-order erosion caveat (stones #9 · #10, §3 — the delegated / autonomous case).** `reliable` is
+> manufactured by a loop that **converges**, which silently assumes two things about *who staffs the loop*:
+> the checker is **independent** of the doer, and the doer is **faithful** to the target. Delegation breaks
+> them — the two **second-order** stones: **#9 reflexivity** (correlated blind spots → an *echo-chamber*
+> check) and **#10 incentive-divergence** (a self-interested executor → a *self-serving* check). Either way
+> `check` hollows into a bare `declare` and the loop can converge to a **confident wrong fixed point** — a
+> green check over a real defect — so `reliable` is the property the second-order tier most directly erodes.
 
 > **Schedule caveat (stone #5, §10.10 — the time axis).** Boundedness (§4) buys `predictable` only its
 > *cost* face (the loop terminates within a bound); *outcome* is bought by tight contracts (§10.2); but
@@ -116,20 +118,86 @@ responses (finiteness → scope *and* decide; "we err" → verify *and* analyze)
    **escape-hatch** is a partially-independent terminal and reflexivity stays bounded; remove the human
    (an executor staffing `escalate`/`decide` too) and independence at the terminal → 0, so **an autonomous
    loop cannot be its own ground truth.** *(Admitted iteration 31, T5 — the first second-order stone.)*
+10. **Incentive-divergence — the doer serves a different master** *(second-order · conditional —
+   delegated / self-interested-agent case only)* — a mind you delegate to has its **own utility**, so
+   even with intent **fully known** (no #1) it may optimise *its* payoff over *your* target. This is a
+   **directed** pressure like #8, but aimed **not at your failure (#8, hostile) — at a different goal
+   (misaligned)**; your loss is collateral, not the objective. **Irreducible:** ≠ #1 (known ≠ unwanted),
+   ≠ #4 (a *choice*, not an accidental slip), ≠ #8 (misaligned ≠ hostile). It **cleaves**: the
+   *unintentional* face — proxy-gaming when true intent is hidden — reduces to **#1 + Goodhart** (the §12
+   proxy law), no new stone; the **willful** face — divergent utility *despite* known intent — does not.
+   It forces its own machinery — **alignment** (reward design · skin-in-the-game · make the payoff track
+   true-Done) — which is **not** in #8's wall-building repertoire and does **not** fall out of #9's
+   independence-seeking (so by the bundling rule they are *siblings*, not one stone). **Conditional:**
+   collapses when principal = agent (one coherent utility cannot misalign with itself) — but model the
+   delegate *realistically*, as the canvas already models #4 ("we err") and #9 ("we correlate"), and a
+   bounded multi-drive agent carries a present-vs-future-self misalignment floor > 0, so perfect
+   alignment is as unreachable as perfect independence. **The conative sibling of #9 — the second seat of
+   the second-order tier.** *(Admitted iteration 35, T6 — the willful face; the fork turned on the brute
+   gate and the user resolved it to admit.)*
 
-> **Self-test the model uses:** if a needed element rests on *no* stone, a stone is missing;
-> if a stone has *no* element defending it, there is a gap. The model passes for **first-order stones
-> 1–8** (unconditional) and admits a **conditional second-order #9 (reflexivity)** for the autonomous
-> case, which forces **independence-seeking** in `check`/`reflect` (the non-removable external/human
-> terminal · adversarial review — §6 `red-team`, doing double duty with #8). **The second direction has
-> fired twice:** the security gates rested on *no* stone → they exposed #8; and the loop's own checker
-> rested on an *unguaranteed* independence → it exposed #9.
+> **Self-test the model uses (three directions).** If a needed element rests on *no* stone, a stone is
+> missing; if a stone has *no* element defending it, there is a gap; **and if one stone shows two faces,
+> they bundle into a single stone iff they share one forced response — else they split into siblings**
+> (the **bundling rule**, T6). The model passes for **first-order stones 1–8** (unconditional) and admits
+> **two conditional second-order stones — #9 (reflexivity) and #10 (incentive-divergence)** — for the
+> delegated/autonomous case, which force **independence-seeking** (#9) and **alignment** (#10) in
+> `check`/`reflect` (the non-removable external/human terminal · adversarial review — §6 `red-team`,
+> doing double duty with #8). **The reverse direction has now fired three times:** the security gates
+> rested on *no* stone → they exposed #8; the loop's own checker rested on *unguaranteed independence* →
+> #9; the loop's own executor rested on *unguaranteed faithfulness* → #10.
 >
 > **Licensed exception — the base act (§10.10).** The first direction exempts **`implement`** (and its
 > seam-analogue **`release`**): it is not a *response* to a stone but the **operand the loop controls** — the
 > plant, not the controller. A control loop must have something to control, and that something rests on no
 > difficulty (it *is* the thing made difficult, §10.7's inward leaf). The exception makes the self-test
 > *sound* rather than flag a false positive.
+
+**Admission criterion — what makes something a stone (made explicit, T6).** A candidate clears **three
+gates**: **brute** (an unavoidable feature of the situation, not a policy you chose — a *floor > 0* you
+cannot design away); **generative** (some element / repertoire-response / apex-property exists *solely*
+as its answer — the reverse self-test); and **irreducible** (its forced machinery does **not** fall out
+of another stone's — try to *derive* its response from an existing stone; if you can, it is a theorem,
+not an axiom). Two **descriptors** then *classify* an admitted stone (they do not gate it): **class** —
+*first-order* (referent = the task/world) vs *second-order* (referent = the solving configuration); and
+**modality** — *unconditional* (#1–8) vs *conditional* (#9, #10 — bite only in a named regime). This is
+how #8, #9, and now #10 were each admitted; cost-asymmetry (below) fails the brute gate and stays a §12
+law, which shows the criterion has teeth.
+
+**Reducibility (T6-i) — the 8 first-order stones are pairwise irreducible.** Running the scan (C reduces
+to D iff C's forced machinery is entailed by D's), the four tempting pairs each part on **distinct forced
+machinery**: **#1 vs #6** — both are "you don't know," but #1 is a gap about *intent*, closed **a-priori
+by elicitation** (`specify`), while #6 is a gap about *world-state*, closed **only a-posteriori by
+sampling** (`observe`); you can elicit neither which reality will occur nor observe your way to a hidden
+intent. **#2 vs #3** — under the §12 *infinite-resources test* they move oppositely: scope-cut (#2)
+**vanishes** given infinite resources, decompose (#3) **survives** (complexity is cognitive/structural,
+not budgetary). **#5 vs #7** — a *moved world* (#5) **invalidates** a once-correct artifact (→
+rollback/regression); *decayed memory* (#7) **deletes** it (→ persist); one erodes an artifact's
+validity, the other its existence. **#5 vs #6** — variance **across time** (sequential drift → version/
+rollback) vs **across possibility at one moment** (co-possible realities → redundancy/degrade). No
+first-order stone reduces; all 8 survive.
+
+**The bundling rule (the self-test's third direction, T6).** Two faces of a pressure **bundle into one
+stone iff they share a single forced response**; if they force **distinct** responses they are **sibling
+stones**. This principle-justifies the standing asymmetry: **#7 is one stone** (distributed + perishable
+are both defeated by the *one* response — `artifact` = persist + make-explicit), whereas **#5 and #6 are
+two** (change → rollback/regression on the *time* axis; uncertain → redundancy/observe on the
+*possibility* axis — distinct machinery). It also discriminates **#9 and #10 as siblings**, not two faces
+of one second-order stone (independence-seeking vs alignment are distinct responses).
+
+**First-order vs second-order (T6-iii) — order = the arity of the stone's referent.** **First-order
+(#1–8):** a property of *(solver × world)* — *monadic* in the solver, true of **one agent solving in
+isolation**. This is exactly why **#4 ("we err") stays first-order** though it is "about the solver": #4
+is the *marginal* fact (*each* agent errs, true of a lone agent). **Second-order:** a property of
+*(solver × solver)* or *(solver × its own process)* — *relational*; it **cannot even be stated with one
+aligned agent**. #9 is a doer↔checker *correlation* — which is *why* it is irreducible to #4 (marginal-
+monadic vs joint-relational). The partition **predicts the class's shape**: second-order stones are
+**relational** (≥2 roles), **conditional** (collapse when the configuration degenerates), and erode a
+*point-property* by breaking a **silent assumption the loop makes about who staffs it**. The loop makes
+exactly **two** such assumptions — the checker is **independent** and the doer is **faithful** — so the
+tier has **exactly two seats**: **#9 reflexivity** (epistemic; breach → *echo-chamber* `declare`) and
+**#10 incentive-divergence** (conative; breach → *self-serving* `declare`). Capability folds to #4
+(monadic); liveness folds to #7 — neither opens a third seat.
 
 ## 4. The atom — the unit control loop
 
@@ -296,7 +364,7 @@ nested feedback loops, themselves built from elements forced by brute facts.
               (set target → do → check → reflect ↺)
                           ▲  force
    bedrock:  intent-hidden · finite · complex · we-err · change · uncertain · distributed · adversarial
-             · [#9 reflexivity — 2nd-order, autonomous only → erodes reliable]
+             · [2nd-order, delegated/autonomous only → erode reliable: #9 reflexivity · #10 incentive-divergence]
 
    point-properties: reliable · predictable   |   envelope-properties: resilient (vs random #5/#6) · secure (vs directed #8)
 ```
@@ -912,24 +980,29 @@ _Active frontier_
   law** (advanced **T2**). **· Iteration 33 (parallel sub-agent fold-in):** closed **T3** (§10.8 change-axis —
   regression + rollback), **T11** (§10.9 observability silent-failure gate) and **T7/T8** (§10.10
   lifecycle-projection + plan-as-schedule-bet); folded **T9**; surfaced the **existence-hard / fidelity-graded**
-  convergent law (§12). **Active frontier now → T6 (bedrock pressure-test):** a full derivation draft is ready
-  (sub-agent, iteration 33) and is **held for the user's decision** — the one track deliberately *not* folded
+  convergent law (§12). **Active frontier at iter 33 → T6 (bedrock pressure-test):** a full derivation draft was
+  readied (sub-agent, iteration 33) and **held for the user's decision** — the one track deliberately *not* folded
   in, because it would renumber the bedrock and formalize a 'second-order' stone class. **· Iteration 34
   (documentation-parity pass — no derivation advanced):** design doc synced to iter 33 (Ch 7 node-kinds +
   §7.1 schedule bet · §10.1 change axis · §11.1 silent-failure gate · §11.2 convergent law · Appendix C
-  road-ahead), `HANDOFF.md` refreshed, **T10 closed** (both diagram fixes landed).
-  **ROADMAP — in decision order:**
-  1. **T6** — decide on the held bedrock pressure-test draft (fold in / rework / drop): is any stone
-     reducible? further candidates (*incentives* · *cost-asymmetry*)? formalize the **second-order class**?
-     (Renumbers the bedrock if folded — hence held.)
-  2. **T11 forks** (three candidate promotions): (a) tamper-evident / append-only sensor — forced or
+  road-ahead), `HANDOFF.md` refreshed, **T10 closed** (both diagram fixes landed). **· Iteration 35 (T6
+  folded in — the bedrock pressure-test is CLOSED):** the user resolved both held forks → **admit
+  conditional second-order stone #10 (incentive-divergence)** and **formalize the second-order tier** (order
+  = arity of referent). Also landed the settled parts: **(i)** 8 first-order stones pairwise-irreducible +
+  the **bundling rule**; **(ii)** **cost-asymmetry rejected** (a derived law → §12). Rippled §2/§3/§8/§12.
+  Bedrock is now **8 first-order + 2 second-order**.
+  **ROADMAP — in decision order (T6 closed; frontier now → T11 forks):**
+  1. **T11 forks** (three candidate promotions): (a) tamper-evident / append-only sensor — forced or
      inherited from §10.3? (b) emission-character ≙ temporal-type — law or analogy? (c) is graded/gated
      stable if "#6-absent" is unknowable a-priori?
-  3. **T2 residue** — the fully-general, cross-domain gate-vs-graded seam rule (settled for observability
+  2. **T2 residue** — the fully-general, cross-domain gate-vs-graded seam rule (settled for observability
      by §10.9's *gate-the-binary / grade-the-aggregate*).
-  4. **Beyond the ideal** — the descoped concrete-setup audit (map a real stack: mis-typed gates ·
+  3. **Beyond the ideal** — the descoped concrete-setup audit (map a real stack: mis-typed gates ·
      undefended stones · collapsible ceremony), a **separate exercise** and the natural next project once
-     1–3 close.
+     1–2 close.
+  *(Docs lag again: the design doc + `HANDOFF.md` are at iter-34 parity; the iter-35 bedrock change is
+  synced into `HANDOFF.md` §8 but the design doc's bedrock chapter + Appendix C still need the #10 / tier
+  fold-in — the next documentation-parity pass.)*
 
 _Open derivation frontiers_
 - **T2 · Proxy-leaves: graded by default, gated only at non-compensatory seams** *(open; ex-G1,
@@ -950,11 +1023,18 @@ classification remains the light residue.
   ideal **over-time** loop MUST-HAVE an explicit **regression-suite** (catch re-introduced defects) and
   **rollback** (revert to known-good), and are they **hard gates** (via the irreversibility amplifier?)
   or graded? [§6 resilience repertoire; §7 OPERATE; folds in janitorial T9.]
-- **T6 · Bedrock pressure-test** *(open; partly done iter-23 & iter-31)*. Is any stone **reducible** to
-  another? The **9th** sub-question is now **answered** — reflexivity was admitted as a *conditional
-  second-order* stone #9 (T5, §3, iter-31). Still open: is any stone reducible; are there **further**
-  candidates (*incentives*, *cost-asymmetry*); and is "second-order" a distinct **class** of stone worth
-  formalizing? (#8 adversarial was the 8th, iter-23; #9 reflexivity the 9th, iter-31.)
+- **T6 · Bedrock pressure-test** *(**closed — iter 35 → §3**; partly done iter-23 & iter-31)*. All three
+  sub-questions answered. **(i) Reducibility — none:** the 8 first-order stones are pairwise-irreducible (the
+  scan parts every tempting pair on distinct forced machinery), and it yielded the **bundling rule** (shared
+  response ⇒ one stone; distinct ⇒ siblings), now the §3 self-test's third direction. **(ii) Candidates:**
+  *cost-asymmetry* **rejected** — a derived law (attack≪defence = #8+#3; fix-early≪fix-late = shift-left over
+  #3+#5+#7) → §12, not the bedrock; *incentives* **splits** — its *unintentional* face reduces to #1+Goodhart,
+  its **willful** face is irreducible (≠#1 known · ≠#4 slip · ≠#8 hostile) and was **admitted as conditional
+  second-order stone #10 (incentive-divergence)**, the conative sibling of #9 (user resolved the brute-gate
+  fork → admit). **(iii) Second-order class — formalized** as a tier: *order = arity of the stone's referent*
+  (first-order = solver×world, monadic, so #4 stays first-order; second-order = solver×solver/self,
+  relational), with exactly **two seats** — independence (#9) · alignment (#10). (#8 adversarial was the 8th,
+  iter-23; #9 reflexivity the 9th, iter-31; #10 incentive-divergence the 10th, iter-35.)
 - **T11 · Observability: graded coverage vs non-compensatory gates** *(**closed — iter 33 → §10.9**)*.
   **Open forks (candidate promotions, for the user):** (1) does the sensor-as-adversarial-target force a
   distinct **tamper-evidence / append-only** MUST-HAVE, or just inherit §10.3? (2) is *emission-character =
@@ -1151,6 +1231,23 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
   independent terminal, so **an autonomous loop cannot be its own ground truth** — forcing independence-
   seeking (external/human terminal · adversarial/independent review, the §6 `red-team` doing double duty
   with #8). *First **second-order** stone: a fact about the solver, not the task.*
+- **The bundling rule (§3 self-test, T6):** two faces of a pressure bundle into **one** stone iff they
+  share a **single** forced response; distinct responses ⇒ **sibling** stones. Why **#7 is one** (distributed
+  + perishable → the one response *artifact*) but **#5/#6 are two** (rollback vs redundancy), and why **#9/#10
+  are siblings** (independence-seeking vs alignment), not one stone.
+- **Order = the arity of the stone's referent (§3, T6):** *first-order* = a property of *(solver × world)*,
+  **monadic** in the solver — so **#4 "we err" is first-order** (the *marginal* fact, true of a lone agent);
+  *second-order* = a property of *(solver × solver / self)*, **relational** — so **#9 reflexivity** (the
+  *joint* fact) and **#10 incentive-divergence**. Second-order stones are relational + conditional + erode a
+  point-property by breaking a *staffing* assumption.
+- **The loop's two silent staffing assumptions (§3, T6):** convergence assumes the checker is **independent**
+  (#9) and the doer is **faithful** (#10); each breach turns `check` into a hollow `declare` (echo-chamber ·
+  self-report) and erodes `reliable`. The second-order tier has **exactly two seats** — capability folds to
+  #4, liveness to #7.
+- **Cost-asymmetry is a derived law, not a stone (T6):** *attack ≪ defence* = #8 + #3 (one undefended seam
+  holes the envelope, §10.3); *fix-early ≪ fix-late* = the shift-left law over #3 + #5 + #7. Real and
+  load-bearing, but **downstream** of existing stones — it belongs here, not in the §3 bedrock. (The contrast
+  case that shows the admission criterion has teeth.)
 - **Ceremony is proportional insurance — the inward base case (§10.7):** each beat is forced by a stone
   (§3); absent that stone it adds no information, so the inner loop **collapses toward bare `do`**
   (generalizing "degrades toward a single forward pass" from `reflect`/`observe` to all four beats). Run
@@ -1442,6 +1539,28 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     + the `design` launch config; §8 rewritten to iter-34 state + roadmap). Fixed the header lead.
     **Roadmap consolidated at the head of §11** (T6 decision → T11 forks → T2 residue → the descoped
     audit). Frontier unchanged: **T6 held for the user.**
+35. **Folded in T6 — closed the bedrock pressure-test (the first bedrock change since #9, iter-31).** The
+    user resolved both held forks → **admit** conditional second-order **stone #10 (incentive-divergence)**
+    and **formalize the second-order tier**. Landed the settled parts too. **(i) Reducibility — none:** the 8
+    first-order stones are pairwise-irreducible — the tempting pairs part on distinct forced machinery (#1/#6
+    elicit-a-priori vs sense-a-posteriori · #2/#3 vanishes vs survives the infinite-resources test · #5/#7
+    invalidates vs deletes an artifact · #5/#6 variance across time vs possibility) — yielding the **bundling
+    rule** (shared response ⇒ one stone; distinct ⇒ siblings; why #7 is one but #5/#6 are two), now the §3
+    self-test's **third direction**. **(ii) Candidates:** *cost-asymmetry* **rejected** as a derived law
+    (attack≪defence = #8+#3; fix-early≪fix-late = shift-left over #3/#5/#7) → §12; *incentives* **splits** —
+    unintentional face → #1+Goodhart, **willful face → new stone #10** (directed at a *different goal*, not
+    your failure #8; forces **alignment** machinery — reward design · skin-in-the-game — beyond #9's
+    independence-seeking; conditional, collapses at principal=agent but floor > 0 under realistic multi-drive
+    agents, by parity with #4/#9). **(iii) Second-order tier — formalized:** *order = arity of the stone's
+    referent* (first-order = *(solver × world)*, monadic — so #4 stays first-order; second-order = *(solver ×
+    solver/self)*, relational — #9, #10); the tier has **exactly two seats** (independence #9 · alignment #10),
+    both hollowing `check` → `declare` and eroding `reliable`. Also made the **admission criterion** explicit
+    (3 gates: brute · generative · irreducible; 2 descriptors: class · modality). Edits: §2 (second-order-
+    erosion box), §3 (stone #10 + admission criterion + reducibility scan + bundling rule + class partition +
+    3-direction self-test), §8 (ASCII bedrock line + circuit-JSON node/edge mirroring #9), §11 (T6 → Closed,
+    roadmap re-headed to T11 forks), §12 (four laws), header. **Frontier now → T11's three promotion-forks**,
+    then T2's general-seam residue, then the descoped concrete-setup audit. `HANDOFF.md` §8 roadmap synced;
+    the design doc's bedrock chapter awaits the next documentation-parity pass.
 
 ---
 
@@ -1514,7 +1633,8 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     {"id":"uncertain","label":"uncertain","group":"stone","x":710,"y":440},
     {"id":"distributed","label":"distributed & perishable","group":"stone","x":880,"y":440},
     {"id":"adversarial","label":"adversarial actors","group":"stone","x":1060,"y":440},
-    {"id":"reflexivity","label":"reflexivity (#9 · 2nd-order · autonomous)","group":"stone","x":-180,"y":40}
+    {"id":"reflexivity","label":"reflexivity (#9 · 2nd-order · autonomous)","group":"stone","x":-180,"y":40},
+    {"id":"incentives","label":"incentive-divergence (#10 · 2nd-order · delegated)","group":"stone","x":-180,"y":560}
   ],
   "edges": [
     {"source":"intent","target":"loop","member":true},
@@ -1538,7 +1658,8 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     {"source":"resilient","target":"evolve"},
     {"source":"secure","target":"evolve"},
     {"source":"evolve","target":"loop","dashed":true,"label":"re-target"},
-    {"source":"reflexivity","target":"reliable","dashed":true,"label":"erodes if autonomous (#9)"}
+    {"source":"reflexivity","target":"reliable","dashed":true,"label":"erodes if autonomous (#9)"},
+    {"source":"incentives","target":"reliable","dashed":true,"label":"erodes if delegated (#10)"}
   ]
 }
 ```
