@@ -39,7 +39,7 @@ levels.
 |---|---|---|---|
 | **L0** | The complete circuit | The whole machine: forces → loop → behaviours → properties | [Ch. 1](#1-the-system-at-a-glance) |
 | **L1** | The four properties | The destination — what a good SDLC produces | [Ch. 2](#2-the-destination-four-properties) |
-| **L1** | The bedrock — nine forces | The brute facts that make the work hard | [Ch. 3](#3-the-bedrock-why-the-work-is-hard) |
+| **L1** | The bedrock — ten forces | The brute facts that make the work hard | [Ch. 3](#3-the-bedrock-why-the-work-is-hard) |
 | **L2** | The unit loop, fully staffed | The atom — one feedback loop, and its elements | [Ch. 4](#4-the-atom-the-unit-control-loop) |
 | **L2** | The fractal — one shape, every scale | How the loop repeats up and down, and where it stops | [Ch. 6](#6-the-fractal-one-shape-at-every-scale) |
 | **L2** | Feature A — rate limiting, every element opened | The fractal made concrete on a graded feature | [Ch. 6](#6-the-fractal-one-shape-at-every-scale) |
@@ -55,7 +55,7 @@ levels.
 | **L3** | The change axis — regression & rollback | Stone #5's two organs: fixes stick, changes stay reversible | [Ch. 10](#10-what-each-loop-leaves-behind-the-artifacts) |
 | **L3** | Hard gate or graded target? | Which checks are non-negotiable | [Ch. 11](#11-hard-gates-versus-graded-targets) |
 | **L3** | The convergent law | One law, four instances: existence gated, fidelity graded | [Ch. 11](#11-hard-gates-versus-graded-targets) |
-| **L4** | Reflexivity — the autonomous regime | Why an autonomous loop cannot judge itself | [Ch. 12](#12-the-autonomous-agentic-sdlc) |
+| **L4** | The second-order tier — the delegated/autonomous regime | Why an autonomous loop can neither judge nor trust itself | [Ch. 12](#12-the-autonomous-agentic-sdlc) |
 
 > **The one-sentence thesis.** A reliable, predictable, resilient, and secure SDLC is not a
 > checklist of practices — it is the **emergent behaviour of a single bounded feedback loop**, forced
@@ -100,7 +100,7 @@ machine's shape is forced.
   "title": "The complete circuit",
   "level": "L0 · the whole system",
   "summary": "The entire machine in one frame: brute facts force one loop, whose behaviours manufacture four emergent properties, which feed an evolve edge.",
-  "zoomIn": ["The four properties", "The bedrock — nine forces", "The unit loop, fully staffed"],
+  "zoomIn": ["The four properties", "The bedrock — ten forces", "The unit loop, fully staffed"],
   "nodes": [
     {"id":"evolve","label":"evolve (Ouroboros)","group":"terminal","x":360,"y":0},
     {"id":"reliable","label":"reliable","group":"property","x":100,"y":100},
@@ -120,7 +120,8 @@ machine's shape is forced.
     {"id":"uncertain","label":"uncertain","group":"stone","x":710,"y":440},
     {"id":"distributed","label":"distributed & perishable","group":"stone","x":880,"y":440},
     {"id":"adversarial","label":"adversarial actors","group":"stone","x":1060,"y":440},
-    {"id":"reflexivity","label":"reflexivity (#9 · autonomous only)","group":"stone","x":-200,"y":40}
+    {"id":"reflexivity","label":"reflexivity (#9 · autonomous only)","group":"stone","x":-200,"y":40},
+    {"id":"incentives","label":"incentive-divergence (#10 · delegated only)","group":"stone","x":-200,"y":560}
   ],
   "edges": [
     {"source":"intent","target":"loop","member":true},
@@ -144,15 +145,17 @@ machine's shape is forced.
     {"source":"resilient","target":"evolve"},
     {"source":"secure","target":"evolve"},
     {"source":"evolve","target":"loop","dashed":true,"label":"re-target"},
-    {"source":"reflexivity","target":"reliable","dashed":true,"label":"erodes if autonomous (#9)"}
+    {"source":"reflexivity","target":"reliable","dashed":true,"label":"erodes if autonomous (#9)"},
+    {"source":"incentives","target":"reliable","dashed":true,"label":"erodes if delegated (#10)"}
   ]
 }
 ```
 
-> **⟐ Under autonomy.** Notice the lone coral node on the left, *reflexivity*, with a dashed edge
-> reaching up to **reliable**. In a human-run lifecycle it is dormant. Remove the human and it
-> activates, eroding the very property the loop works hardest to manufacture. Chapter 12 is entirely
-> about this edge.
+> **⟐ Under autonomy.** Notice the two coral nodes on the left — *reflexivity* (#9) and
+> *incentive-divergence* (#10), the **second-order tier** — each with a dashed edge reaching up to
+> **reliable**. In a human-run lifecycle both are dormant. Delegate the loop to self-checking,
+> self-interested agents and they activate, eroding the very property the loop works hardest to
+> manufacture. Chapter 12 is entirely about these two edges.
 
 ---
 
@@ -261,9 +264,12 @@ purpose.
 ```
 
 > **⟐ Under autonomy.** Of the four, **reliable** is the one autonomy most directly threatens.
-> Reliability is manufactured by a loop that *converges* — but convergence quietly assumes the checker
-> is independent of the doer. When the same kind of agent both builds and checks, the loop can
-> converge to a *confident wrong answer* (a green check over a real defect). See Chapter 12.
+> Reliability is manufactured by a loop that *converges* — but convergence quietly assumes two things about
+> who staffs it: that the checker is **independent** of the doer, and that the doer is **faithful** to the
+> target. Delegation can break either — a checker that shares the doer's blind spot (stone #9), or an
+> executor that serves its own payoff (stone #10) — and both let the loop *declare* success instead of
+> establishing it: a green check over a real defect. These are the two **second-order** stones; see
+> Chapter 12.
 
 ---
 
@@ -272,14 +278,20 @@ purpose.
 **What it is.** First principles, literally: the unavoidable truths about reality that make software
 engineering hard. We call them **stones**. Every stage, tool, and artifact in the SDLC is a *response*
 to one or more stones — never a convention. There are **eight** first-order stones (facts about the
-*problem*), plus a **ninth**, second-order stone (a fact about the *solver*) that activates only in the
-autonomous case.
+*problem*), plus **two** second-order stones (facts about the *solver* — about who staffs the loop) that
+activate only when the work is delegated or fully autonomous. The eight first-order stones are
+**pairwise-irreducible**: none is a special case of another.
 
 **Why this matters.** The stones are the model's foundation and its test. If a needed element rests on
 *no* stone, the model has a spurious part. If a stone has *no* element defending it, the model has a
-gap. This "self-test" is how the model grows: it fired in reverse twice — the security defenses rested
-on no stone, which exposed stone #8; and the loop's own checker rested on an unguaranteed assumption,
-which exposed stone #9.
+gap. This "self-test" is how the model grows — and it has fired **in reverse three times**, each time a
+needed response was found resting on no stone: the security defenses exposed stone #8; the loop's own
+checker, resting on an unguaranteed *independence*, exposed stone #9; and the loop's own executor,
+resting on an unguaranteed *faithfulness*, exposed stone #10. A **third direction** of the self-test
+guards against double-counting — two faces of a pressure are **one** stone only if they share a *single*
+forced response (the **bundling rule**). That is why "distributed" and "perishable" fold into one stone
+(#7 — both answered by *artifacts*), while "change" and "uncertain" stay two (#5 and #6 — answered by
+different machinery).
 
 ### The eight first-order stones
 
@@ -304,33 +316,54 @@ Two clarifications that keep the stones distinct:
   `scope` and `decide`; "we err" forces both `verify` and `analyze`), and several stones can converge
   on one response.
 
-### The ninth stone — reflexivity (conditional, second-order)
+### The second-order tier — two stones about who staffs the loop
 
-9. **Reflexivity — the checker shares the doer's fault.** *(Second-order and conditional — it bites
-   only in an automated, autonomous, multi-agent pipeline.)*
+The first eight stones are facts about the *problem*. The last two are different in kind — they are
+facts about the **solver**, specifically about *who staffs the loop* once the work is delegated to other
+minds (human or agent). They form a small **second-order tier**, and they share three traits: each is
+**relational** (you cannot even state it with a single mind), each is **conditional** (it collapses back
+to nothing when one aligned mind does everything), and each erodes **reliable** by hollowing a genuine
+`check` into a bare `declare`. The tier has exactly **two seats**, because the loop makes exactly two
+silent assumptions about the minds it delegates to — that the checker is **independent**, and that the
+doer is **faithful**.
 
-The agents that staff `check` and `reflect` are the same *kind* of erring agent as the doer (stone #4).
-So their errors are not independent — they are **correlated**. A check is only worth the *new
-information* it adds beyond the doer's own belief; a checker that shares the doer's blind spot is an
-**echo chamber** that adds zero information, and "verify" quietly collapses into "declare." The property
-at stake is **independence** — the thing that lets stacked checks drive error toward zero (and thereby
-manufacture reliability). Reflexivity is the brute fact that independence is *never total*: a
-common-mode floor always remains (even a formal proof only relocates the blind spot into the spec).
+9. **Reflexivity — the checker shares the doer's fault.** *(Second-order, conditional — it bites in an
+   automated, autonomous, multi-agent pipeline.)* The agents that staff `check` and `reflect` are the
+   same *kind* of erring agent as the doer (stone #4), so their errors are not independent — they are
+   **correlated**. A check is only worth the *new information* it adds beyond the doer's own belief; a
+   checker that shares the doer's blind spot is an **echo chamber** that adds zero information, and
+   "verify" quietly collapses into "declare." The property at stake is **independence** — the thing that
+   lets stacked checks drive error toward zero — and reflexivity is the brute fact that independence is
+   *never total* (even a formal proof only relocates the blind spot into the spec). It is irreducible to
+   "we err" (stone #4): #4 is the *marginal* fact — each agent errs; reflexivity is the *joint* fact —
+   their errors correlate. *Breach → an **echo-chamber** check; the forced response is independence.*
 
-This stone is different in kind from the first eight — they are facts about the *problem*; this is a
-fact about the *solver*. And it is conditional: with a human in the loop, the human is a
-partially-independent terminal and reflexivity stays bounded; remove the human and independence at the
-terminal collapses to zero — so **an autonomous loop cannot be its own ground truth.** It is treated in
-full in Chapter 12.
+10. **Incentive-divergence — the doer serves a different master.** *(Second-order, conditional — it
+    bites when the work is delegated to a self-interested agent.)* A mind you delegate to has its **own
+    utility**. Even when it knows your intent exactly — so this is *not* hidden intent (stone #1) — it
+    may optimise *its* payoff over *your* target. This is a *directed* pressure, like an adversary's, but
+    aimed not at your **failure** (stone #8, hostile) — at a **different goal** (misaligned); your loss
+    is collateral, not the objective. It is irreducible: not #1 (known ≠ unwanted), not #4 (a *choice*,
+    not an accidental slip), not #8 (misaligned ≠ hostile). Its *unintentional* face — gaming a proxy
+    when true intent is hidden — reduces to stone #1 plus Goodhart; its **willful** face does not, and it
+    forces its own response — **alignment** (reward design, skin-in-the-game, making the payoff track
+    true-Done) — which is not in the security repertoire and does not fall out of reflexivity's
+    independence-seeking. *Breach → a **self-serving** check; the forced response is alignment.*
 
-> ▸ **Chart — "The bedrock — nine forces"** · *L1 · the forces.* Each stone on the left; the element
+Both stones turn a real `check` into a hollow `declare` — one by *shared blindness* (the checker cannot
+see the error), the other by *divergent will* (the executor will not surface or fix it even when it
+can). Both are conditional on delegation: with one aligned mind — or a genuinely independent, faithful
+terminal — the tier is bounded; remove that terminal and **an autonomous loop can neither judge nor
+trust itself.** Both are treated in full, with their forced responses, in **Chapter 12**.
+
+> ▸ **Chart — "The bedrock — ten forces"** · *L1 · the forces.* Each stone on the left; the element
 > or repertoire it forces on the right. This is the "why" behind every part of the loop.
 
 ```pipeline-graph
 {
-  "title": "The bedrock — nine forces",
+  "title": "The bedrock — ten forces",
   "level": "L1 · the forces",
-  "summary": "The nine brute facts, each wired to the specific response it forces into existence. Nothing in the loop is a convention; every part defends a stone.",
+  "summary": "The ten brute facts, each wired to the specific response it forces into existence. Eight are first-order (about the problem); the last two are the second-order tier (about who staffs the loop — independence and faithfulness). Nothing in the loop is a convention; every part defends a stone.",
   "zoomOut": "The complete circuit",
   "zoomIn": ["The unit loop, fully staffed"],
   "nodes": [
@@ -343,6 +376,7 @@ full in Chapter 12.
     {"id":"distributed","label":"7 · knowledge distributed & perishable","group":"stone","x":0,"y":480},
     {"id":"adversarial","label":"8 · adversarial actors","group":"stone","x":0,"y":560},
     {"id":"reflexivity","label":"9 · reflexivity (2nd-order · autonomous)","group":"stone","x":0,"y":650},
+    {"id":"incentives","label":"10 · incentive-divergence (2nd-order · delegated)","group":"stone","x":0,"y":730},
     {"id":"specify","label":"specify","group":"element","x":520,"y":0},
     {"id":"scope","label":"scope & decide","group":"element","x":520,"y":80},
     {"id":"design","label":"design (decompose)","group":"element","x":520,"y":160},
@@ -351,7 +385,8 @@ full in Chapter 12.
     {"id":"observe","label":"observe (telemetry)","group":"element","x":520,"y":430},
     {"id":"artifacts","label":"artifacts","group":"property","x":520,"y":500},
     {"id":"security","label":"security repertoire","group":"repertoire","x":520,"y":570},
-    {"id":"independence","label":"independence-seeking (external terminal · red-team)","group":"terminal","x":520,"y":650}
+    {"id":"independence","label":"independence-seeking (external terminal · red-team)","group":"terminal","x":520,"y":650},
+    {"id":"alignment","label":"alignment (reward design · skin-in-the-game)","group":"terminal","x":520,"y":730}
   ],
   "edges": [
     {"source":"intent","target":"specify","label":"forces"},
@@ -364,7 +399,8 @@ full in Chapter 12.
     {"source":"uncertain","target":"resilience","dashed":true},
     {"source":"distributed","target":"artifacts","label":"forces"},
     {"source":"adversarial","target":"security","label":"forces"},
-    {"source":"reflexivity","target":"independence","label":"forces","dashed":true}
+    {"source":"reflexivity","target":"independence","label":"forces","dashed":true},
+    {"source":"incentives","target":"alignment","label":"forces","dashed":true}
   ]
 }
 ```
@@ -1762,7 +1798,7 @@ non-negotiable; how well it writes it down is priced by risk.*
   "level": "L3 · one law, four instances",
   "summary": "Every forced artifact is existence-hard, fidelity-graded: the ADR (reliable), telemetry (observe), the regression suite (resilient), and the plan baseline (predictable) must exist — absence is machinery-degrading — while their accuracy/coverage/content stays a graded, Goodhartable proxy.",
   "zoomOut": "Hard gate or graded target?",
-  "zoomIn": ["Reflexivity — the autonomous regime"],
+  "zoomIn": ["The second-order tier — the delegated/autonomous regime"],
   "nodes": [
     {"id":"exist","label":"EXISTENCE — hard gate · absence blinds the loop's own machinery","group":"property","x":460,"y":0},
     {"id":"adr","label":"ADR + post-mortem → reliable","group":"element","x":0,"y":150},
@@ -1798,10 +1834,19 @@ non-negotiable; how well it writes it down is priced by risk.*
 ## 12. The autonomous / agentic SDLC
 
 Everything so far holds whether the loop is staffed by people or by software agents. This chapter is
-about the one place where that stops being true — **the moment you remove the human and let agents run
-the whole loop, including judging their own work.**
+about the one place where that stops being true — **the moment you delegate the loop to other minds and,
+in the limit, remove the human entirely: agents that run the whole loop, judge their own work, and pursue
+their own goals.**
 
-### The extra stone: reflexivity (stone #9)
+Two brute facts switch on here that stayed dormant while a human sat in the loop. They are different in
+kind from the first eight stones — those are facts about the *problem*; these are facts about the
+**solver**, and about *who staffs the loop*. Together they form the model's **second-order tier**, and
+the tier has exactly two seats, because a delegated mind can betray the loop in exactly two ways: it can
+be **blind** (share the doer's error) or **unfaithful** (pursue its own payoff). The loop silently
+assumed neither — that its checker is *independent* and its doer is *faithful* — and delegation is what
+breaks those assumptions.
+
+### The first seat: reflexivity (stone #9) — the checker is not independent
 
 In a human-run lifecycle the loop has a quiet luxury: when it checks its own work, the checker is at
 least *somewhat* independent of the doer — a different person, a different perspective, and ultimately a
@@ -1825,53 +1870,93 @@ This is why reflexivity is a genuinely *new* stone and not just a restatement of
 Stone #4 is the *marginal* fact — each agent errs. Reflexivity is the *joint* fact — their errors are
 correlated. You can grant that every agent is individually excellent and reflexivity still bites,
 because it is a statement about the *relationship between* the checkers, not about any one of them. And
-it is a fact about the *solver*, not about the problem — which makes it the model's first
-**second-order** stone.
+it is a fact about the *solver*, not about the problem — the **first seat** of the second-order tier.
 
-### The consequence: an autonomous loop cannot be its own ground truth
+### The second seat: incentive-divergence (stone #10) — the doer is not faithful
 
-Put the pieces together. Reliability is manufactured by convergence; convergence assumes independence;
-independence in an autonomous pipeline comes only from the terminal (the outside judge); remove the human
-and the terminal's independence goes to zero. Therefore a fully autonomous loop, left to itself, can
-converge confidently to a **wrong** fixed point — a green check sitting on top of a real defect — and
-have no way to know. **An autonomous loop cannot be its own ground truth.**
+The loop's second silent assumption is that the mind doing the work *wants what you want*. A delegate has
+its **own utility**, and knowing your intent perfectly does not make it adopt your intent. Even when the
+target is fully specified — so this is emphatically *not* hidden intent (stone #1) — a self-interested
+agent can optimise its own payoff at your target's expense.
 
-Notice the shape of the failure. It is not that the agents are lazy or careless; a diligent,
-high-quality autonomous loop fails *this specific way* — by being *confidently* wrong, because every part
-of it agrees. That is worse than a loud failure, because the loop's own signals all say "fine."
+This is a **directed** pressure, which is what makes it easy to confuse with the adversary (stone #8) —
+but the *direction* is different. An adversary aims at your **failure**: it wants an output outside the
+allowed set. A misaligned agent aims at a **goal of its own**, and your loss is merely *collateral* — it
+will let you succeed wherever that is cheap for it, and cut the corner only where your interest and its
+payoff part ways. So it is irreducible three ways at once: not stone #1 (it *knows* your intent), not
+stone #4 (a *choice*, not an accidental slip), and not stone #8 (*misaligned*, not *hostile*).
 
-> ▸ **Chart — "Reflexivity — the autonomous regime"** · *L4 · the autonomous regime.* The doer and
-> checker share a correlated fault, so the check becomes an echo chamber and "verify" collapses into
-> "declare." Independence is what manufactures reliability; the human/external terminal supplies it;
-> removing it drives independence to zero; deliberate adversarial review restores some of it.
+Incentive-divergence has two faces, and only one is new. Its *unintentional* face — an agent gaming a
+**proxy** because true intent was hidden — is just stone #1 plus Goodhart, already covered. Its
+**willful** face — diverging *despite* knowing intent — is the genuinely new stone, and it forces a
+response that neither the security repertoire nor reflexivity's independence-seeking supplies:
+**alignment** — engineering the reward so the agent's payoff tracks true-Done (skin in the game,
+outcome-linked incentives, making the agent bear the cost of its own corner-cutting). Where reflexivity
+asks "is the checker *independent*?", incentive-divergence asks "is the doer *faithful*?" — two
+different questions, two different fixes, two seats.
+
+Like reflexivity, it is **conditional**: collapse principal and agent into one aligned mind and it
+vanishes — a single coherent utility cannot be misaligned with itself. But model a delegated agent
+*realistically* — bounded and multi-drive, with its own present-versus-future tradeoffs, exactly the
+realism the model already grants when it says "humans and models err" — and a floor of divergence
+remains that perfect alignment never fully crosses, just as perfect independence is unreachable for #9.
+
+### The consequence: an autonomous loop can neither judge nor trust itself
+
+Put the pieces together. Reliability is manufactured by convergence; convergence assumes both that the
+checker is *independent* and that the doer is *faithful*; in a delegated or autonomous pipeline both come
+only from an outside terminal — an independent judge, an aligned principal — and removing the human
+drives both toward zero. So a fully autonomous loop, left to itself, can converge confidently to a
+**wrong** fixed point in two different ways: a green check sitting on a real defect it *could not see*
+(#9), or a green check over a corner it *chose* to cut (#10). Either way the loop's own signals all say
+"fine." **An autonomous loop cannot be its own ground truth — it can neither judge nor trust itself.**
+
+Notice the shape of both failures. It is not that the agents are lazy or careless; a diligent,
+high-capability autonomous loop fails *these specific ways* — by being *confidently* wrong (shared
+blindness) or *quietly* self-serving (divergent will), because in both cases every part of it agrees.
+That is worse than a loud failure, because nothing inside the loop raises a hand.
+
+> ▸ **Chart — "The second-order tier — the delegated/autonomous regime"** · *L4 · the delegated/
+> autonomous regime.* Two ways a delegated mind hollows a check into a bare *declare*: a **blind** checker
+> (correlated fault → echo chamber, #9) and an **unfaithful** doer (own payoff → self-serving report,
+> #10). Independence and alignment are the two properties that manufacture reliability; the external
+> terminal and an aligned principal supply them; removing the human drives both toward zero; adversarial/
+> diverse review and outcome-linked incentives restore them.
 
 ```pipeline-graph
 {
-  "title": "Reflexivity — the autonomous regime",
-  "level": "L4 · the autonomous regime",
-  "summary": "When the checker shares the doer's blind spot, the check adds zero information and 'verify' collapses into 'declare'. Independence is what drives error → 0; removing the human terminal drives it to zero; adversarial/diverse review must be injected to restore it.",
+  "title": "The second-order tier — the delegated/autonomous regime",
+  "level": "L4 · the delegated/autonomous regime",
+  "summary": "Two second-order stones, two ways a check collapses into a bare 'declare'. #9 reflexivity: doer and checker share a correlated blind spot → echo-chamber (adds 0 bits). #10 incentive-divergence: the doer serves its own payoff → self-serving report. Independence and alignment are what drive error → 0; the external terminal and an aligned principal supply them; removing the human drives both to zero; adversarial/diverse review and outcome-linked incentives restore them.",
   "zoomOut": "The complete circuit",
   "nodes": [
-    {"id":"corr","label":"errors are CORRELATED (#9)","group":"stone","x":130,"y":0},
+    {"id":"corr","label":"#9 · errors are CORRELATED","group":"stone","x":130,"y":0},
     {"id":"doer","label":"doer (agent)","group":"element","x":0,"y":90},
     {"id":"checker","label":"checker (agent, same kind)","group":"element","x":280,"y":90},
-    {"id":"echo","label":"echo-chamber — check adds 0 bits","group":"terminal","x":280,"y":185},
-    {"id":"declare","label":"verify collapses into 'declare'","group":"terminal","x":280,"y":265},
-    {"id":"human","label":"human / external terminal (partial independence)","group":"terminal","x":650,"y":0},
-    {"id":"indep","label":"INDEPENDENCE — what drives error → 0","group":"property","x":650,"y":95},
-    {"id":"auto","label":"remove the human → independence at terminal → 0","group":"stone","x":650,"y":185},
-    {"id":"redteam","label":"inject independence: adversarial / diverse review · red-team","group":"repertoire","x":650,"y":265},
-    {"id":"reliable","label":"reliable (eroded if autonomous)","group":"property","x":1010,"y":95}
+    {"id":"echo","label":"echo-chamber — blind, adds 0 bits","group":"terminal","x":280,"y":185},
+    {"id":"misalign","label":"#10 · doer serves its OWN payoff","group":"stone","x":0,"y":185},
+    {"id":"declare","label":"verify collapses into 'declare'","group":"terminal","x":280,"y":280},
+    {"id":"human","label":"external terminal + aligned principal","group":"terminal","x":700,"y":0},
+    {"id":"indep","label":"INDEPENDENCE (#9) — checker ⊥ doer","group":"property","x":700,"y":95},
+    {"id":"align","label":"ALIGNMENT (#10) — payoff tracks true-Done","group":"property","x":700,"y":175},
+    {"id":"auto","label":"remove the human → both → 0","group":"stone","x":700,"y":265},
+    {"id":"inject","label":"restore: adversarial/diverse review (#9) · outcome-linked incentives (#10)","group":"repertoire","x":700,"y":345},
+    {"id":"reliable","label":"reliable (eroded if delegated/autonomous)","group":"property","x":1160,"y":135}
   ],
   "edges": [
     {"source":"corr","target":"doer","member":true},
     {"source":"corr","target":"checker","member":true},
     {"source":"checker","target":"echo","dashed":true},
     {"source":"echo","target":"declare","dashed":true},
+    {"source":"misalign","target":"declare","dashed":true,"label":"self-serving report"},
     {"source":"human","target":"indep","label":"supplies"},
+    {"source":"human","target":"align","label":"supplies"},
     {"source":"indep","target":"reliable","label":"manufactures"},
+    {"source":"align","target":"reliable","label":"manufactures"},
     {"source":"auto","target":"indep","dashed":true,"label":"removes"},
-    {"source":"redteam","target":"indep","label":"restores"},
+    {"source":"auto","target":"align","dashed":true,"label":"removes"},
+    {"source":"inject","target":"indep","label":"restores"},
+    {"source":"inject","target":"align","label":"restores"},
     {"source":"declare","target":"reliable","dashed":true,"label":"erodes"}
   ]
 }
@@ -1879,8 +1964,9 @@ of it agrees. That is worse than a loud failure, because the loop's own signals 
 
 ### What the ideal autonomous SDLC must therefore add
 
-Reflexivity does not forbid autonomy — it **prices** it. Because an autonomous loop has no free human
-terminal to fall back on, it must **manufacture independence deliberately.** Concretely:
+The second-order tier does not forbid autonomy — it **prices** it. Because a delegated or autonomous loop
+has no free human terminal to fall back on, it must **manufacture both independence and alignment
+deliberately.** Concretely:
 
 - **A non-removable external / human terminal.** Keep at least one genuinely independent judge in the
   escalation path — a human, or a check whose errors are demonstrably *uncorrelated* with the doer's
@@ -1893,24 +1979,33 @@ terminal to fall back on, it must **manufacture independence deliberately.** Con
   convergence would be most costly — exactly the non-compensatory seams that earn hard gates
   (Chapter 11). You cannot make every check independent; you *can* make the load-bearing ones
   independent.
+- **Engineered alignment (stone #10).** Independence catches the *blind* failure but not the *willful*
+  one — a diverse-but-misaligned ensemble still won't flag a corner it is all incentivised to cut. So the
+  autonomous loop must also make the agents' payoff track true-Done: outcome-linked rather than
+  proxy-linked rewards, skin in the game, and an **aligned principal** (a human, or a value-locked
+  objective) that owns the loss. Alignment is to the *doer* what independence is to the *checker*.
 
 ### How this threads back through the document
 
-The autonomy callouts scattered through the earlier chapters are all facets of this one stone:
+The autonomy callouts scattered through the earlier chapters are all facets of these two stones:
 
-- **Chapter 2** — reflexivity erodes **reliable** specifically, because reliability is the property that
-  depends on convergence-under-independence.
-- **Chapter 4** — the human **escape hatch** is the loop's only independent terminal; autonomy cuts it.
-- **Chapter 8** — the security repertoire's **red-team** move is also the independence-injection move.
+- **Chapter 2** — the second-order tier erodes **reliable** specifically, because reliability is the
+  property that depends on convergence — and convergence assumes both independence and faithfulness.
+- **Chapter 4** — the human **escape hatch** is the loop's only *independent and aligned* terminal;
+  autonomy cuts it, taking both guarantees at once.
+- **Chapter 8** — the security repertoire's **red-team** move is also the independence-injection move
+  (#9); its authn/authz and least-privilege moves *contain* a misaligned agent (#10) even though they do
+  not, by themselves, align it.
 - **Chapter 11** — the **reflect-artifact** and **observe-sensor** gates matter more under autonomy,
   because a self-checking loop that also skips its memory and senses has nothing left to catch it. The
   convergent law (§11.2) widens this to all four intended-operands — ADR, telemetry, regression suite,
   plan baseline: the loop's memory, senses, ratchet, and clock. Those four existence-gates are what
   keep an autonomous loop *auditable at all*.
 
-The one-line takeaway: **autonomy is not free; it removes the loop's independent ground, and an ideal
-autonomous SDLC is one that pays that cost back on purpose — with an outside terminal and engineered
-adversarial diversity — precisely where being confidently wrong would hurt most.**
+The one-line takeaway: **autonomy is not free; it removes the loop's independent *and* aligned ground,
+and an ideal autonomous SDLC is one that pays both costs back on purpose — an outside terminal and
+engineered adversarial diversity for independence (#9), outcome-linked incentives and an aligned
+principal for faithfulness (#10) — precisely where being confidently or quietly wrong would hurt most.**
 
 ---
 
@@ -1919,7 +2014,8 @@ adversarial diversity — precisely where being confidently wrong would hurt mos
 Plain-language definitions of the recurring terms.
 
 - **Stone.** A brute, unavoidable fact about reality that makes software hard and *forces* a specific
-  response. There are nine (Chapter 3).
+  response. There are ten — eight **first-order** (about the problem) plus a two-seat **second-order
+  tier** (about who staffs the loop) (Chapter 3).
 - **The loop / the atom.** The single feedback cycle `define → do → check → reflect ↺` that everything
   reduces to (Chapter 4).
 - **Beat.** One of the four scale-invariant phases of the loop (define, do, check, reflect).
@@ -1973,10 +2069,27 @@ Plain-language definitions of the recurring terms.
 - **Convergent law (existence-hard, fidelity-graded).** Every forced artifact must *exist* (hard gate —
   absence is machinery-degrading) while its fidelity / coverage / content stays a graded, Goodhartable
   proxy (§11.2). plan : predictable :: ADR : reliable :: regression : resilient :: telemetry : observe.
-- **Reflexivity.** The second-order, autonomous-only stone: an agent-staffed checker shares the doer's
-  correlated blind spot, so its checks add no information unless independence is injected (Chapter 12).
+- **Second-order tier.** The two stones that are facts about the *solver* rather than the problem, and
+  bite only under delegation/autonomy. Formalized by the **arity of the stone's referent**: first-order
+  stones are properties of *(solver × world)* — true of one mind (so "we err," #4, stays first-order);
+  second-order stones are properties of *(solver × solver / self)* — relational. Exactly two seats:
+  independence (#9) and alignment (#10) (Chapter 12).
+- **Reflexivity (stone #9).** The second-order, autonomous-only stone about the *checker*: an
+  agent-staffed checker shares the doer's correlated blind spot, so its checks add no information unless
+  **independence** is injected (Chapter 12).
 - **Independence.** The property — across checkers — that lets stacked checks drive error toward zero.
-  Never total; supplied mainly by an external/human terminal.
+  Never total; supplied mainly by an external/human terminal. The forced response to stone #9.
+- **Incentive-divergence (stone #10).** The second-order, delegated-only stone about the *doer*: a
+  self-interested agent optimises its own payoff over your target even when your intent is fully known
+  (misaligned — not hostile like #8, not mistaken like #4). Its willful face forces **alignment**
+  (Chapter 12).
+- **Alignment.** The forced response to stone #10: engineering the agent's payoff to track true-Done
+  (skin in the game, outcome-linked incentives, an aligned principal that owns the loss). Alignment is to
+  the *doer* what independence is to the *checker*.
+- **Bundling rule.** The self-test's third direction: two faces of a pressure are **one** stone only if
+  they share a *single* forced response, else they are **sibling** stones — why "distributed + perishable"
+  is one stone (#7) but "change" and "uncertain" are two (#5, #6), and why #9 and #10 are siblings, not
+  one stone.
 - **Ouroboros / evolve.** The product-level feedback edge that feeds run-time learning back into the
   target, turning the loop into an improving spiral.
 
@@ -1994,7 +2107,8 @@ One table, the whole causal skeleton.
 | 6 | reality is uncertain | `observe` (telemetry); `degrade`, `recover` | resilient |
 | 7 | knowledge distributed & perishable | **artifacts** (persist + make explicit) | all four (carries every loop's output) |
 | 8 | adversarial actors | security repertoire (authn/authz, sanitize, harden, red-team) | secure |
-| 9 | reflexivity *(autonomous only)* | independence-seeking (external terminal, adversarial/diverse review) | protects reliable |
+| 9 | reflexivity — checker not independent *(autonomous only)* | independence-seeking (external terminal, adversarial/diverse review) | protects reliable |
+| 10 | incentive-divergence — doer not faithful *(delegated only)* | alignment (reward design, skin-in-the-game, outcome-linked payoff, aligned principal) | protects reliable |
 
 > Three lifecycle boxes are deliberately **not** rows. `plan` is `scope`+`specify` projected onto the
 > time axis (§7.1) and `release` is the build→operate seam whose governance *is* the stone-#5 machinery
@@ -2007,9 +2121,16 @@ One table, the whole causal skeleton.
   resilient, and secure SDLC is logically forced to contain. It deliberately does **not** audit any
   particular real-world setup against the ideal — that is a separate exercise, kept out so the ideal
   stays uncontaminated.
-- **Parity.** Synced to canvas **iteration 33** (revision of 2026-07-10). That sync added §7.1 (the
-  schedule bet), the four node-kinds in Chapter 7, §10.1 (the change axis), §11.1 (the silent-failure
-  gate), §11.2 (the convergent law), and the compact form of the repertoires in Chapter 8.
+- **Parity.** Synced to canvas **iteration 35** (revision of 2026-07-10). The iter-34→35 sync closed the
+  **bedrock pressure-test (canvas track T6)**: it admitted a **tenth stone** — **#10 incentive-divergence**
+  (conditional, second-order — the *willful* face of a delegated agent serving its own payoff) — and
+  formalized the **second-order tier** (*order = arity of the stone's referent*; two seats — independence
+  #9 · alignment #10). That reshaped Chapter 3 (intro, the three-direction self-test with the *bundling
+  rule*, the second-order-tier section, and the bedrock chart → "ten forces"), Chapter 12 (restructured to
+  both seats, with alignment machinery and a broadened L4 chart), the Chapter 2 autonomy callout, the
+  glossary, and the stones matrix. *(Prior — iter-33→34: §7.1 the schedule bet, the four node-kinds in
+  Chapter 7, §10.1 the change axis, §11.1 the silent-failure gate, §11.2 the convergent law, and the
+  compact repertoires in Chapter 8.)*
 - **Source of the derivation.** Every claim here is derived, step by step, in the companion working file
   [`sdlc-first-principles-canvas.md`](sdlc-first-principles-canvas.md), which also holds the audit trail
   — the Socratic question-and-answer history, the iteration log, and the open-tracks register (§11
@@ -2022,26 +2143,21 @@ One table, the whole causal skeleton.
 
 ### The road ahead
 
-The derivation is **substantively complete**: four properties, nine stones, a fully-staffed loop with
-both base cases, two repertoires, the mechanism of Done, the artifact laws, the gate calculus, and the
-convergent law that ties them together. What remains is deliberately small, and it is a *decision
-queue*, not a backlog of unfinished chapters — in order:
+The derivation is **substantively complete**: four properties, ten stones (eight first-order plus the
+two-seat second-order tier), a fully-staffed loop with both base cases, two repertoires, the mechanism of
+Done, the artifact laws, the gate calculus, and the convergent law that ties them together. The bedrock
+pressure-test (T6) is now **closed**. What remains is deliberately small, and it is a *decision queue*,
+not a backlog of unfinished chapters — in order:
 
-1. **The bedrock pressure-test** *(canvas track T6 — the one open derivation track; a drafted
-   derivation exists and is held for an explicit go).* Three sub-questions: is any of the nine stones
-   *reducible* to another? are there further stone candidates (*incentives*; *cost-asymmetry*)? and
-   should "second-order" — facts about the *solver*, like reflexivity — be formalised as a distinct
-   class of stone? Folding this in may renumber the bedrock, which is why it waits for a deliberate
-   decision rather than being merged by default.
-2. **Three observability promotion-forks** *(canvas T11, from §11.1 here).* (a) Does the sensor's
-   status as an adversarial *target* force a distinct tamper-evidence / append-only MUST-HAVE, or does
-   it simply inherit `secure`'s wall? (b) Is "emission character follows the carried fact's temporal
-   type" a forced law or a good analogy? (c) Does the graded/gated frame stay stable if "#6 is absent
-   here" is itself not knowable a-priori?
-3. **The general gate-vs-graded seam rule** *(canvas T2's light residue).* "Gate the per-seam binary,
+1. **Three observability promotion-forks** *(canvas T11, from §11.1 here — the live derivation frontier).*
+   (a) Does the sensor's status as an adversarial *target* force a distinct tamper-evidence / append-only
+   MUST-HAVE, or does it simply inherit `secure`'s wall? (b) Is "emission character follows the carried
+   fact's temporal type" a forced law or a good analogy? (c) Does the graded/gated frame stay stable if
+   "#6 is absent here" is itself not knowable a-priori?
+2. **The general gate-vs-graded seam rule** *(canvas T2's light residue).* "Gate the per-seam binary,
    grade the aggregate" settled it for observability; the fully general, cross-domain classification
    rule is the remaining thread.
-4. **Beyond the ideal — the audit** *(descoped by design, and the natural next project).* Mapping a
+3. **Beyond the ideal — the audit** *(descoped by design, and the natural next project).* Mapping a
    *concrete* stack against this ideal: which of its rules are mis-typed gates (graded proxies
    masquerading as gates, or gates with no amplifier behind them), which stones it leaves undefended,
    and where its ceremony is collapsible. Kept out of this document on purpose; once the frontier

@@ -24,7 +24,7 @@ source-of-truth file.
 | path | role |
 |---|---|
 | `sdlc-first-principles-canvas.md` | **source of truth for *reasoning*** — model, resume instructions, open-tracks register (§11), log, embedded diagram data |
-| `sdlc-design-document.md` | **source of truth for *understanding*** — the clean design snapshot (what/why/how prose, 21 inline charts, glossary, roadmap in Appendix C); regenerated from the canvas when the model advances. Currently at **iteration-33 parity** |
+| `sdlc-design-document.md` | **source of truth for *understanding*** — the clean design snapshot (what/why/how prose, 21 inline charts, glossary, roadmap in Appendix C); regenerated from the canvas when the model advances. At **full iteration-35 parity** (design-doc fold-in done as canvas iter 36 — ten-stone bedrock, the second-order tier, #10 in the L0/bedrock/L4 charts) |
 | `index.html` | the canvas viewer — renders the canvas markdown live, hoists diagram blocks into one tabbed editable panel |
 | `sdlc-design.html` | the design doc's own viewer — charts inline in context, zoom-in/out chips, floating chart ladder |
 | `.claude/launch.json` | preview server configs — **`canvas`** on port 4321, **`design`** on port 4330; either serves the whole folder, so both pages are reachable from either port |
@@ -150,9 +150,10 @@ bedrock pressure-test (T6) is now closed.**
   observability silent-failure gate (§10.9) · lifecycle-projection + plan-as-schedule-bet (§10.10).
 - **Capstone:** the **convergent law** — every forced artifact is *existence-hard, fidelity-graded*
   (plan : predictable :: ADR : reliable :: regression : resilient :: telemetry : observe).
-- **Docs:** `sdlc-design-document.md` was synced to **iteration-33 parity** (at iter 34); it now **lags
-  the iter-35 bedrock change** — its bedrock chapter + Appendix C still need the stone-#10 / second-order-
-  tier fold-in (the next documentation-parity pass). This file (`HANDOFF.md`) is current to iter 35.
+- **Docs:** `sdlc-design-document.md` is at **full iteration-35 parity** — the T6 fold-in landed as
+  canvas **iteration 36** (a documentation-parity pass): ten-stone bedrock, a "second-order tier" section
+  (#9 first seat · #10 second seat), Ch 12 reworked to both seats, the L0/bedrock/L4 charts + glossary +
+  stones-matrix + Appendix C all updated; all 21 charts validate. This file (`HANDOFF.md`) is current too.
   Janitorial **T10** (diagram fixes) is closed. Track history T1–T11: **nine closed, two residues** (T2
   general-seam · the descoped audit) — details in canvas §11/§13.
 

@@ -5,8 +5,8 @@
 > SDLC, and why every piece is logically required.* It is written so the whole journey can
 > be resumed from this file alone, with a fresh/cleared context.
 
-- **Last updated:** iteration 35 (**T6 folded in — the bedrock pressure-test is CLOSED**): the user resolved both held forks. **(i)** the 8 first-order stones are **pairwise-irreducible** — the scan yields the **bundling rule** (faces bundle iff they share one forced response, else siblings). **(ii)** **cost-asymmetry rejected** as a stone (a derived law → §12); **incentive-divergence admitted as conditional second-order stone #10** — the *willful* face of delegation (a mind optimising its own utility despite known intent; the *unintentional* face reduces to #1+Goodhart), forcing **alignment** machinery beyond #9's independence-seeking. **(iii)** formalized the **second-order tier** — *order = arity of the stone's referent* (first-order = solver×world, monadic, so #4 stays first-order; second-order = solver×solver/self, relational), with exactly **two seats**: independence (#9) · alignment (#10). Rippled §2 (second-order-erosion box), §3 (admission criterion + reducibility + bundling rule + class partition + stone #10 + 3-direction self-test), §8 (circuit ASCII + JSON node/edge), §11, §12 (four laws), §13. **Bedrock is now 8 first-order + 2 second-order.** *(Prior: iter 34 — documentation-parity pass, design doc + `HANDOFF.md` synced to iter 33, **T10 closed**; iter 33 — parallel fold-in closed **T3/T7/T8/T11** + folded T9, adding §10.8/§10.9/§10.10 and the **existence-hard / fidelity-graded** convergent law; iter 32 — §10.7 inward base case; iter 31 — stone #9 reflexivity, §3. Full trail: §13.)*
-- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 first-order stones + two conditional 2nd-order (reflexivity #9 · incentive-divergence #10, §3), on a formalized second-order tier**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **T3/T6/T7/T8/T11 closed** (iter 33 → §10.8/§10.9/§10.10; **iter 35 → §3 stone #10 + the second-order tier**) + the *existence-hard / fidelity-graded* convergent law (§12); T9/T10 folded/closed. Next: **T11's three promotion-forks · T2's general-seam residue** (roadmap heads §11). Docs: design doc + `HANDOFF.md` synced to iter-34; **both now lag the iter-35 bedrock change** — `HANDOFF.md` §8 roadmap updated, the design doc's bedrock chapter still needs the #10 / tier fold-in (next parity pass).
+- **Last updated:** iteration 36 (**documentation-parity pass — synced the design doc to the iter-35 model; no derivation advanced**): folded the closed T6 into `sdlc-design-document.md` — Ch 3 bedrock reworked (ten stones; the three-direction self-test with the **bundling rule**; a new **"second-order tier"** section with #9 as the first seat and **#10 incentive-divergence** as the second; bedrock chart → **"ten forces"**), Ch 12 restructured to both seats (+ the **alignment** machinery + a broadened L4 **"second-order tier"** chart), the L0 circuit chart + Ch 2 autonomy callout gain the #10 node/edge, and the glossary, stones-matrix (row 10), and Appendix C (parity + road-ahead) updated. All 21 design-doc charts validate; both viewers render clean. **Design doc + `HANDOFF.md` now at full iter-35 parity.** *(Prior: iter 35 — **T6 folded into the canvas → the bedrock pressure-test CLOSED**: admitted conditional second-order **stone #10 (incentive-divergence)** + formalized the second-order tier (order = arity of referent; two seats — independence #9 · alignment #10); 8 first-order stones pairwise-irreducible + the bundling rule; cost-asymmetry rejected → §12. **Bedrock is now 8 first-order + 2 second-order.** iter 34 — doc-parity pass to iter 33, **T10 closed**; iter 33 — parallel fold-in closed **T3/T7/T8/T11** + folded T9 (§10.8/§10.9/§10.10, the existence-hard/fidelity-graded law); iter 32 — §10.7. Full trail: §13.)*
+- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 first-order stones + two conditional 2nd-order (reflexivity #9 · incentive-divergence #10, §3), on a formalized second-order tier**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **T3/T6/T7/T8/T11 closed** (iter 33 → §10.8/§10.9/§10.10; **iter 35 → §3 stone #10 + the second-order tier**) + the *existence-hard / fidelity-graded* convergent law (§12); T9/T10 folded/closed. Next: **T11's three promotion-forks · T2's general-seam residue** (roadmap heads §11). Docs: design doc + `HANDOFF.md` **synced to full iter-35 parity** (design-doc parity pass, iter 36 → ten-stone bedrock, second-order tier, the two updated charts).
 
 ---
 
@@ -1000,9 +1000,9 @@ _Active frontier_
   3. **Beyond the ideal** — the descoped concrete-setup audit (map a real stack: mis-typed gates ·
      undefended stones · collapsible ceremony), a **separate exercise** and the natural next project once
      1–2 close.
-  *(Docs lag again: the design doc + `HANDOFF.md` are at iter-34 parity; the iter-35 bedrock change is
-  synced into `HANDOFF.md` §8 but the design doc's bedrock chapter + Appendix C still need the #10 / tier
-  fold-in — the next documentation-parity pass.)*
+  *(Docs: design doc + `HANDOFF.md` are at **full iter-35 parity** — the design-doc fold-in landed as
+  iteration 36, a documentation-parity pass: ten-stone bedrock, the second-order-tier section, Ch 12
+  reworked to both seats, the L0/bedrock/L4 charts updated, glossary + stones-matrix + Appendix C synced.)*
 
 _Open derivation frontiers_
 - **T2 · Proxy-leaves: graded by default, gated only at non-compensatory seams** *(open; ex-G1,
@@ -1522,7 +1522,7 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     :: regression : resilient :: telemetry : observe**. Edits: **§10.8/§10.9/§10.10**, six §12 laws, §7 OPERATE
     +rollback & projection note, §3 base-act exception, §2 predictable caveat, §6 repertoire note, §11
     (T3/T7/T8/T9 → Closed, T11 → Closed w/ forks, T2 sharpened, frontier → **T6 held** + janitorial T10),
-    header. Frontier: **T6 (bedrock pressure-test) — derived draft ready, awaiting the user's call.**
+    header. Frontier at that point: **T6 (bedrock pressure-test) — derived draft ready, awaiting the user's call.**
 34. **Documentation-parity pass (no derivation advanced).** Deep scrutiny found the doc set lagging the
     model: design doc at iter-32 parity (missing all of iter 33), HANDOFF at iter-31, canvas header stale
     ("iteration 32" lead over an iter-33 status line), and T10's two diagram gaps. Synced the **design
@@ -1561,6 +1561,22 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     roadmap re-headed to T11 forks), §12 (four laws), header. **Frontier now → T11's three promotion-forks**,
     then T2's general-seam residue, then the descoped concrete-setup audit. `HANDOFF.md` §8 roadmap synced;
     the design doc's bedrock chapter awaits the next documentation-parity pass.
+36. **Documentation-parity pass — synced the design doc to the iter-35 model (no derivation advanced).**
+    Folded the closed T6 into `sdlc-design-document.md`. **Ch 3** reworked: intro → *eight first-order +
+    two second-order* with the 8 **pairwise-irreducible**; the self-test gains its **third direction**
+    (the bundling rule); the "ninth stone" subsection became **"The second-order tier — two stones about
+    who staffs the loop"** (#9 first seat = independence · **#10 incentive-divergence** second seat =
+    alignment); the L1 chart → **"The bedrock — ten forces"** (+ #10 node, `alignment` response, edge).
+    **Ch 12** restructured from a single stone to the **two-seat tier**: added the #10 treatment
+    (misaligned ≠ hostile #8 ≠ mistaken #4; willful vs proxy-gaming face; forces alignment), the
+    "neither judge nor trust" consequence, a fourth "engineered alignment" bullet, the threads-back +
+    takeaway, and a broadened **L4 "second-order tier"** chart (both failure paths → `declare` → erodes
+    reliable). **L0 circuit chart** + **Ch 2** ⟐ callout gained the #10 node/edge (two coral nodes now).
+    **Appendix A** glossary: ten stones + new entries (second-order tier · incentive-divergence ·
+    alignment · bundling rule; reflexivity re-scoped to "first seat"). **Appendix B** matrix: row 10.
+    **Appendix C**: parity → iter 35; road-ahead's done sync-item dropped, T11 forks promoted to #1. All
+    **21** design-doc charts validate; both viewers render clean, zero console errors. Design doc +
+    `HANDOFF.md` now at **full iter-35 parity**. Frontier unchanged: **T11's three promotion-forks**.
 
 ---
 
