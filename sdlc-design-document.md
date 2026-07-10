@@ -46,12 +46,15 @@ levels.
 | **L3** | Feature B — password reset, opened inward | The same shape where security forbids skipping | [Ch. 6](#6-the-fractal-one-shape-at-every-scale) |
 | **L3** | When the loop collapses | Which ceremony is reducible, and the two overrides | [Ch. 6](#6-the-fractal-one-shape-at-every-scale) |
 | **L2** | The lifecycle (process flow) | The familiar lifecycle, as a projection of the loop | [Ch. 7](#7-the-lifecycle-the-process-flow) |
+| **L3** | The schedule bet | How `plan` bets a date — and which half of the bet is gated | [Ch. 7](#7-the-lifecycle-the-process-flow) |
 | **L2** | The two repertoires | Cross-cutting responses: resilience vs. security | [Ch. 8](#8-the-two-repertoires-resilience-and-security) |
 | **L3** | Done propagation | How a target is set, inherited, and checked | [Ch. 9](#9-the-mechanism-of-done) |
 | **L3** | Design as a bet — stub-composition | How design states and cheaply tests its bet | [Ch. 9](#9-the-mechanism-of-done) |
 | **L3** | The premise-B lever | How one interface contract is tuned | [Ch. 9](#9-the-mechanism-of-done) |
 | **L2** | The artifacts | What each loop leaves behind, and why | [Ch. 10](#10-what-each-loop-leaves-behind-the-artifacts) |
+| **L3** | The change axis — regression & rollback | Stone #5's two organs: fixes stick, changes stay reversible | [Ch. 10](#10-what-each-loop-leaves-behind-the-artifacts) |
 | **L3** | Hard gate or graded target? | Which checks are non-negotiable | [Ch. 11](#11-hard-gates-versus-graded-targets) |
+| **L3** | The convergent law | One law, four instances: existence gated, fidelity graded | [Ch. 11](#11-hard-gates-versus-graded-targets) |
 | **L4** | Reflexivity — the autonomous regime | Why an autonomous loop cannot judge itself | [Ch. 12](#12-the-autonomous-agentic-sdlc) |
 
 > **The one-sentence thesis.** A reliable, predictable, resilient, and secure SDLC is not a
@@ -169,6 +172,12 @@ each guards against a *different* way the work can fail, and you can have any on
 - **Predictable** — *foreseeable.* Low variance; you can call the output and the timing in advance
   and plan around them. It guards against "I couldn't foresee it / couldn't plan around it." Produced
   by a loop that is **bounded** — it takes a knowable number of tries and then stops.
+
+> **"Predictable" has three faces, bought by three different mechanisms.** Boundedness buys only the
+> **cost** face — this piece of work stops within a known number of tries. The **outcome** face — you
+> can call *what* comes out of a seam — is bought by tight interface contracts (§9.2). And the
+> **schedule** face — you can call *when* the whole thing ships — is not a point-property at all but
+> an aggregate over the time axis, bought by its own mechanism: the **schedule bet** (§7.1).
 
 **Envelope-properties** are measured along a third axis — **how hard the context is × time.** They
 are the envelope that keeps the point-properties alive across the *whole range* of contexts, not just
@@ -482,7 +491,7 @@ defends nothing and the model flags it as ceremony.
 | **check** | **observe** | reality is uncertain (#6) | Run-time check: did reality match what we modelled? The loop's own sensor (telemetry). |
 | **reflect** | **analyze** | humans & models err (#4) | Frames and root-causes the gap. |
 | **reflect** | **decide** | unbounded vs. finite (#2) | Chooses: accept a known issue, or re-target. |
-| **repeat over time** | **version · integrate · regression-test** | reality keeps changing (#5) | Keeps the loop running as the target moves. |
+| **repeat over time** | **version · integrate · regression-test** | reality keeps changing (#5) | Keeps the loop running as the target moves. `regression-test` is not a standalone element — it is the forced **`reflect` → `verify` bridge**: a fixed failure's lesson compiled into an auto-firing check (§10.1). |
 
 ### Two planes: beats vs. elements
 
@@ -956,7 +965,7 @@ lifecycle as usually drawn. The dashed arrows are the *loops and feedback*, pres
 - **verify** feeds back to **design** — the *shift-left* edge: catching a defect late is exponentially
   more expensive than catching it early, so verification is a cross-cutting layer, not a step bolted on
   after build.
-- **operate** is a run-time loop: `observe ⇄ recover / degrade / escalate`.
+- **operate** is a run-time loop: `observe ⇄ recover / degrade / roll back / escalate`.
 - The whole thing closes: **operate → learn → evolve the target → back to discover.** This is the
   **Ouroboros** — the product loop that turns a one-shot lifecycle into a spiral that improves its own
   target over time.
@@ -965,6 +974,24 @@ lifecycle as usually drawn. The dashed arrows are the *loops and feedback*, pres
 after the abstract ones: by now you can see that each box is a beat, each dashed line is the loop
 reasserting itself, and the Ouroboros is the evolve edge from Chapter 1.
 
+**Not every box is the same kind of thing.** Reading nine stages as nine primitives double-counts.
+The projection is made of **four node-kinds**, and only the first is a stone-defended primitive:
+
+- **Control-elements** — discover/define, design, verify, and OPERATE's `observe`: the Chapter 5
+  roster, laid on the clock.
+- **The base act** — BUILD (`implement`). It defends no stone because it *is* the thing the stones
+  make hard: the **operand the loop controls** — the plant, not the controller. This is the one
+  *licensed exception* to Chapter 3's self-test, and naming the licence is what keeps that test sound
+  instead of flagging a false positive.
+- **A seam** — `release`, the hand-off from build-time to run-time. Not a new element: it is the
+  *transition* that the change-axis machinery governs (§10.1). **Regression** fires just before it
+  (at the verify/integrate gate); **rollback** stands just after it (the operate-side net). "Release
+  governance" is that pair, not a fresh primitive.
+- **A phase-loop and the Ouroboros** — OPERATE (observe plus the two repertoires, including
+  `roll back`) and evolve (`reflect` at product scale).
+
+One box is still unaccounted for by that list — **plan** — and it earns its seat a different way.
+
 > ▸ **Chart — "The lifecycle (process flow)"** · *L2 · lifecycle.* The forward flow in solid arrows;
 > the build loop, the operate loop, the shift-left edge, and the Ouroboros in dashed arrows.
 
@@ -972,8 +999,9 @@ reasserting itself, and the Ouroboros is the evolve edge from Chapter 1.
 {
   "title": "The lifecycle (process flow)",
   "level": "L2 · lifecycle",
-  "summary": "The everyday lifecycle as a projection of the loop: forward flow in solid arrows, the build loop / operate loop / shift-left / Ouroboros in dashed feedback edges.",
+  "summary": "The everyday lifecycle as a projection of the loop: forward flow in solid arrows, the build loop / operate loop (incl. roll back) / shift-left / Ouroboros in dashed feedback edges. Four node-kinds: control-elements, the base act (BUILD), the release seam, phase-loops.",
   "zoomOut": "The fractal — one shape, every scale",
+  "zoomIn": ["The schedule bet", "The change axis — regression & rollback"],
   "nodes": [
     {"id":"discover","label":"discover","group":"element","x":0,"y":0},
     {"id":"define","label":"define","group":"element","x":140,"y":0},
@@ -983,6 +1011,7 @@ reasserting itself, and the Ouroboros is the evolve edge from Chapter 1.
     {"id":"verify","label":"verify","group":"element","x":700,"y":0},
     {"id":"release","label":"release","group":"element","x":840,"y":0},
     {"id":"operate","label":"OPERATE","group":"beat","x":980,"y":0},
+    {"id":"rollback","label":"roll back","group":"repertoire","x":700,"y":135},
     {"id":"recover","label":"recover","group":"repertoire","x":840,"y":135},
     {"id":"degrade","label":"degrade","group":"repertoire","x":980,"y":135},
     {"id":"escalate","label":"escalate","group":"repertoire","x":1120,"y":135},
@@ -997,11 +1026,88 @@ reasserting itself, and the Ouroboros is the evolve edge from Chapter 1.
     {"source":"verify","target":"release"},
     {"source":"release","target":"operate"},
     {"source":"verify","target":"design","dashed":true,"label":"shift-left ↺"},
+    {"source":"operate","target":"rollback","dashed":true},
     {"source":"operate","target":"recover","dashed":true},
     {"source":"operate","target":"degrade","dashed":true},
     {"source":"operate","target":"escalate","dashed":true},
     {"source":"operate","target":"evolve","dashed":true,"label":"learn"},
     {"source":"evolve","target":"discover","dashed":true,"label":"evolve target ↺"}
+  ]
+}
+```
+
+### 7.1 A plan is a schedule bet
+
+The lifecycle chart has one box with no Chapter 5 element behind it: **plan**. It is not a missing
+element and not a new stone — it is `scope` + `specify` **projected onto the time axis**, exactly as
+the lifecycle itself is the elements projected onto wall-clock. And once you see that, the whole of
+Chapter 9's machinery re-runs on the calendar.
+
+Chapter 2 noted that "predictable" has three faces, and that boundedness and tight contracts buy only
+two of them. The third — *call when it ships* — is an **aggregate over the time axis**: no single
+loop's boundedness adds up to a delivery date by itself. The mechanism that buys it has the same shape
+as design's bet (§9.1), on a new axis. `plan` decomposes the deliverable *over time* — time-boxed
+tasks, milestone contracts — and asserts:
+
+> **(task₁ lands in slot t₁ ∧ … ∧ taskₙ lands in slot tₙ) ⟹ ship S by date D**
+
+— the same `(∧Lᵢ) ⟹ P` conjecture, cast on the calendar. Two identities fall out immediately:
+
+- **An estimate is the stub of a task** — the shape and duration kept, the work deleted.
+- **Critical-path / capacity feasibility is stub-composition on the time axis** — an a-priori,
+  one-sided check. It can prove a schedule *infeasible* (fails cheap → re-plan) or internally
+  consistent; it can never confirm delivery.
+
+The two suspended premises follow the same routes as design's: **Premise A** — *each estimate is
+real* — is discharged per-task at completion (verify-like, stone #4); **Premise B** — *the schedule
+holds across the whole space of futures* — leaves a residue only run-time velocity/slip tracking can
+catch (observe-like, stones #5/#6). A falsified schedule routes to **re-plan**, exactly as a falsified
+composition routes back to `design`.
+
+**Which half of the plan is gated.** The split anticipates the convergent law (§11.2):
+
+- The **written baseline's existence is a hard gate.** If "on time" was never recorded, a slip is
+  *undetectable* — the loop's own schedule-check is blind, which is the machinery-degrading amplifier
+  (Chapter 11), the same argument that gates the ADR.
+- The **dates themselves are a graded forecast.** Hard-gating a forecast invites Goodhart: scope and
+  quality get quietly cut to "hit the date." Content stays negotiable; existence does not.
+
+**Plan is to predictable what the ADR is to reliable** — the intended-operand the loop must write down
+so its own later comparison has something to compare against.
+
+> ▸ **Chart — "The schedule bet"** · *L3 · inside plan.* `plan` states the bet (task stubs +
+> the conjecture); a critical-path stub-composition fails cheap (→ re-plan) or survives, suspending
+> Premise A (per-task, verify-like) and Premise B (whole-future, observe-like). The baseline's
+> existence is gated; the dates stay a graded forecast.
+
+```pipeline-graph
+{
+  "title": "The schedule bet",
+  "level": "L3 · inside plan",
+  "summary": "plan = scope+specify projected onto the time axis: estimates are task stubs, critical-path feasibility is stub-composition on time, and the bet factors into Premise A (per-task) and Premise B (whole-future). Baseline existence is a hard gate; the dates are a graded forecast.",
+  "zoomOut": "The lifecycle (process flow)",
+  "zoomIn": ["The convergent law"],
+  "nodes": [
+    {"id":"plan","label":"plan · scope+specify on the time axis","group":"element","x":0,"y":120},
+    {"id":"tasks","label":"time-boxed tasks · estimate = the stub of a task","group":"property","x":310,"y":30},
+    {"id":"hyp","label":"bet: (∧ taskᵢ in slot tᵢ) ⟹ ship by D","group":"beat","x":310,"y":200},
+    {"id":"cpath","label":"critical-path check = stub-composition on time","group":"element","x":660,"y":120},
+    {"id":"replan","label":"infeasible → re-plan","group":"terminal","x":660,"y":280},
+    {"id":"premA","label":"Premise A · each estimate real → checked per task (verify-like)","group":"beat","x":1020,"y":50},
+    {"id":"premB","label":"Premise B · holds across futures → velocity/slip at OPERATE (observe-like)","group":"beat","x":1020,"y":200},
+    {"id":"baseline","label":"written baseline · existence = HARD GATE","group":"property","x":310,"y":330},
+    {"id":"dates","label":"the dates · a graded, Goodhartable forecast","group":"stone","x":660,"y":400}
+  ],
+  "edges": [
+    {"source":"plan","target":"tasks","member":true},
+    {"source":"plan","target":"hyp","member":true},
+    {"source":"hyp","target":"cpath","label":"stub it"},
+    {"source":"cpath","target":"replan","dashed":true,"label":"fails cheap ↺"},
+    {"source":"replan","target":"plan","dashed":true,"label":"re-plan"},
+    {"source":"cpath","target":"premA","dashed":true,"label":"suspends"},
+    {"source":"cpath","target":"premB","dashed":true,"label":"suspends"},
+    {"source":"plan","target":"baseline","member":true,"label":"its #7 artifact"},
+    {"source":"baseline","target":"dates","member":true,"label":"content"}
   ]
 }
 ```
@@ -1026,6 +1132,15 @@ because the statistical moves that beat randomness can be turned *against* you b
 | **degrade** | Fail partial, not total (graceful degradation). | Email provider down → queue the request and say "arriving shortly" instead of returning a 500. |
 | **recover** | Spares, replicas, retries so the function survives a failure (redundancy). | A second email provider takes over when the primary fails. |
 | **roll back** | Revert to the last known-good state. | A new template spikes bounce rates → redeploy the previous one. |
+
+**The repertoire's compact form.** The four responses are not four of a kind. **Escalate** is the one
+*structural up-exit* — it leaves the loop entirely, handing the problem to the parent loop and
+ultimately to a human. The other three are *in-place* trades for liveness, distinguished by what each
+**trades away**: `degrade` trades *completeness*, `recover` trades *spares* (redundancy), `roll back`
+trades *newness*. They also pair off by stone: `degrade`/`recover` answer **uncertainty** (#6 — the
+*context* pair), while `roll back` answers **change** (#5 — the *time* pair), whose build-time twin is
+the **regression test** (§10.1): rollback un-sticks a bad change at run time; regression keeps a good
+fix stuck at build time.
 
 ### The security repertoire — against a directed adversary (→ secure)
 
@@ -1378,6 +1493,7 @@ consumer**:
   "level": "L2 · persistence overlay",
   "summary": "Stone #7's per-beat carriers. Every loop's information must cross the time boundary (perishable → persist) and the agent boundary (distributed → make explicit); an artifact is the thing that crosses both.",
   "zoomOut": "The unit loop, fully staffed",
+  "zoomIn": ["The change axis — regression & rollback"],
   "nodes": [
     {"id":"define","label":"define","group":"beat","x":0,"y":0},
     {"id":"do","label":"do","group":"beat","x":0,"y":90},
@@ -1404,11 +1520,115 @@ consumer**:
     {"source":"a_version","target":"b_time","dashed":true,"label":"crosses"},
     {"source":"a_spec","target":"b_agent","dashed":true,"label":"crosses"},
     {"source":"a_runbook","target":"b_time","dashed":true},
-    {"source":"a_post","target":"b_agent","dashed":true},
-    {"source":"a_post","target":"b_time","dashed":true,"label":"sole channel (backward)"}
+    {"source":"a_post","target":"b_agent","dashed":true,"label":"ADR · sole channel (backward)"},
+    {"source":"a_post","target":"b_time","dashed":true,"label":"post-mortem · sole channel (backward)"}
   ]
 }
 ```
+
+### 10.1 The change axis: the regression ratchet and the rollback net
+
+Stone #5 — *reality keeps changing* — bites the over-time loop on **two faces**, and each face forces
+its own organ. Together they are the change-axis counterpart of the #6 pair (`degrade` / `recover`,
+Chapter 8).
+
+**Face 1 — change re-opens closed holes → the regression ratchet.** Every later change can silently
+re-introduce a failure the loop already paid to fix. Run the boundary-distance law on that fact: the
+fix's lesson must reach *every future iteration*, and a prose post-mortem is a **passive** memory —
+under continuous change it degrades to "re-derive, not remember." To fire automatically on every
+future pass, the lesson must be persisted **as a re-runnable check**: the post-mortem's *why* compiled
+into `verify`. That is what a **regression test** is — the *executable time-face of the
+reflect-artifact*, the forced bridge from `reflect` into `verify` — not a new element. And it
+**accumulates monotonically**: each fixed failure-class adds a guard, none is dropped. That ratchet is
+what makes fixes *stick* — the thing that turns the Ouroboros from a circle into a spiral. Its
+**existence is a hard gate** (deleting the loop's memory-of-fixes is machinery-degrading, Chapter 11);
+its **coverage is graded** (a Goodhartable proxy, like all coverage).
+
+**Face 2 — change lands on a live system → the rollback net.** A bad deploy or migration degrades a
+*currently-working* system, and the fault is in the new artifact itself — so the in-place #6 responses
+miss: redundancy just runs more copies of the bad version; degrading just serves less of the broken
+thing. The only restoring move is *backward in version-space*: **roll back** to the last known-good.
+It is forced jointly by change (#5 — the harm lands live), the a-posteriori residue (#6/#4 — build-time
+checks provably missed it), and perishability (#7 — a live system bleeds value every minute it is
+broken; the forward-fix is too slow to stop the bleed).
+
+**Rollback and the irreversibility amplifier are duals.** Chapter 11 *defines* the irreversible
+amplifier as damage that "escapes recover / roll back" — so **irreversibility is exactly the region
+beyond rollback's reach.** That duality closes cleanly:
+
+- Where rollback **reaches**, a bad outcome is recoverable, so `decide` keeps its discretion — the
+  change is a **graded** bet, because rollback has made `cost(error)` small (§6.4's insurance premium,
+  made cheap).
+- Where rollback's reach **ends** — a destructive migration, a leaked secret, a sent message, an
+  irreversible payment — the insurance has lapsed, `accept` is deleted, and the check becomes a
+  **hard gate discharged *before* execution**: a backup, a reversible-migration check, a staged
+  rollout, a confirmation.
+
+So rollback itself is a graded response, and **the hard gate falls at its limit**.
+
+**The inversion worth memorising.** The two organs point opposite ways along the same axis:
+**rollback keeps *changes* reversible; regression keeps *lessons* irreversible.** You want bad changes
+not to stick and good fixes not to un-stick. They also gate through *different* amplifiers — rollback's
+gate sits at its **limit** (irreversibility); regression's gate sits on its **existence** (machinery).
+A practical corollary: since rollback's reach *is* the graded region, the ideal loop **invests in
+widening the reversible envelope** — expand-contract migrations, feature flags, immutable deploys —
+because every seam brought inside the envelope converts a pre-execution gate back into a cheap,
+graded bet.
+
+**Where they fire.** Regression fires at **build time** — the verify/integrate gate just before
+`release`; rollback fires at **run time** — in OPERATE, just after it. The pair straddles the release
+seam (Chapter 7), which is exactly why "release governance" is not a new element: it *is* this
+machinery. And together the two organs buy `resilient` its **"over time"** clause: `degrade`/`recover`
+buy the *context* clause, while without the ratchet the envelope is only momentary — it leaks every
+time change re-opens an old hole.
+
+> ▸ **Chart — "The change axis — regression & rollback"** · *L3 · the time axis.* Stone #5's two
+> faces force two dual organs: the post-mortem compiled into an auto-firing, monotonically-accumulating
+> `verify` check (existence gated, coverage graded), and the backward move in version-space whose
+> reach defines the graded region (the gate falls at its limit).
+
+```pipeline-graph
+{
+  "title": "The change axis — regression & rollback",
+  "level": "L3 · the time axis",
+  "summary": "Stone #5 bites twice: change re-opens closed holes (→ the regression ratchet — the executable reflect-artifact; existence hard, coverage graded) and change lands on a live system (→ the rollback net — graded, with the hard gate at its irreversible limit).",
+  "zoomOut": "The artifacts",
+  "zoomIn": ["Hard gate or graded target?", "The convergent law"],
+  "nodes": [
+    {"id":"change","label":"stone #5 — reality keeps changing","group":"stone","x":430,"y":0},
+    {"id":"face1","label":"face 1 · change re-opens closed holes","group":"beat","x":110,"y":110},
+    {"id":"face2","label":"face 2 · change lands on a live system","group":"beat","x":760,"y":110},
+    {"id":"postmortem","label":"post-mortem (passive prose lesson)","group":"property","x":-60,"y":220},
+    {"id":"regression","label":"REGRESSION — the lesson compiled into verify","group":"element","x":250,"y":220},
+    {"id":"ratchet","label":"monotonic ratchet — fixes stick (circle → spiral)","group":"property","x":110,"y":330},
+    {"id":"gate1","label":"existence = hard gate · coverage = graded","group":"terminal","x":390,"y":330},
+    {"id":"rollback","label":"ROLLBACK — backward in version-space","group":"element","x":760,"y":220},
+    {"id":"limit","label":"its limit = the irreversible region (amplifier #2)","group":"stone","x":1090,"y":220},
+    {"id":"gate2","label":"inside reach: graded bet · at the limit: pre-execution hard gate","group":"terminal","x":900,"y":330},
+    {"id":"resilient","label":"resilient — the over-time clause","group":"property","x":560,"y":430}
+  ],
+  "edges": [
+    {"source":"change","target":"face1","member":true},
+    {"source":"change","target":"face2","member":true},
+    {"source":"face1","target":"regression"},
+    {"source":"postmortem","target":"regression","label":"compiled — the reflect → verify bridge"},
+    {"source":"regression","target":"ratchet","label":"accumulates"},
+    {"source":"regression","target":"gate1","dashed":true},
+    {"source":"face2","target":"rollback"},
+    {"source":"rollback","target":"limit","member":true,"label":"reach ends"},
+    {"source":"rollback","target":"gate2","dashed":true},
+    {"source":"ratchet","target":"resilient","label":"lessons stay irreversible"},
+    {"source":"rollback","target":"resilient","label":"changes stay reversible"}
+  ]
+}
+```
+
+> **⟐ Under autonomy.** Both organs are exactly what a cost-optimising executor is tempted to skip: a
+> "fix" landed without a regression guard un-sticks the lesson the moment the next change arrives, and
+> an action taken beyond rollback's reach without a pre-execution gate is a bet no one priced. An
+> autonomous pipeline should treat **rollback's reach as its permission boundary** — inside it, act and
+> iterate; beyond it, the gate (backup · staged rollout · confirmation) is not optional ceremony, it is
+> the machinery that keeps a wrong-but-confident action recoverable.
 
 ---
 
@@ -1448,6 +1668,7 @@ gaming; and a hard gate with *no* amplifier behind it is mis-typed. Non-compensa
   "level": "L3 · gating overlay",
   "summary": "A leaf becomes a non-waivable hard gate iff a single violation is non-local — via one of three amplifiers (adversarial, irreversible, machinery-degrading). Otherwise it stays a graded target.",
   "zoomOut": "The unit loop, fully staffed",
+  "zoomIn": ["The convergent law"],
   "nodes": [
     {"id":"leaf","label":"a candidate constraint (leaf check)","group":"beat","x":320,"y":0},
     {"id":"q","label":"is a single violation NON-LOCAL?","group":"terminal","x":320,"y":100},
@@ -1470,11 +1691,107 @@ gaming; and a hard gate with *no* amplifier behind it is mis-typed. Non-compensa
 }
 ```
 
+### 11.1 How much observability is enough? — the silent-failure gate
+
+Chapter 5 forced `observe` to **own a sensor at all** (the loop may not outsource detection to
+whoever gets hurt). But *how much* to instrument is a separate question, and it has a precise answer:
+**run the predictive rule above with one substitution — classify not "this path fails" but "this path
+fails *and emits nothing*."** A seam's instrumentation is a hard gate **iff its *silent* failure is
+non-local**, through the same three amplifiers:
+
+- **Irreversible seams.** An unseen loss *compounds while unseen* — detection latency is the only
+  thing bounding it, so the sensor is the sole lever between the first unit of loss and an unbounded
+  one.
+- **Adversarial seams.** A security-relevant signal — authentication, privileged action, a trust
+  boundary — inherits `secure`'s every-seam wall (§9.3): the blind spot *is* the attack surface.
+- **Machinery seams.** A path carrying the loop's *own* control signal — sensor health, gate firings,
+  escalation triggers. Its silent failure blinds the loop *to its own blindness*.
+
+Everything else stays **graded**: coverage in proportion to `P(silent failure) × cost`, collapsible to
+zero on a fully-modelled, reversible, local path (§6.4's collapse rule, applied to instrumentation).
+
+**Why telemetry never stops emitting while the ADR is written once.** The emission character of each
+forced artifact follows the *temporal type of the fact it carries*. The ADR carries a **static
+point-fact** — the design bet, true or false at one moment; capture it once and it holds forever. What
+telemetry carries is a **dynamic envelope-fact** — "does reality *still* match the model?" — which
+change and uncertainty (#5/#6) regenerate on every execution, at locations unknowable in advance
+(that is what *a-posteriori* means). So telemetry is forced to be **continuous and every-seam**: each
+un-instrumented path is a *standing* blind spot, re-exposed on every run. It wears `secure`'s
+every-seam *form* for a different *reason* — no hunter, just residue landing wherever you didn't
+model — which is why it stays graded across most seams and collapses to `secure`'s wholesale wall only
+at the adversarial ones.
+
+**Gate the per-seam binary; never gate the aggregate.** A coverage percentage is a Goodhartable proxy
+for the true target — "can we actually *detect the residue* when it surfaces?" — and the two come
+apart three ways: the signal can be *wrong* (a log that says "entered function," not "output correct
+for intent"), *unmonitored* (emitted, but nothing alerts — a log nobody reads is stone #7 again), or
+*drowned* (alert fatigue). Worse, gating "≥ 90% coverage" diverts effort to the *cheap* paths and
+starves exactly the residue-bearing seams the rule says to gate. So gates attach to **named seams** —
+"does seam *S* emit detector-grade signal σ?", a binary, deterministic fact — while the roll-up stays
+a graded target.
+
+### 11.2 The convergent law — existence is gated, fidelity is graded
+
+Four derivations in this document were run independently, and they all landed on the **same shape**:
+
+| Artifact | Serves | Its absence… | Its fidelity… |
+|---|---|---|---|
+| **ADR / post-mortem** (Ch. 10) | `reliable` — the loop can explain and not repeat | starves `analyze`, unfeeds evolve → **hard gate** | accuracy/depth — graded |
+| **Telemetry** (§11.1) | `observe` — the loop's senses | blinds the loop, outsources detection to the user → **hard gate** | coverage — graded, gated per-seam |
+| **Regression suite** (§10.1) | `resilient` — fixes stick over time | deletes the loop's memory-of-fixes → **hard gate** | coverage — graded |
+| **Plan baseline** (§7.1) | `predictable` — a slip is detectable | makes "late" undetectable → **hard gate** | the dates — a graded forecast |
+
+The law: **every forced artifact is existence-hard and fidelity-graded.** The intended-operand that
+`analyze` must later compare against has to **exist** — its absence doesn't lose one datum, it
+disables the loop's own correcting machinery, which is the machinery-degrading amplifier every time —
+but it need only be **as accurate as the residual risk warrants**, because fidelity is a Goodhartable
+proxy and hard-gating a proxy invites gaming (§11.1's coverage argument, §7.1's date argument).
+
+> **plan : predictable  ::  ADR : reliable  ::  regression : resilient  ::  telemetry : observe.**
+
+This is the cleanest one-line compression of Chapters 7–11: *what the loop must write down is
+non-negotiable; how well it writes it down is priced by risk.*
+
+> ▸ **Chart — "The convergent law"** · *L3 · one law, four instances.* Four independently-derived
+> artifacts, one shape: existence feeds the hard-gate band (absence is machinery-degrading); fidelity
+> feeds the graded band (a Goodhartable proxy, priced by residual risk).
+
+```pipeline-graph
+{
+  "title": "The convergent law",
+  "level": "L3 · one law, four instances",
+  "summary": "Every forced artifact is existence-hard, fidelity-graded: the ADR (reliable), telemetry (observe), the regression suite (resilient), and the plan baseline (predictable) must exist — absence is machinery-degrading — while their accuracy/coverage/content stays a graded, Goodhartable proxy.",
+  "zoomOut": "Hard gate or graded target?",
+  "zoomIn": ["Reflexivity — the autonomous regime"],
+  "nodes": [
+    {"id":"exist","label":"EXISTENCE — hard gate · absence blinds the loop's own machinery","group":"property","x":460,"y":0},
+    {"id":"adr","label":"ADR + post-mortem → reliable","group":"element","x":0,"y":150},
+    {"id":"telemetry","label":"telemetry → observe (the senses)","group":"element","x":320,"y":150},
+    {"id":"regression","label":"regression suite → resilient","group":"element","x":640,"y":150},
+    {"id":"plan","label":"plan baseline → predictable","group":"element","x":960,"y":150},
+    {"id":"fidelity","label":"FIDELITY / COVERAGE / CONTENT — graded, Goodhartable proxy","group":"stone","x":460,"y":300}
+  ],
+  "edges": [
+    {"source":"adr","target":"exist","label":"must exist"},
+    {"source":"telemetry","target":"exist","label":"must exist"},
+    {"source":"regression","target":"exist","label":"must exist"},
+    {"source":"plan","target":"exist","label":"must exist"},
+    {"source":"adr","target":"fidelity","dashed":true,"label":"accuracy"},
+    {"source":"telemetry","target":"fidelity","dashed":true,"label":"coverage (per-seam gates, §11.1)"},
+    {"source":"regression","target":"fidelity","dashed":true,"label":"coverage"},
+    {"source":"plan","target":"fidelity","dashed":true,"label":"the dates"}
+  ]
+}
+```
+
 > **⟐ Under autonomy.** Two of the hard gates the ideal SDLC insists on — a *written* reflect-artifact
 > (Chapter 10) and a real `observe` sensor of the loop's own (Chapter 5) — are gates precisely because
 > skipping them is *machinery-degrading*. An autonomous pipeline that skips them doesn't just lose a
 > document or a dashboard; it silently demotes `define → do → check → reflect` to `define → do → check`
-> — a loop that can *detect* failure but neither *explain* it nor *prevent its recurrence.*
+> — a loop that can *detect* failure but neither *explain* it nor *prevent its recurrence.* The
+> convergent law (§11.2) widens this to all four intended-operands — ADR, telemetry, regression suite,
+> plan baseline: a cost-optimising executor will be tempted to collapse exactly these four
+> existence-gates, and each one is machinery, not ceremony.
 
 ---
 
@@ -1586,7 +1903,10 @@ The autonomy callouts scattered through the earlier chapters are all facets of t
 - **Chapter 4** — the human **escape hatch** is the loop's only independent terminal; autonomy cuts it.
 - **Chapter 8** — the security repertoire's **red-team** move is also the independence-injection move.
 - **Chapter 11** — the **reflect-artifact** and **observe-sensor** gates matter more under autonomy,
-  because a self-checking loop that also skips its memory and senses has nothing left to catch it.
+  because a self-checking loop that also skips its memory and senses has nothing left to catch it. The
+  convergent law (§11.2) widens this to all four intended-operands — ADR, telemetry, regression suite,
+  plan baseline: the loop's memory, senses, ratchet, and clock. Those four existence-gates are what
+  keep an autonomous loop *auditable at all*.
 
 The one-line takeaway: **autonomy is not free; it removes the loop's independent ground, and an ideal
 autonomous SDLC is one that pays that cost back on purpose — with an outside terminal and engineered
@@ -1636,6 +1956,23 @@ Plain-language definitions of the recurring terms.
 - **Boundary-distance law.** The forced durability of an artifact scales with the distance between its
   producer and its consumer; `reflect`'s backward-feeding artifact is the extreme case (the sole
   channel).
+- **Base act.** `implement` (with `release` as its seam-analogue): the operand the loop controls — the
+  plant, not the controller. It defends no stone by design; the one *licensed exception* to the
+  Chapter 3 self-test (§7).
+- **Schedule bet.** `plan`'s conjecture that if every task lands in its slot, the whole ships by the
+  date — `scope`+`specify` projected onto the time axis. An estimate is the stub of a task;
+  critical-path feasibility is stub-composition on time. Baseline existence gated; dates graded (§7.1).
+- **Regression ratchet.** The monotonically-accumulating suite of re-runnable checks compiled from
+  fixed failures — the executable time-face of the reflect-artifact, the forced `reflect` → `verify`
+  bridge (§10.1). Existence gated; coverage graded.
+- **Reversible envelope (rollback's reach).** The region of version-space `roll back` can restore.
+  Irreversibility ≡ beyond it; hard gates fall at its limit, and widening the envelope converts
+  pre-execution gates back into graded bets (§10.1).
+- **Silent failure.** A path that fails *and emits no telemetry* — the unit the observability gate rule
+  classifies (§11.1). Gate the per-seam binary signal; never gate the aggregate coverage %.
+- **Convergent law (existence-hard, fidelity-graded).** Every forced artifact must *exist* (hard gate —
+  absence is machinery-degrading) while its fidelity / coverage / content stays a graded, Goodhartable
+  proxy (§11.2). plan : predictable :: ADR : reliable :: regression : resilient :: telemetry : observe.
 - **Reflexivity.** The second-order, autonomous-only stone: an agent-staffed checker shares the doer's
   correlated blind spot, so its checks add no information unless independence is injected (Chapter 12).
 - **Independence.** The property — across checkers — that lets stacked checks drive error toward zero.
@@ -1653,25 +1990,63 @@ One table, the whole causal skeleton.
 | 2 | unbounded vs. finite | `scope`, `decide` | predictable |
 | 3 | complexity > one step | `design` (decompose + composition hypothesis) | all four, at every seam |
 | 4 | humans & models err | `verify`, `analyze` | reliable |
-| 5 | reality keeps changing | version / integrate / regression; `roll back` | resilient |
+| 5 | reality keeps changing | the **regression ratchet** (the `reflect`→`verify` bridge; existence gated) + **`roll back`** (graded, gate at its limit) — §10.1; version / integrate | resilient — the *over-time* clause |
 | 6 | reality is uncertain | `observe` (telemetry); `degrade`, `recover` | resilient |
 | 7 | knowledge distributed & perishable | **artifacts** (persist + make explicit) | all four (carries every loop's output) |
 | 8 | adversarial actors | security repertoire (authn/authz, sanitize, harden, red-team) | secure |
 | 9 | reflexivity *(autonomous only)* | independence-seeking (external terminal, adversarial/diverse review) | protects reliable |
 
-## Appendix C — Provenance and status
+> Three lifecycle boxes are deliberately **not** rows. `plan` is `scope`+`specify` projected onto the
+> time axis (§7.1) and `release` is the build→operate seam whose governance *is* the stone-#5 machinery
+> (§10.1) — projections and seams, not stone-responses. `implement` is the **base act** — the operand
+> the loop controls — the one licensed exception to the self-test (§7).
+
+## Appendix C — Provenance, status, and the road ahead
 
 - **Status.** This document presents the **ideal MUST-HAVE** design: what *any* reliable, predictable,
   resilient, and secure SDLC is logically forced to contain. It deliberately does **not** audit any
   particular real-world setup against the ideal — that is a separate exercise, kept out so the ideal
   stays uncontaminated.
+- **Parity.** Synced to canvas **iteration 33** (revision of 2026-07-10). That sync added §7.1 (the
+  schedule bet), the four node-kinds in Chapter 7, §10.1 (the change axis), §11.1 (the silent-failure
+  gate), §11.2 (the convergent law), and the compact form of the repertoires in Chapter 8.
 - **Source of the derivation.** Every claim here is derived, step by step, in the companion working file
   [`sdlc-first-principles-canvas.md`](sdlc-first-principles-canvas.md), which also holds the audit trail
-  — the Socratic question-and-answer history, the iteration log, and the still-open research tracks
-  (for example: the precise boundary between a graded proxy and a hard gate; the regression/rollback
-  machinery for the change axis; whether "second-order" is a distinct *class* of stone worth
-  formalising). When you want to know *why* a piece is shaped the way it is, or *how* we got here, read
-  the canvas; when you want to *understand the design*, read this.
+  — the Socratic question-and-answer history, the iteration log, and the open-tracks register (§11
+  there), which is the authoritative list of what remains. When you want to know *why* a piece is
+  shaped the way it is, or *how* we got here, read the canvas; when you want to *understand the
+  design*, read this.
 - **The charts are regenerable.** Every chart on this page is a fenced `pipeline-graph` block in this
   file. Edit the block (or drag nodes in the viewer and use **Export**) and the picture updates — the
   visuals never drift from the text.
+
+### The road ahead
+
+The derivation is **substantively complete**: four properties, nine stones, a fully-staffed loop with
+both base cases, two repertoires, the mechanism of Done, the artifact laws, the gate calculus, and the
+convergent law that ties them together. What remains is deliberately small, and it is a *decision
+queue*, not a backlog of unfinished chapters — in order:
+
+1. **The bedrock pressure-test** *(canvas track T6 — the one open derivation track; a drafted
+   derivation exists and is held for an explicit go).* Three sub-questions: is any of the nine stones
+   *reducible* to another? are there further stone candidates (*incentives*; *cost-asymmetry*)? and
+   should "second-order" — facts about the *solver*, like reflexivity — be formalised as a distinct
+   class of stone? Folding this in may renumber the bedrock, which is why it waits for a deliberate
+   decision rather than being merged by default.
+2. **Three observability promotion-forks** *(canvas T11, from §11.1 here).* (a) Does the sensor's
+   status as an adversarial *target* force a distinct tamper-evidence / append-only MUST-HAVE, or does
+   it simply inherit `secure`'s wall? (b) Is "emission character follows the carried fact's temporal
+   type" a forced law or a good analogy? (c) Does the graded/gated frame stay stable if "#6 is absent
+   here" is itself not knowable a-priori?
+3. **The general gate-vs-graded seam rule** *(canvas T2's light residue).* "Gate the per-seam binary,
+   grade the aggregate" settled it for observability; the fully general, cross-domain classification
+   rule is the remaining thread.
+4. **Beyond the ideal — the audit** *(descoped by design, and the natural next project).* Mapping a
+   *concrete* stack against this ideal: which of its rules are mis-typed gates (graded proxies
+   masquerading as gates, or gates with no amplifier behind them), which stones it leaves undefended,
+   and where its ceremony is collapsible. Kept out of this document on purpose; once the frontier
+   above closes, it is the obvious application.
+
+**Maintenance rule.** The canvas is where derivation continues; this document is regenerated from it
+whenever the model advances. If the two ever disagree, the canvas wins on *reasoning* and this
+document wins on *presentation* — and the disagreement itself is a sync task.

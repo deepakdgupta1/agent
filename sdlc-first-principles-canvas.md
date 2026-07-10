@@ -5,8 +5,8 @@
 > SDLC, and why every piece is logically required.* It is written so the whole journey can
 > be resumed from this file alone, with a fresh/cleared context.
 
-- **Last updated:** iteration 32 (**backported design-doc Ch 6.4 → the inward base case / reducibility law, §10.7**): a beat responds to a stone (§3), so where the stone is absent for a node it adds **zero information** and the inner loop **collapses toward bare `do`** — the inward dual of §10's outward termination; the collapse is itself a `decide` (ceremony = insurance, premium ∝ `P(error)×cost(error)`, §10.2/§10.7), with two overrides that delete `accept` — **hard gate** (§10.4) and **non-convergence** (§4). Advances **T2** (graded ⇒ collapsible · gated ⇒ non-waivable). Frontier: **between tracks** — T2 advanced; next is the user's pick (T3 · T6 · T11). **Prior — iteration 31 (T5 closed → conditional second-order 9th stone: reflexivity, §3 #9):** A check is only worth the **information** it adds beyond the doer's own belief, so a checker whose errors are **correlated** with the doer's is an **echo-chamber** (zero bits; `verify` collapses into *declare*). The property at stake is **independence** — what lets stacked checks drive error → 0 (→ `reliable`); reflexivity is the brute fact that independence is **never total** (a common-mode floor; even formal proof only relocates the blind spot to the spec). **Irreducible to #4** (marginal error vs the *joint* correlated-error fact). Flagged **second-order** (a fact about the *solver*, not the task) and **conditional** — it bites only in the **automated autonomous multi-agent** pipeline: with a human escape-hatch (§4/§5) reflexivity is bounded; remove the human and independence at the terminal → 0, so **an autonomous loop cannot be its own ground truth.** Forces independence-seeking (non-removable external/human terminal · adversarial review — §6 `red-team`, double-duty with #8). Rippled through §2/§3/§4/§5/§6/§8 (+ circuit diagram)/§12. **Partly closes T6.** Frontier: **between tracks** — user picks next. *(Prior: iter 30 closed T4 §10.6; iter 29 closed T1 §10.5.)*
-- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 stones + a conditional 2nd-order 9th (reflexivity, autonomous case — §3 #9)**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **T3/T7/T8/T11 closed (iter 33 → §10.8/§10.9/§10.10) + the *existence-hard / fidelity-graded* convergent law (§12); T9 folded.** Next: **T6 (bedrock pressure-test) — a sub-agent derivation draft is ready, held for the user's decision**; janitorial T10 (artifacts / rollback-node diagram).
+- **Last updated:** iteration 34 (**documentation-parity pass — no derivation advanced**): synced the **design doc** to iteration 33 — new Ch 7 four node-kinds + **§7.1 a plan is a schedule bet**, **§10.1 the change axis** (regression ratchet + rollback net), **§11.1 the silent-failure gate**, **§11.2 the convergent law**, Ch 8 repertoire compact form, three new charts, glossary/matrix refreshed, and its Appendix C now carries the explicit **road ahead**. Refreshed `HANDOFF.md` (was stale at iter 31). **Closed janitorial T10**: the process-flow chart gains the `roll back` node (matching §7 prose) and the artifacts chart now draws `reflect`'s two backward sole-channel edges (ADR → a later root-causer · post-mortem → the next `define`) crossing both #7 boundaries — the §9 boundary-distance law made visible. Frontier **unchanged**: **T6 (bedrock pressure-test) held for the user's decision**, then the T11 forks · T2 residue — the ordered roadmap now heads §11. *(Prior: iter 33 — parallel sub-agent fold-in closed **T3/T7/T8/T11** + folded T9, adding §10.8/§10.9/§10.10 and the **existence-hard / fidelity-graded** convergent law; iter 32 — §10.7 inward base case; iter 31 — stone #9 reflexivity, §3. Full trail: §13.)*
+- **Status:** canvas = **ideal MUST-HAVE** derivation (concrete-setup audit descoped, iteration 28). Apex **four properties** (reliable · predictable · resilient · secure); behaviour→property map complete (**preempts→secure**); `secure` recurses every seam (§10.3); hard gate = non-compensatory leaf, 3 amplifiers (§10.4); **`reflect` = forced-MUST-HAVE beat / only *backward* channel (§10.5)**; **`observe` = forced sensor; telemetry = detector + analyze-operand, graded-with-gates (§10.6)**; bedrock **8 stones + a conditional 2nd-order 9th (reflexivity, autonomous case — §3 #9)**; artifacts (§9, + boundary-distance law); Done / design-as-a-bet / two bars (§10–§10.2). **All open work: §11 Open-tracks register.** Active: **T3/T7/T8/T11 closed (iter 33 → §10.8/§10.9/§10.10) + the *existence-hard / fidelity-graded* convergent law (§12); T9 folded.** Next: **T6 (bedrock pressure-test) — a sub-agent derivation draft is ready, held for the user's decision**; then the T11 promotion-forks · T2's general-seam residue. **T10 closed (iter 34).** Docs: design doc + `HANDOFF.md` at **iteration-33 parity** (iter 34).
 
 ---
 
@@ -914,8 +914,22 @@ _Active frontier_
   lifecycle-projection + plan-as-schedule-bet); folded **T9**; surfaced the **existence-hard / fidelity-graded**
   convergent law (§12). **Active frontier now → T6 (bedrock pressure-test):** a full derivation draft is ready
   (sub-agent, iteration 33) and is **held for the user's decision** — the one track deliberately *not* folded
-  in, because it would renumber the bedrock and formalize a 'second-order' stone class. Remaining janitorial:
-  **T10** (artifacts / rollback-node diagram).
+  in, because it would renumber the bedrock and formalize a 'second-order' stone class. **· Iteration 34
+  (documentation-parity pass — no derivation advanced):** design doc synced to iter 33 (Ch 7 node-kinds +
+  §7.1 schedule bet · §10.1 change axis · §11.1 silent-failure gate · §11.2 convergent law · Appendix C
+  road-ahead), `HANDOFF.md` refreshed, **T10 closed** (both diagram fixes landed).
+  **ROADMAP — in decision order:**
+  1. **T6** — decide on the held bedrock pressure-test draft (fold in / rework / drop): is any stone
+     reducible? further candidates (*incentives* · *cost-asymmetry*)? formalize the **second-order class**?
+     (Renumbers the bedrock if folded — hence held.)
+  2. **T11 forks** (three candidate promotions): (a) tamper-evident / append-only sensor — forced or
+     inherited from §10.3? (b) emission-character ≙ temporal-type — law or analogy? (c) is graded/gated
+     stable if "#6-absent" is unknowable a-priori?
+  3. **T2 residue** — the fully-general, cross-domain gate-vs-graded seam rule (settled for observability
+     by §10.9's *gate-the-binary / grade-the-aggregate*).
+  4. **Beyond the ideal** — the descoped concrete-setup audit (map a real stack: mis-typed gates ·
+     undefended stones · collapsible ceremony), a **separate exercise** and the natural next project once
+     1–3 close.
 
 _Open derivation frontiers_
 - **T2 · Proxy-leaves: graded by default, gated only at non-compensatory seams** *(open; ex-G1,
@@ -936,9 +950,6 @@ classification remains the light residue.
   ideal **over-time** loop MUST-HAVE an explicit **regression-suite** (catch re-introduced defects) and
   **rollback** (revert to known-good), and are they **hard gates** (via the irreversibility amplifier?)
   or graded? [§6 resilience repertoire; §7 OPERATE; folds in janitorial T9.]
-- **T4 · Observability as a first-class sensor** → **moved to _Active frontier_ (above), iteration 29.**
-- **T5 · Reflexivity — the reflexive-executor / circular-verifier** → **moved to _Active frontier_
-  (above), iteration 30.**
 - **T6 · Bedrock pressure-test** *(open; partly done iter-23 & iter-31)*. Is any stone **reducible** to
   another? The **9th** sub-question is now **answered** — reflexivity was admitted as a *conditional
   second-order* stone #9 (T5, §3, iter-31). Still open: is any stone reducible; are there **further**
@@ -969,13 +980,13 @@ _Structural backlog (external-review R-series; resolved ones dropped)_
   schedule bet.** [Pairs with T7.]
 - **T9 · R3 · resilience-repertoire formula cleanup** *(**done — iter 33, folded into §10.8**)*. Compact form — escalate = the
   structural up-exit; degrade / recover / roll back = in-place; add rollback to §7 OPERATE. [Folds into T3.]
-- **T10 · R7 · artifacts diagram under-draws crossings** *(janitorial → upgraded, iteration 29)*. No
-  longer just "draw both crossings" — there is now a **law to show**: an artifact's *forced* durability
-  scales with **producer→consumer boundary-distance** (§9/§10.5). Forward-adjacent beats hand off *live*
-  (artifact = insurance); `reflect` feeds **backward**, so its artifact is the **sole channel**. The
-  diagram should draw reflect's two backward edges (**ADR** → a later root-causer = agent-face;
-  **post-mortem** → the next `define` = time-face) visibly crossing **both** boundaries, while forward
-  edges stay in-iteration.
+- **T10 · R7 · artifacts diagram under-draws crossings** *(**closed — iter 34**; janitorial, upgraded
+  iteration 29)*. **Done, both halves:** the artifacts chart now draws `reflect`'s two backward edges
+  (**ADR** → *a later root-causer* = agent-face; **post-mortem** → *next iteration's define* = time-face)
+  visibly crossing **both** #7 boundaries to explicit consumer nodes — with a forward edge relabelled
+  *insures* — making the §9/§10.5 boundary-distance law the picture's point; and the process-flow chart
+  gained the missing **`roll back`** node in OPERATE (§10.8's station). Design-doc charts synced the same
+  way.
 
 _Descoped (iteration 28)_
 - **Map-model-onto-a-concrete-setup** — *removed by decision.* This canvas is the **ideal**; auditing a
@@ -983,7 +994,7 @@ _Descoped (iteration 28)_
   kept out so the ideal is not entangled with what a given setup already has or lacks. Its still-useful
   *general* residue survives as **T2 / T3 / T4**.
 
-_Closed (for the record)_ — **T3 (change-axis regression+rollback → §10.8, iter 33)** · **T7/T8
+_Closed (for the record)_ — **T10 (artifacts / rollback-node diagrams → iter 34)** · **T3 (change-axis regression+rollback → §10.8, iter 33)** · **T7/T8
 (lifecycle-projection + plan-as-schedule-bet → §10.10, iter 33)** · **T9 (repertoire compact form → folded
 into §10.8, iter 33)** · **T11 (observability silent-failure gate → §10.9, iter 33; promotion-forks open)** ·
 **T5 (reflexivity → conditional 2nd-order stone #9, §3, iter 31)** · **T4
@@ -1415,6 +1426,22 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     +rollback & projection note, §3 base-act exception, §2 predictable caveat, §6 repertoire note, §11
     (T3/T7/T8/T9 → Closed, T11 → Closed w/ forks, T2 sharpened, frontier → **T6 held** + janitorial T10),
     header. Frontier: **T6 (bedrock pressure-test) — derived draft ready, awaiting the user's call.**
+34. **Documentation-parity pass (no derivation advanced).** Deep scrutiny found the doc set lagging the
+    model: design doc at iter-32 parity (missing all of iter 33), HANDOFF at iter-31, canvas header stale
+    ("iteration 32" lead over an iter-33 status line), and T10's two diagram gaps. Synced the **design
+    doc** to iteration 33: Ch 2 three-faces-of-predictable note; Ch 5 regression-bridge note; Ch 7 four
+    node-kinds + **§7.1 a plan is a schedule bet** (+ "The schedule bet" chart) + `roll back` in the
+    lifecycle chart; Ch 8 repertoire compact form; **§10.1 the change axis** (+ chart) + sole-channel edge
+    labels on the artifacts chart; **§11.1 the silent-failure gate**; **§11.2 the convergent law** (+
+    chart, incl. the four-instance table); Ch 12 threads-back + glossary + stones-matrix (plan/release/
+    implement footnote) updated; Appendix C → **"Provenance, status, and the road ahead"** with the
+    ordered roadmap. **Closed T10** in this canvas: process-flow chart gains `roll back` (OPERATE);
+    artifacts chart redrawn per the boundary-distance law (reflect-output's two backward sole-channel
+    edges → explicit consumers *a later root-causer* / *next iteration's define*; forward spec edge
+    relabelled *insures*). Refreshed `HANDOFF.md` (file map now lists the design doc + `sdlc-design.html`
+    + the `design` launch config; §8 rewritten to iter-34 state + roadmap). Fixed the header lead.
+    **Roadmap consolidated at the head of §11** (T6 decision → T11 forks → T2 residue → the descoped
+    audit). Frontier unchanged: **T6 held for the user.**
 
 ---
 
@@ -1572,6 +1599,7 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     {"id":"verify","label":"verify","group":"element","x":700,"y":0},
     {"id":"release","label":"release","group":"element","x":840,"y":0},
     {"id":"operate","label":"OPERATE","group":"beat","x":980,"y":0},
+    {"id":"rollback","label":"roll back","group":"repertoire","x":700,"y":135},
     {"id":"recover","label":"recover","group":"repertoire","x":840,"y":135},
     {"id":"degrade","label":"degrade","group":"repertoire","x":980,"y":135},
     {"id":"escalate","label":"escalate","group":"repertoire","x":1120,"y":135},
@@ -1586,6 +1614,7 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     {"source":"verify","target":"release"},
     {"source":"release","target":"operate"},
     {"source":"verify","target":"design","dashed":true,"label":"shift-left ↺"},
+    {"source":"operate","target":"rollback","dashed":true},
     {"source":"operate","target":"recover","dashed":true},
     {"source":"operate","target":"degrade","dashed":true},
     {"source":"operate","target":"escalate","dashed":true},
@@ -1596,6 +1625,8 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
 ```
 
 **The artifacts** — stone #7's per-beat carriers, each crossing the *time* and *agent* boundaries (§9).
+Forward artifacts *insure* a live hand-off; `reflect`'s two backward edges are the **sole channel** —
+the boundary-distance law at its extreme (§9/§10.5; T10, closed iter 34).
 
 ```pipeline-graph
 {
@@ -1610,11 +1641,13 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     {"id":"a_spec","label":"spec / target doc","group":"property","x":300,"y":0},
     {"id":"a_code","label":"code","group":"property","x":300,"y":90},
     {"id":"a_tests","label":"tests + telemetry","group":"property","x":300,"y":180},
-    {"id":"a_post","label":"postmortem / ADR","group":"property","x":300,"y":270},
+    {"id":"a_post","label":"reflect-output · ADR + post-mortem","group":"property","x":300,"y":270},
     {"id":"a_version","label":"version history","group":"property","x":300,"y":360},
     {"id":"a_runbook","label":"runbooks","group":"property","x":300,"y":450},
     {"id":"b_time","label":"TIME → persist","group":"stone","x":620,"y":135},
-    {"id":"b_agent","label":"AGENT → make explicit","group":"stone","x":620,"y":315}
+    {"id":"b_agent","label":"AGENT → make explicit","group":"stone","x":620,"y":315},
+    {"id":"c_next","label":"next iteration's define (evolve feed)","group":"element","x":950,"y":135},
+    {"id":"c_root","label":"a later root-causer (analyze's operand)","group":"element","x":950,"y":315}
   ],
   "edges": [
     {"source":"define","target":"a_spec","label":"produces"},
@@ -1624,9 +1657,12 @@ seam" (§10.3) · "is secure the only non-gradable property" (§10.4). Full hist
     {"source":"overtime","target":"a_version","label":"produces"},
     {"source":"repertoire","target":"a_runbook","label":"produces"},
     {"source":"a_version","target":"b_time","dashed":true,"label":"crosses"},
-    {"source":"a_spec","target":"b_agent","dashed":true,"label":"crosses"},
+    {"source":"a_spec","target":"b_agent","dashed":true,"label":"insures — forward hand-off is live"},
     {"source":"a_runbook","target":"b_time","dashed":true},
-    {"source":"a_post","target":"b_agent","dashed":true}
+    {"source":"a_post","target":"b_agent","dashed":true,"label":"ADR · sole channel"},
+    {"source":"a_post","target":"b_time","dashed":true,"label":"post-mortem · sole channel"},
+    {"source":"b_agent","target":"c_root","dashed":true,"label":"crosses AGENT →"},
+    {"source":"b_time","target":"c_next","dashed":true,"label":"crosses TIME →"}
   ]
 }
 ```

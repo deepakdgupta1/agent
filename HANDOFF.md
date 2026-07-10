@@ -23,9 +23,11 @@ source-of-truth file.
 
 | path | role |
 |---|---|
-| `sdlc-first-principles-canvas.md` | **source of truth** — model, resume instructions, log, embedded diagram data |
-| `index.html` | the website — renders the markdown live, turns diagram blocks into editable canvases |
-| `.claude/launch.json` | preview server config — the **`canvas`** entry serves the folder on port 4321 |
+| `sdlc-first-principles-canvas.md` | **source of truth for *reasoning*** — model, resume instructions, open-tracks register (§11), log, embedded diagram data |
+| `sdlc-design-document.md` | **source of truth for *understanding*** — the clean design snapshot (what/why/how prose, 21 inline charts, glossary, roadmap in Appendix C); regenerated from the canvas when the model advances. Currently at **iteration-33 parity** |
+| `index.html` | the canvas viewer — renders the canvas markdown live, hoists diagram blocks into one tabbed editable panel |
+| `sdlc-design.html` | the design doc's own viewer — charts inline in context, zoom-in/out chips, floating chart ladder |
+| `.claude/launch.json` | preview server configs — **`canvas`** on port 4321, **`design`** on port 4330; either serves the whole folder, so both pages are reachable from either port |
 | `HANDOFF.md` | this file |
 
 ## 3. Run the website (localhost only)
@@ -33,9 +35,11 @@ source-of-truth file.
 The page **must be served over http** (it `fetch()`es the markdown; `file://` is blocked).
 
 - **In Claude Code:** `preview_start` with name **`canvas`** (already in `.claude/launch.json`),
-  then open the preview. It runs `python3 -m http.server 4321` at the repo root.
+  then open the preview. It runs `python3 -m http.server 4321` at the repo root. Use name
+  **`design`** (port 4330) for the design-doc viewer — or just open `/sdlc-design.html` on
+  either port.
 - **Manually:** from the repo root, `python3 -m http.server 4321` → open
-  `http://localhost:4321`.
+  `http://localhost:4321` (canvas) or `http://localhost:4321/sdlc-design.html` (design doc).
 
 ## 4. What the website does
 
@@ -99,8 +103,18 @@ properties** in two families — **point** (at one context): reliable (loop *con
 adversary #8). An **evolve** feedback re-targets the whole thing (the Ouroboros). Stone #7 forces
 **artifacts** — the persistent, explicit carriers of a loop's target/result/lesson across the *time*
 and *agent* boundaries. A rule is a **hard gate** (non-waivable) iff a single violation is **non-local**
-(adversary-amplified · irreversible · machinery-degrading); else it is a **graded target** (§10.4). Full
-derivation is in the canvas file.
+(adversary-amplified · irreversible · machinery-degrading); else it is a **graded target** (§10.4).
+
+The later layer (iters 29–33): `reflect`'s artifact is the loop's only *backward* channel (forced hard
+gate, §10.5); `observe` must own a real sensor — telemetry = detector + `analyze`'s actual operand
+(§10.6); ceremony is **proportional insurance** — a beat collapses toward bare `do` where its stone is
+absent, except at gates (§10.7); stone #5 forces the **regression ratchet** (lessons compiled into
+auto-firing checks; existence-gated) and **rollback** (graded, with the hard gate at its irreversible
+*limit*) (§10.8); observability **gates the per-seam binary on silent failure and grades the aggregate**
+(§10.9); the lifecycle is a **projection** — `implement` = base act, `release` = seam — and **a plan is
+a schedule bet** (existence-gated baseline, graded dates) (§10.10). Capstone — the **convergent law**:
+every forced artifact is **existence-hard, fidelity-graded** — *plan : predictable :: ADR : reliable ::
+regression : resilient :: telemetry : observe* (§12). Full derivation is in the canvas file.
 
 ## 7. Method — DO NOT BREAK IT
 
@@ -118,60 +132,39 @@ current setup — auditing a concrete stack against the ideal was **descoped** o
 stays uncontaminated by what a given setup already has or lacks. (The general residue of that dropped
 thread survives as open tracks T2/T3/T4.)
 
-**Done (recent arc, iterations 19–31):** **stone #9 `reflexivity`** (**§3**, T5 closed — a *conditional
-second-order* stone for the autonomous multi-agent case: a correlated checker is an echo-chamber, so an
-autonomous loop can't be its own ground truth); `observe` as the forced sensor (**§10.6**, T4 closed — telemetry
-= detector + `analyze`-operand; graded coverage, gated only at non-compensatory seams; **T1 = memory / T4
-= senses**); `reflect` as the forced-MUST-HAVE beat (**§10.5**, T1 closed — its artifact is the loop's
-only *backward* channel; unwritten ⇒ machinery-degrading ⇒ hard gate); the mechanism of Done (canvas
-**§10**); design-as-a-bet +
-stub-composition (**§10.1**, **R2 closed**); the premise-B lever / two quality bars (**§10.2**); the
-**4th apex property `secure`** (**§2** — the envelope *sibling* of `resilient`: resilient guards against
-*random* hardness #5/#6, secure against a *directed* adversary #8); its loop-behaviour **`preempts`**
-(**§4/§8**); its **every-seam recursion** as the forbidden-output wall (**§10.3**); and the **hard-gate =
-non-compensatory-leaf** law + three amplifiers + predictive rule (**§10.4**). Bedrock is **8 stones + a conditional 2nd-order 9th (reflexivity, autonomous case — §3 #9)**;
-the apex is now **four properties**; the behaviour→property map is complete; the living website still
-renders the diagrams live.
+**State (iteration 34, 2026-07-10) — the ideal MUST-HAVE derivation is substantively complete.**
 
-**T1 closed (iteration 29) — `reflect` is the forced-MUST-HAVE beat; see canvas §10.5.** Running the
-artifact-*absence* trace in the two directions `reflect` feeds settled it: *within-loop* (the **agent**
-face) a green-leaves composite (§10) can't be root-caused once the composition hypothesis (§10.1) is
-unwritten → `analyze` **starved** → `reflect` collapses into `check`; *next-loop* (the **time** face) no
-post-mortem → the Ouroboros **evolve** edge is **unfed** → the failure-class recurs and the loop can't
-raise its floor. Both are **one transient reflect-output failure through the two faces of stone #7**
-(agent = ADR, time = post-mortem) — so the reflect-artifact is **machinery-degrading if unwritten (§10.4)
-→ a forced hard gate**, confirming the working hypothesis. General law folded out: an artifact's *forced*
-durability scales with **producer→consumer boundary-distance** (§9/§12) — `reflect`, the only
-backward-feeding beat, is the extreme case where the artifact is the **sole channel**, not insurance.
+- **Apex:** four properties in two families (reliable · predictable · resilient · secure);
+  behaviour→property map complete (converges · bounded · nests-&-escalates · preempts).
+- **Bedrock:** 8 first-order stones + a conditional second-order **#9 reflexivity** (autonomous case);
+  the §3 self-test is sound, with one licensed exception (`implement`/`release` — base act & seam).
+- **Mechanism layer, all derived (canvas §10.1–§10.10):** design-as-a-bet · premise-B lever ·
+  secure-at-every-seam · hard-gate calculus (3 amplifiers) · `reflect` forced (§10.5) · `observe`
+  forced (§10.6) · inward base case (§10.7) · change-axis regression + rollback (§10.8) ·
+  observability silent-failure gate (§10.9) · lifecycle-projection + plan-as-schedule-bet (§10.10).
+- **Capstone:** the **convergent law** — every forced artifact is *existence-hard, fidelity-graded*
+  (plan : predictable :: ADR : reliable :: regression : resilient :: telemetry : observe).
+- **Docs:** `sdlc-design-document.md` and this file are at **iteration-33 parity** (synced iter 34);
+  janitorial **T10** (diagram fixes) is closed. Track history T1–T11: eight closed, one held, two
+  residues — details in canvas §11/§13.
 
-**T4 closed (iteration 30) — `observe` is the forced sensor; see canvas §10.6.** Pressing the T1 coupling
-held with a twist: telemetry is `analyze`'s *actual* operand **and** `observe`'s detector, so its absence
-blinds `observe` *and* starves `analyze` (machinery-degrading, one beat upstream of the ADR) — absent it,
-detection is outsourced to the end user (silent churn · no WHY · no artifact, #7). What's forced: `observe`
-**owns a sensor**; *coverage* is graded, hard-gated only at non-compensatory seams (not wholesale like
-`secure`). Coupling: **T1 = the loop's memory, T4 = its senses.** Deferred deep-dive parked as **T11**.
+**Roadmap (canvas §11 is the authoritative register — this is the ordered headline):**
 
-**T5 closed (iteration 31) — reflexivity admitted as a conditional second-order stone #9 (canvas §3).** A
-check is only worth the *information* it adds beyond the doer's belief, so a checker whose errors are
-*correlated* with the doer's is an echo-chamber (`verify` → *declare*). The property is **independence**;
-reflexivity is the brute fact it is never total — irreducible to #4 (joint vs marginal). Flagged
-**second-order** (about the solver, not the task) and **conditional**: it bites only in the automated
-autonomous multi-agent case — with a human escape-hatch it stays bounded, so **an autonomous loop cannot
-be its own ground truth.** Rippled through §2–§8 + §12; partly closes T6.
+1. **T6 — bedrock pressure-test. HELD FOR THE USER'S DECISION.** A full derivation draft exists
+   (sub-agent, iter 33) and was deliberately **not** folded in: doing so would renumber the bedrock and
+   formalize a "second-order" stone class. Sub-questions: is any stone reducible to another? further
+   candidates (*incentives* · *cost-asymmetry*)? The resume move is to put this decision to the user.
+2. **T11's three promotion forks** — (a) tamper-evident / append-only sensor: forced, or inherited from
+   `secure`? (b) emission-character ≙ temporal-type: law or analogy? (c) is graded/gated stable if
+   "#6-absent" is unknowable a-priori?
+3. **T2's light residue** — the fully-general, cross-domain gate-vs-graded seam rule (the observability
+   instance was settled by §10.9: *gate the per-seam binary, grade the aggregate*).
+4. **Beyond the ideal** — the **concrete-setup audit** (map a real stack against the ideal: mis-typed
+   gates, undefended stones, collapsible ceremony). Descoped by design; the natural follow-on project
+   once 1–3 close.
 
-**Active frontier — between tracks.** T1, T4, T5 are closed; next is the user's pick from canvas §11
-(T2 · T3 · T6 · T11, plus structural T7–T10).
-
-**All open work lives in canvas §11 — the "Open-tracks register" (T1–T11).** That register is the single
-source of what remains; read it there. Headlines:
-- **T1** `reflect` as a MUST-HAVE — **closed (iteration 29 → canvas §10.5)** · **T4**
-  observability-as-sensor — **closed (iteration 30 → canvas §10.6)**.
-- **T2** proxy-leaves graded-vs-gated (sharpened by T4) · **T3** stone-#5 change: regression + rollback ·
-  **T11** observability graded-vs-gated (deferred deep-dive, spun out of T4).
-- **T5** reflexivity — **closed (iter 31 → conditional 2nd-order stone #9, §3)** · **T6** bedrock
-  pressure-test (9th-stone sub-question now answered).
-- **T7–T10** structural backlog (implement/lifecycle · the orphaned `plan` · resilience-formula &
-  artifacts-diagram janitorial).
+**Resume move:** read canvas §11, put the **T6 decision** to the user (fold in / rework / drop the held
+draft), and continue Socratically from their pick. Do not fold T6 in unilaterally.
 
 ## 9. Notes & caveats
 
