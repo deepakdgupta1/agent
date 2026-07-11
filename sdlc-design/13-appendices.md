@@ -120,8 +120,8 @@ One table, the whole causal skeleton.
   glossary, and the stones matrix. *(Prior — iter-33→34: §7.1 the schedule bet, the four node-kinds in
   Chapter 7, §10.1 the change axis, §11.1 the silent-failure gate, §11.2 the convergent law, and the
   compact repertoires in Chapter 8.)*
-- **Source of the derivation.** Every claim here is derived, step by step, in the companion working file
-  [`sdlc-first-principles-canvas.md`](sdlc-first-principles-canvas.md), which also holds the audit trail
+- **Source of the derivation.** Every claim here is derived, step by step, in the companion
+  [canvas](index.html), which also holds the audit trail
   — the Socratic question-and-answer history, the iteration log, and the open-tracks register (§11
   there), which is the authoritative list of what remains. When you want to know *why* a piece is
   shaped the way it is, or *how* we got here, read the canvas; when you want to *understand the

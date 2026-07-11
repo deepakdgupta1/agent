@@ -5,8 +5,8 @@
 > why every piece is logically forced into existence rather than adopted by convention.* It covers
 > both the **human-run** lifecycle and the **autonomous / agentic** one (Chapter 12).
 >
-> This is the **design**, presented for comprehension. Its companion,
-> [`sdlc-first-principles-canvas.md`](sdlc-first-principles-canvas.md), is the **working derivation**
+> This is the **design**, presented for comprehension. Its companion, the
+> [canvas](index.html), is the **working derivation**
 > — the terse, evolving state file with the full audit trail of *how* we arrived here (the Socratic
 > Q&A, the iteration log, the open research tracks). When the two disagree, the canvas is the source
 > of truth for *reasoning*; this document is the source of truth for *understanding*.

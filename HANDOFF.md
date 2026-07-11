@@ -1,20 +1,22 @@
 # Handoff — SDLC First-Principles project
 
 _A living, Socratic, first-principles derivation of what makes a software-development
-lifecycle **reliable, predictable, resilient, and secure** — captured as one source-of-truth
-markdown file and a local dark-themed website that renders it live._
+lifecycle **reliable, predictable, resilient, and secure** — captured as a set of source-of-truth
+markdown files and a local dark-themed website that renders them live._
 
 Written for a **fresh Claude session** picking this up cold. Read this, then read the
-source-of-truth file.
+source-of-truth files.
 
 ---
 
 ## 1. Read these first, in order
 
-1. **`sdlc-first-principles-canvas.md`** — the **source of truth**. It contains the whole
-   derived model, an **`▶ RESUME INSTRUCTIONS`** section (the method — obey it), a
-   `§11 Current frontier` (where to resume), an iteration log, and the machine-readable
-   diagram data. The file is designed to be resumed from *by itself*.
+1. **The canvas — `sdlc-canvas/` (8 part files, listed in order in `sdlc-canvas.parts.json`)** —
+   the **source of truth**. Split by scope for maintainability, it holds the whole derived model,
+   an **`▶ RESUME INSTRUCTIONS`** section (the method — obey it; in `00-framing.md`), a
+   `§11 Current frontier` (where to resume; `04-frontier.md`), an iteration log
+   (`06-iteration-log.md`), and the machine-readable diagram data (`07-interactive-diagrams.md`).
+   It is designed to be resumed from *by itself*.
 2. **This file** (`HANDOFF.md`) — project map + how to run the website.
 3. Memory: `/Users/deepg/.claude/projects/-Users-deepg-Desktop-agent/memory/` →
    `socratic-first-principles-living-doc.md` (how the user likes to learn/architect).
@@ -23,10 +25,10 @@ source-of-truth file.
 
 | path | role |
 |---|---|
-| `sdlc-first-principles-canvas.md` | **source of truth for *reasoning*** — model, resume instructions, open-tracks register (§11), log, embedded diagram data |
-| `sdlc-design-document.md` | **source of truth for *understanding*** — the clean design snapshot (what/why/how prose, 21 inline charts, glossary, roadmap in Appendix C); regenerated from the canvas when the model advances. At **full iteration-35 parity** (design-doc fold-in done as canvas iter 36 — ten-stone bedrock, the second-order tier, #10 in the L0/bedrock/L4 charts) |
-| `index.html` | the canvas viewer — renders the canvas markdown live, hoists diagram blocks into one tabbed editable panel |
-| `sdlc-design.html` | the design doc's own viewer — charts inline in context, zoom-in/out chips, floating chart ladder |
+| `sdlc-canvas/` (8 parts) + `sdlc-canvas.parts.json` | **source of truth for *reasoning*** — the canvas, split by scope into 8 maintainable part files (framing · model · mechanism-of-Done · frontier · laws · iteration log · interactive-diagram data); the manifest lists them in order. Model, resume instructions, open-tracks register (§11), log, embedded diagram data |
+| `sdlc-design/` (14 parts) + `sdlc-design.parts.json` | **source of truth for *understanding*** — the clean design snapshot, split into **one file per chapter** (front-matter, ch1–12, appendices): what/why/how prose, 21 inline charts, glossary, roadmap in Appendix C. Regenerated from the canvas when the model advances; at **full iteration-35 parity** (fold-in done as canvas iter 36 — ten-stone bedrock, the second-order tier, #10 in the L0/bedrock/L4 charts) |
+| `index.html` | the canvas viewer — fetches the manifest, concatenates the parts, renders live, and hoists diagram blocks into one tabbed editable panel |
+| `sdlc-design.html` | the design viewer — same manifest-and-concatenate fetch; charts inline in context, zoom-in/out chips, floating chart ladder |
 | `.claude/launch.json` | preview server configs — **`canvas`** on port 4321, **`design`** on port 4330; either serves the whole folder, so both pages are reachable from either port |
 | `HANDOFF.md` | this file |
 
@@ -43,10 +45,12 @@ The page **must be served over http** (it `fetch()`es the markdown; `file://` is
 
 ## 4. What the website does
 
-- **Hot-linked content.** Fetches `sdlc-first-principles-canvas.md` with `cache:no-store` on
-  load and **polls every 3.5 s** (the *Auto-sync* toggle in the header). Edit the markdown and
-  the site updates within a few seconds; the *Refresh* button forces a reload. Auto-sync pauses
-  while you're renaming a node or in fullscreen so it never clobbers an in-progress edit.
+- **Hot-linked content.** Fetches the manifest (`sdlc-canvas.parts.json` or
+  `sdlc-design.parts.json`), then every part file it lists, and concatenates them in order — all
+  with `cache:no-store` — on load, and **polls every 3.5 s** (the *Auto-sync* toggle in the
+  header). Edit any part file and the site updates within a few seconds; the *Refresh* button
+  forces a reload. Auto-sync pauses while you're renaming a node or in fullscreen so it never
+  clobbers an in-progress edit.
 - **Rendering.** Markdown via `marked`; auto-built sidebar TOC + scrollspy, top progress bar,
   section reveal-on-scroll, dark "glass" styling.
 - **Interactive diagrams.** Any fenced ` ```pipeline-graph ` block in the markdown is *hoisted*
@@ -64,9 +68,10 @@ The page **must be served over http** (it `fetch()`es the markdown; `file://` is
 ### Persisting diagram edits back to the markdown
 In-browser edits are client-side/ephemeral. To make them permanent: click **⤓ Export** on a
 diagram → it copies a ` ```pipeline-graph ` block to the clipboard → paste it over the matching
-block in `sdlc-first-principles-canvas.md` (they live in the **"## Interactive diagrams"**
-appendix at the end of the file). This keeps "visuals regenerable from the file," which is the
-doc's stated philosophy.
+block in its **part file**. For the canvas, every diagram lives in
+`sdlc-canvas/07-interactive-diagrams.md` (the **"## Interactive diagrams"** section); for the
+design doc, each chart sits inline in its chapter file under `sdlc-design/`. This keeps "visuals
+regenerable from the file," which is the doc's stated philosophy.
 
 ## 5. Diagram data model (to add or change a diagram)
 
@@ -114,14 +119,14 @@ auto-firing checks; existence-gated) and **rollback** (graded, with the hard gat
 (§10.9); the lifecycle is a **projection** — `implement` = base act, `release` = seam — and **a plan is
 a schedule bet** (existence-gated baseline, graded dates) (§10.10). Capstone — the **convergent law**:
 every forced artifact is **existence-hard, fidelity-graded** — *plan : predictable :: ADR : reliable ::
-regression : resilient :: telemetry : observe* (§12). Full derivation is in the canvas file.
+regression : resilient :: telemetry : observe* (§12). Full derivation is in the canvas.
 
 ## 7. Method — DO NOT BREAK IT
 
 This is a **Socratic + first-principles + handholding** teaching journey. **Ask, let the user
 reason, then reflect/sharpen their answer and slot it into the model.** Do **not** lecture or
 hand over answers unless the user explicitly asks. After each meaningful step, **update the
-canvas file** — it, not the chat, is the source of truth. The canvas's `▶ RESUME
+canvas** — it, not the chat, is the source of truth. The canvas's `▶ RESUME
 INSTRUCTIONS` section is authoritative; follow it.
 
 ## 8. Where we are / what's next
@@ -150,7 +155,7 @@ bedrock pressure-test (T6) is now closed.**
   observability silent-failure gate (§10.9) · lifecycle-projection + plan-as-schedule-bet (§10.10).
 - **Capstone:** the **convergent law** — every forced artifact is *existence-hard, fidelity-graded*
   (plan : predictable :: ADR : reliable :: regression : resilient :: telemetry : observe).
-- **Docs:** `sdlc-design-document.md` is at **full iteration-35 parity** — the T6 fold-in landed as
+- **Docs:** the design doc (`sdlc-design/`) is at **full iteration-35 parity** — the T6 fold-in landed as
   canvas **iteration 36** (a documentation-parity pass): ten-stone bedrock, a "second-order tier" section
   (#9 first seat · #10 second seat), Ch 12 reworked to both seats, the L0/bedrock/L4 charts + glossary +
   stones-matrix + Appendix C all updated; all 21 charts validate. This file (`HANDOFF.md`) is current too.
