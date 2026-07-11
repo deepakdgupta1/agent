@@ -146,7 +146,7 @@ aside a.active{color:var(--fg);border-left-color:var(--accent);background:linear
   <div class="top-in">
     <div class="brand">
       <h1>SDLC <span class="grad">First-Principles</span> — Living Snapshot</h1>
-      <span class="sub">hot-linked to <code style="font-size:11px">sdlc-first-principles-canvas.md</code> · <span id="stamp">loading…</span></span>
+      <span class="sub">hot-linked to <code style="font-size:11px">sdlc-canvas/</code> (8 parts) · <span id="stamp">loading…</span></span>
     </div>
     <button class="hbtn" id="sync"><span class="dot live" id="syncdot"></span><span id="synctxt">Auto-sync on</span></button>
     <button class="hbtn" id="refresh">↻ Refresh</button>
@@ -170,7 +170,7 @@ aside a.active{color:var(--fg);border-left-color:var(--accent);background:linear
 
 <script>
 "use strict";
-const MD_FILE = 'sdlc-first-principles-canvas.md';
+const MANIFEST = 'sdlc-canvas.parts.json';
 const POLL_MS = 3500;
 let lastMd = null, autoSync = true, diagrams = [], activeTab = 0;
 
@@ -180,9 +180,18 @@ let toastT;
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
 
 async function fetchMd(){
-  const r = await fetch(MD_FILE + '?t=' + Date.now(), {cache:'no-store'});
-  if(!r.ok) throw new Error('HTTP ' + r.status + ' — is the site served over http://localhost ?');
-  return r.text();
+  // The document is split on disk into parts for maintainability. Fetch the
+  // manifest, then every part in order, and concatenate them into one markdown
+  // string — everything downstream renders exactly as it did for a single file.
+  const mr = await fetch(MANIFEST + '?t=' + Date.now(), {cache:'no-store'});
+  if(!mr.ok) throw new Error('HTTP ' + mr.status + ' on ' + MANIFEST + ' — is the site served over http://localhost ?');
+  const manifest = await mr.json();
+  const parts = await Promise.all((manifest.parts || []).map(async p=>{
+    const r = await fetch(p + '?t=' + Date.now(), {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP ' + r.status + ' on ' + p);
+    return (await r.text()).replace(/\n+$/, '');   // trim trailing newlines per part
+  }));
+  return parts.join('\n\n');                        // one blank line at every seam
 }
 function isBusy(){ return document.fullscreenElement || [...document.querySelectorAll('.lbl-edit')].some(e=>e.style.display==='block'); }
 
@@ -394,7 +403,7 @@ function resetDiagram(i){ const d=diagrams[i]; d.cy.destroy(); d.cy=null; initCy
 async function exportDiagram(i){
   const d=diagrams[i]; const spec=elsToSpec(d.cy,d.spec.title);
   const json='```pipeline-graph\n'+JSON.stringify(spec,null,2)+'\n```';
-  try{ await navigator.clipboard.writeText(json); toast('Copied — paste over the matching block in the .md'); }
+  try{ await navigator.clipboard.writeText(json); toast('Copied — paste over the matching block in its part file'); }
   catch(e){ console.log(json); toast('Copied to console (clipboard blocked)'); }
 }
 function toggleFull(i){
